@@ -1,4 +1,5 @@
 import Globals from "./globals.js";
+import Metaballs from "./metaballs.js";
 
 let numMuckyAlgae = 0;
 let gameCanEnd = false;
@@ -8,9 +9,8 @@ const algae = [];
 const foragers = [];
 const feeders = [];
 
-const game = document.querySelector("game");
+const game = Globals.game;
 const fade = game.querySelector("fade");
-const feederMetaballs = game.querySelector("#metaballs");
 
 /*
 public override void _Ready()
@@ -269,7 +269,44 @@ private void Reset()
 	tween.TweenProperty(fade, "visible", false, 0);
 }
 
-init();
+
 */
 
+const metaballs = Array(10).fill().map(_ => Array(4).fill(0));
+const groupOpacities = Array(3).fill(1);
+
+const updateMetaballs = (time) => {
+
+	// TODO: use actual data
+
+	for (let i = 0; i < 10; i++) {
+		const metaball = metaballs[i];
+		const pairing = Math.floor(i / 2);
+		let groupID = pairing % 3;
+		metaball[0] = (pairing * 0.2 + 0.1) * Globals.screenSize[0];
+		metaball[1] = (Math.sin(time * 0.003 + i) * 0.25 + 0.5) * Globals.screenSize[1];
+		metaball[2] = 15;
+		metaball[3] = groupID;
+	}
+
+	for (let i = 0; i < 3; i++) {
+		groupOpacities[i] = Math.cos(time * 0.003 + Math.PI * 2 * i / 3) * 0.5 + 0.5;
+	}
+};
+
+const startTime = performance.now();
+let lastTime = startTime;
+const update = (now) => {
+	const time = now - startTime;
+	const delta = time - lastTime;
+	lastTime = time;
+
+	// TODO: update everything
+	updateMetaballs(time);
+	Metaballs.update(metaballs, groupOpacities);
+	Metaballs.redraw();
+	requestAnimationFrame(update);
+};
+
+update(startTime);
 fade.classList.toggle("hidden", true);
