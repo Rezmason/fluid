@@ -1,228 +1,249 @@
-/*
-using System;
-using Godot;
-using System.Collections.Generic;
+import SceneNode from "./scenenode.js";
+import Globals from "./globals.js";
 
-public class Feeder
-{
-	private Color minSeedColor = Colors.Transparent;
-	private Color maxSeedColor = Colors.White;
-	private Vector2 bobDirection = Vector2.FromAngle((float)Math.PI * 0.16f);
+const {vec2} = glMatrix;
 
-	public const int maxAvailableSeeds = 40;
-	const float minSeedDist = 100;
-	const float minDist = 80;
-	const float margin = 50;
-	public float age;
-	public float availableSeeds;
-	public ulong throbStartTime;
-	public Node2D scene;
-	public Node2D art;
-	public Node2D fill;
-	private List<Feeder> children = new List<Feeder>();
-	public List<Feeder> elements = new List<Feeder>();
-	public Feeder parent;
-	public Vector2 velocity = Vector2.Zero;
-	public int Size => elements.Count;
-	private Tween opacityTween;
-	
+const bobDirection = vec2.create();
+vec2.rotate(bobDirection, vec2.fromValues(0, 1), vec2.create(), Math.PI * 0.16);
+
+const maxFeederSeeds = 40;
+const maxFeederSize = 3;
+const minSeedDist = 100;
+const minDist = 80;
+const margin = 50;
+
+class Feeder {
+
+	age;
+	numSeeds;
+	throbStartTime;
+	velocity = vec2.create();
+
+	elements = [];
+	parent;
+	#children = [];
+
+	scene;
+	art;
+
+	/*
 	static PackedScene feederArt = ResourceLoader.Load<PackedScene>("res://feeder.tscn");
-	
-	public Feeder(int id)
-	{
-		scene = new Node2D();
-		scene.Name = $"Feeder{id}";
-		art = (Node2D)feederArt.Instantiate();
-		scene.AddChild(art);
-		fill = art.GetNode<Node2D>("Fill");
+	*/
+
+	constructor(id) {
+		this.node = new SceneNode({name: `Feeder${id}`});
+		this.art = new SceneNode({}); // feederArt.Instantiate();
+		this.node.addChild(this.art);
 	}
-	
-	public void Reset()
-	{
-		foreach (var child in children) {
-			scene.RemoveChild(child.scene);
+
+	get size() {
+		return this.elements.length;
+	}
+
+	reset() {
+		for (const child of this.#children) {
+			this.node.removeChild(child.node);
 			child.parent = null;
 		}
-		children.Clear();
-		elements.Clear();
-		elements.Add(this);
-		art.Position = Vector2.Zero;
-		parent = null;
-		velocity = Vector2.Zero;
-		age = 0;
-		availableSeeds = 0;
-		throbStartTime = 0;
-
-		if (opacityTween != null) {
-			opacityTween.Stop();
-			opacityTween = null;
-		}
-		fill.Set("modulate", maxSeedColor);
+		this.#children.length = 0;
+		this.elements.length = 0;
+		this.elements.push(this);
+		/*
+		art.Position = vec2.fromValues(0, 0);
+		*/
+		this.parent = null;
+		this.velocity = vec2.fromValues(0, 0);
+		this.age = 0;
+		this.numSeeds = 0;
+		this.throbStartTime = 0;
 	}
 	
-	public bool TryToSeed(Alga alga)
-	{
-		if (Size < 3 || availableSeeds <= 0) return false;
-		var minSeedDistSquared = minSeedDist * minSeedDist;
-		if (scene.GlobalPosition.DistanceSquaredTo(alga.scene.GlobalPosition) > minSeedDistSquared) {
+	tryToSeed(alga) {
+		if (this.size < maxFeederSize || this.numSeeds <= 0) return false;
+		const minSeedDistSquared = minSeedDist * minSeedDist;
+		/*
+		if (scene.GlobalPosition.DistanceSquaredTo(alga.node.GlobalPosition) > minSeedDistSquared) {
 			return false;
 		}
+		*/
 
-		alga.Ripen();
-		availableSeeds--;
-		if (availableSeeds <= 0) {
-			Burst();
-		} else {
-			foreach (var feeder in elements) {
-				feeder.AnimateOpacity(availableSeeds / maxAvailableSeeds);
-			}
+		alga.ripen();
+		this.numSeeds--;
+		if (this.numSeeds <= 0) {
+			this.#burst();
 		}
 		return true;
 	}
 	
-	private void Burst()
-	{
-		var oldPosition = scene.GlobalPosition;
-		var artPositions = new List<Vector2>();
-		foreach (var feeder in elements) {
-			artPositions.Add(feeder.art.GlobalPosition);
+	#burst() {
+		/*
+		const oldPosition = scene.GlobalPosition;
+		*/
+		const artPositions = [];
+		for (const feeder of this.elements) {
+			/*
+			artPositions.push(feeder.art.GlobalPosition);
+			*/
 		}
 		
-		var parentNode = scene.GetParent();
-		foreach (var child in children) {
-			scene.RemoveChild(child.scene);
+		const parentNode = this.node.parent;
+		for (const child of this.#children) {
+			this.node.removeChild(child.node);
 			child.parent = null;
-			parentNode.AddChild(child.scene);
+			parentNode.addChild(child.node);
 		}
-		children.Clear();
+		this.#children.length = 0;
 		
-		for (int i = 0; i < 3; i++) {
-			var feeder = elements[i];
+		for (let i = 0; i < maxFeederSize; i++) {
+			const feeder = this.elements[i];
 			feeder.age = 0;
-			feeder.scene.GlobalPosition = artPositions[i];
+			/*
+			feeder.node.GlobalPosition = artPositions[i];
 			feeder.velocity = (artPositions[i] - oldPosition) * 6;
-			feeder.art.Position = Vector2.Zero;
+			feeder.art.Position = vec2.fromValues(0, 0);
+			*/
 		}
 		
-		foreach (var feeder in elements) {
-			feeder.AnimateOpacity(1);
-		}
+		this.elements.length = 0;
+		this.elements.push(this);
 		
-		elements.Clear();
-		elements.Add(this);
-		
-		availableSeeds = 0;
+		this.numSeeds = 0;
 	}
 	
-	public void AnimateOpacity(float amount) {
-		opacityTween = art.CreateTween()
-			.SetTrans(Tween.TransitionType.Quad)
-			.SetEase(Tween.EaseType.Out);
+	tryToCombine(other) {
+		if (this.size >= maxFeederSize) return false;
 		
-		var targetColor = minSeedColor.Lerp(maxSeedColor, amount);
-		opacityTween.TweenProperty(fill, "modulate", targetColor, 0.1f);
-	}
-	
-	public bool TryToCombine(Feeder other)
-	{
-		if (Size >= 3) return false;
-		
-		const float minDistSquared = minDist * minDist;
-		var otherGlobalPosition = other.art.GlobalPosition;
+		const minDistSquared = minDist * minDist;
+		/*
+		const otherGlobalPosition = other.art.GlobalPosition;
+		*/
 
-		foreach (var feeder in elements) {
+		for (const feeder of this.elements) {
+			/*
 			if (feeder.art.GlobalPosition.DistanceSquaredTo(otherGlobalPosition) > minDistSquared) {
 				return false;
 			}
+			*/
 		}
 
-		children.Add(other);
-		elements.Add(other);
+		this.#children.push(other);
+		this.elements.push(other);
 		other.parent = this;
 
-		velocity = (velocity * (Size - 1) + other.velocity) / Size;
-		other.velocity = Vector2.Zero;
+		/*
+		this.velocity = (this.velocity * (this.size - 1) + other.velocity) / this.size;
+		*/
+		other.velocity = vec2.fromValues(0, 0);
 		other.age = 0;
 
-		if (Size == 3) {
-			availableSeeds = maxAvailableSeeds;
-			throbStartTime = Time.GetTicksMsec();
+		if (this.size == maxFeederSize) {
+			this.numSeeds = maxFeederSeeds;
+			this.throbStartTime = performance.now();
 		}
 
-		var averageGlobalPosition = Vector2.Zero;
-		var artPositions = new List<Vector2>();
-		foreach (var feeder in elements) {
+		const averageGlobalPosition = vec2.fromValues(0, 0);
+		const artPositions = [];
+		for (const feeder of this.elements) {
+			/*
 			averageGlobalPosition += feeder.art.GlobalPosition;
-			artPositions.Add(feeder.art.GlobalPosition);
+			artPositions.push(feeder.art.GlobalPosition);
+			*/
 		}
-		averageGlobalPosition /= Size;
+		/*
+		averageGlobalPosition /= this.size;
+		*/
 
+		/*
 		scene.GlobalPosition = averageGlobalPosition;
-		other.scene.GetParent().RemoveChild(other.scene);
-		scene.AddChild(other.scene);
-		other.scene.Position = Vector2.Zero;
-		other.scene.Rotation = 0;
+		*/
+		other.node.parent.removeChild(other.node);
+		this.node.addChild(other.node);
+		/*
+		other.node.Position = vec2.fromValues(0, 0);
+		other.node.Rotation = 0;
+		*/
 
-		for (int i = 0; i < Size; i++) {
-			elements[i].art.GlobalPosition = artPositions[i];
+		for (let i = 0; i < this.size; i++) {
+			/*
+			this.elements[i].art.GlobalPosition = artPositions[i];
+			*/
 		}
 
 		return true;
 	}
 	
-	public void Update(float delta)
-	{
-		if (parent != null) return;
+	update(time, delta) {
+		if (this.parent != null) return;
 		
-		age += delta;
+		this.age += delta;
 
-		var oldPosition = scene.Position;
+		const oldPosition = scene.Position;
 		
-		var pushForce = Vector2.Zero;
+		let pushForce = vec2.fromValues(0, 0);
 		if (Globals.isMousePressed) {
-			var localPushPosition = Globals.mousePosition - scene.Position;
-			var force = 2000f / localPushPosition.LengthSquared();
+			const localPushPosition = vec2.create();
+			/*
+			vec2.sub(Globals.mousePosition, scene.Position);
+			const force = 2000 / vec2.sqrLen(localPushPosition);
 			if (force > 0.05) {
 				pushForce = -localPushPosition * force;
 			}
+			*/
 		}
 		
-		float mag = 10;
-		velocity += pushForce * mag * delta;
-		float bobVelocity = (float)Mathf.Sin((scene.Position.X + scene.Position.Y) * 0.006f + (double)Time.GetTicksMsec() * 0.001) * 3f;
-		scene.Position += (velocity + bobDirection * bobVelocity) * mag * delta;
-		scene.Position += Vector2.FromAngle((float)(Globals.random.NextDouble() * Math.PI)) * 0.1f;
-		velocity = velocity.Lerp(Vector2.Zero, 0.01f);
+		const mag = 10;
+		this.velocity += pushForce * mag * delta;
+		/*
+		const bobVelocity = Math.sin((scene.Position.X + scene.Position.Y) * 0.006 + time * 0.001) * 3;
+		scene.Position += (this.velocity + bobDirection * bobVelocity) * mag * delta;
+		scene.Position += Vector2.FromAngle((Math.random() * Math.PI)) * 0.1f;
+		this.velocity = this.velocity.Lerp(vec2.fromValues(0, 0), 0.01);
+		*/
 		
 		// Avoid the edges
 		{
-			var currentRadius = 50;
-			var currentMargin = (Globals.screenSize - Vector2.One * (margin + currentRadius)) / 2;
-			var goalPosition = scene.Position.Clamp(-currentMargin, currentMargin);
-			scene.Position = scene.Position.Lerp(goalPosition, 0.08f);
+			const currentRadius = 50;
+			/*
+			const currentMargin = (Globals.screenSize - Vector2.One * (margin + currentRadius)) / 2;
+			const goalPosition = scene.Position.Clamp(-currentMargin, currentMargin);
+			scene.Position = scene.Position.Lerp(goalPosition, 0.08);
+			*/
 		}
 
-		scene.GlobalRotation += ((oldPosition.X + oldPosition.Y) - (scene.Position.X + scene.Position.Y)) / Size * 0.005f;
+		/*
+		scene.GlobalRotation += ((oldPosition.X + oldPosition.Y) - (scene.Position.X + scene.Position.Y)) / this.size * 0.005;
+		*/
 		
-		if (Size == 2) {
-			foreach (var feeder in elements) {
-				var art = feeder.art;
-				var goalPosition = art.Position * (minDist / 2) / art.Position.Length();
-				art.Position = art.Position.Lerp(goalPosition, 0.2f);
+		if (this.size == 2) {
+			for (const feeder of this.elements) {
+				const art = feeder.art;
+				/*
+				const goalPosition = art.Position * (minDist / 2) / art.Position.Length();
+				art.Position = art.Position.Lerp(goalPosition, 0.2);
+				*/
 			}
-		} else if (Size == 3) {
-			var averagePosition = (
-				elements[0].art.Position +
-				elements[1].art.Position +
-				elements[2].art.Position
-			) / 3;
-			foreach (var feeder in elements) {
-				var art = feeder.art;
-				var goalPosition = art.Position - averagePosition;
+		} else if (this.size == maxFeederSize) {
+			/*
+			const averagePosition = (
+				this.elements[0].art.Position +
+				this.elements[1].art.Position +
+				this.elements[2].art.Position
+			) / maxFeederSize;
+			*/
+			for (const feeder of this.elements) {
+				const art = feeder.art;
+				/*
+				const goalPosition = art.Position - averagePosition;
 				goalPosition *= (minDist / 2) / goalPosition.Length();
-				art.Position = art.Position.Lerp(goalPosition, 0.2f);
+				art.Position = art.Position.Lerp(goalPosition, 0.2);
+				*/
 			}
 		}
 	}
 }
-*/
+
+export {
+	maxFeederSize,
+	maxFeederSeeds,
+	Feeder
+};

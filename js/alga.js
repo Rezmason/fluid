@@ -1,160 +1,169 @@
-/*
-using Godot;
-using System;
-using System.Collections.Generic;
+import SceneNode from "./scenenode.js";
+import Globals from "./globals.js";
 
-public class Alga 
-{
-	public Node2D scene;
-	public Node2D art;
-	public Node2D muck;
-	public HashSet<Alga> neighbors = new HashSet<Alga>();
+const {vec2} = glMatrix;
 
-	private AnimationTree fruitAnimation;
+export default class Alga {
+	scene;
+	art;
+	muck;
 
+	neighbors = [];
+	ripe = false;
+	mucky = false;
+	restingPosition;
+	goalPosition;
+	occupant = null;
+
+	#fruitAnimation;
+	#muckTween;
+	#fruitTween;
+
+	/*
 	static PackedScene algaArt = ResourceLoader.Load<PackedScene>("res://alga.tscn");
+	*/
 
-	public bool ripe = false;
-	public bool mucky = false;
-	public Vector2 restingPosition;
-	public Vector2 goalPosition;
-	public Forager occupant = null;
+	constructor(row, column, position) {
+		this.node = new SceneNode({name: `Alga${row}_{column`});
 
-	private Tween muckTween;
-	private Tween fruitTween;
+		this.restingPosition = vec2.clone(position);
+		this.goalPosition = vec2.clone(position);
+		/*
+		this.node.Position = vec2.clone(position);
+		*/
 
-	public Alga(int row, int column, Vector2 position)
-	{
-		scene = new Node2D();
-		scene.Name = $"Alga{row}_{column}";
+		this.art = new SceneNode({}); // algaArt.Instantiate();
+		this.node.addChild(this.art);
+		/*
+		this.#fruitAnimation = this.art.GetNode<AnimationTree>("AnimationTree");
+		*/
 
-		restingPosition = position;
-		goalPosition = position;
-		this.scene.Position = position;
-
-		art = (Node2D)algaArt.Instantiate();
-		fruitAnimation = art.GetNode<AnimationTree>("AnimationTree");
-		scene.AddChild(art);
-
-		muck = art.GetNode<Node2D>("Muck");
-		muck.Set("modulate", new Color(1, 1, 1, 0));
-		muck.Set("scale", new Vector2(0, 0));
-		muck.Visible = false;
+		this.muck = new SceneNode({});
+		this.art.addChild(this.muck);
+		/*
+		this.muck = this.art.GetNode<Node2D>("Muck");
+		this.muck.Set("modulate", new Color(1, 1, 1, 0));
+		this.muck.Set("scale", vec2.fromValues(0, 0));
+		this.muck.Visible = false;
+		*/
 	}
 
-	public void Reset()
-	{
-		mucky = false;
-		ripe = false;
-		if (occupant != null) {
-			scene.RemoveChild(occupant.scene);
-			occupant = null;
-		}
-
-		if (muckTween != null) {
-			muckTween.Stop();
-			muckTween = null;
-		}
-
-		if (fruitTween != null) {
-			fruitTween.Stop();
-			fruitTween = null;
-		}
-
-		muck.Visible = false;
-		muck.Position = Vector2.Zero;
-		muck.Modulate = new Color("white");
-
-		fruitAnimation.Set("parameters/FruitBlend/blend_position", Vector2.Zero);
-		art.Position = Vector2.Zero;
+	get occupied() {
+		return this.occupant != null;
 	}
 
-	private void AnimateMuck()
-	{
-		muck.Visible = true;
-		muckTween = muck.CreateTween().SetParallel(true)
+	reset() {
+		this.mucky = false;
+		this.ripe = false;
+		if (this.occupant != null) {
+			this.node.removeChild(this.occupant.node);
+			this.occupant = null;
+		}
+
+		if (this.#muckTween != null) {
+			/*
+			this.#muckTween.Stop();
+			*/
+			this.#muckTween = null;
+		}
+
+		if (this.#fruitTween != null) {
+			/*
+			this.#fruitTween.Stop();
+			*/
+			this.#fruitTween = null;
+		}
+
+		/*
+		this.muck.Visible = false;
+		this.muck.Position = vec2.fromValues(0, 0);
+		this.muck.Modulate = new Color("white");
+
+		this.#fruitAnimation.Set("parameters/FruitBlend/blend_position", vec2.fromValues(0, 0));
+		this.art.Position = vec2.fromValues(0, 0);
+		*/
+	}
+
+	#animateMuck() {
+		/*
+		this.muck.Visible = true;
+		this.#muckTween = this.muck.CreateTween().SetParallel(true)
 			.SetTrans(Tween.TransitionType.Quad)
 			.SetEase(Tween.EaseType.Out);
-		var duration = 0.3f;
-		float isHere = mucky ? 1 : 0;
-		muckTween.TweenProperty(muck, "position", new Vector2(0, 0), duration);
-		muckTween.TweenProperty(muck, "scale", new Vector2(isHere, isHere), duration);
-		muckTween.TweenProperty(muck, "modulate", new Color(1, 1, 1, isHere), duration);
-		muckTween.TweenProperty(muck, "visible", mucky, duration);
+		const duration = 0.3;
+		const isHere = this.mucky ? 1 : 0;
+		this.#muckTween.TweenProperty(this.muck, "position", vec2.fromValues(0, 0), duration);
+		this.#muckTween.TweenProperty(this.muck, "scale", vec2.fromValues(isHere, isHere), duration);
+		this.#muckTween.TweenProperty(this.muck, "modulate", new Color(1, 1, 1, isHere), duration);
+		this.#muckTween.TweenProperty(this.muck, "visible", this.mucky, duration);
+		*/
 	}
 
-	public bool Occupied => occupant != null;
-
-	private void AnimateFruit()
-	{
-		fruitTween = art.CreateTween();
-		fruitTween.TweenProperty(fruitAnimation, "parameters/FruitBlend/blend_position",
-			new Vector2(
-				mucky ? 1 : 0,
-				ripe ? 1 : 0
-			), 0.5f
+	#animateFruit() {
+		/*
+		fruitTween = this.art.CreateTween();
+		fruitTween.TweenProperty(this.#fruitAnimation, "parameters/FruitBlend/blend_position",
+			vec2.fromValues(
+				this.mucky ? 1 : 0,
+				this.ripe ? 1 : 0
+			), 0.5
 		)
 		.SetTrans(Tween.TransitionType.Quad)
 		.SetEase(Tween.EaseType.Out);
+		*/
 	}
 
-	public void Ripen()
-	{
-		if (!ripe && occupant == null) {
-			ripe = true;
-			AnimateFruit();
+	ripen() {
+		if (!this.ripe && this.occupant == null) {
+			this.ripe = true;
+			this.#animateFruit();
 		}
 	}
 
-	public void Eat()
-	{
-		if (ripe) {
-			ripe = false;
-			mucky = false;
-			AnimateMuck();
-			AnimateFruit();
-			Globals.MuckChanged(this);
+	eat() {
+		if (this.ripe) {
+			this.ripe = false;
+			this.mucky = false;
+			this.#animateMuck();
+			this.#animateFruit();
+			Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
 		}
 	}
 
-	private void WaitToSpreadMuck()
-	{
-		Globals.GetTimer(Globals.random.NextDouble() * 3 + 1, () => {
-			if (!mucky) return;
-			if (Globals.random.NextDouble() < 0.25) SpreadMuck();
-			WaitToSpreadMuck();
-		});
+	#waitToSpreadMuck() {
+		setTimeout(
+			() => {
+				if (!this.mucky) return;
+				if (Math.random() < 0.25) this.spreadMuck();
+				this.#waitToSpreadMuck();
+			},
+			Math.random() * 3 + 1
+		);
 	}
 
-	public void SpreadMuck()
-	{
-		var cleanNeighbor = Alga.GetRandomNeighbor(this, neighbor => !neighbor.mucky);
+	spreadMuck() {
+		const cleanNeighbor = getRandomNeighbor(this, neighbor => !neighbor.mucky);
 		if (cleanNeighbor != null) {
-			cleanNeighbor.ReceiveMuckFrom(scene.GlobalPosition);
+			/*
+			cleanNeighbor.#receiveMuckFrom(this.node.GlobalPosition);
+			*/
 		}
 	}
 
-	private void ReceiveMuckFrom(Vector2 origin)
-	{
-		mucky = true;
-		muck.GlobalPosition = origin;
-		AnimateMuck();
-		AnimateFruit();
-		Globals.MuckChanged(this);
-		WaitToSpreadMuck();
+	#receiveMuckFrom(origin) {
+		this.mucky = true;
+		/*
+		this.muck.GlobalPosition = origin;
+		*/
+		this.#animateMuck();
+		this.#animateFruit();
+		Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
+		this.#waitToSpreadMuck();
 	}
 
-	public static Alga GetRandomNeighbor(Alga alga, Predicate<Alga> pred = null)
-	{
-		var candidates = new List<Alga>();
-		foreach (var neighbor in alga.neighbors)
-		{
-			if (pred == null || pred(neighbor)) {
-				candidates.Add(neighbor);
-			}
-		}
-		if (candidates.Count == 0) return null;
-		return candidates[Globals.random.Next(candidates.Count)];
+	static getRandomNeighbor(alga, pred = null) {
+		const candidates = pred == null ? alga.neighbors : alga.neighbors.filter(pred);
+		if (candidates.length == 0) return null;
+		return candidates[Math.random(candidates.length)];
 	}
-}
-*/
+};

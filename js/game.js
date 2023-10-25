@@ -1,8 +1,14 @@
+import SceneNode from "./scenenode.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
+import Alga from "./alga.js";
+import {Feeder, maxFeederSize, maxFeederSeeds} from "./feeder.js";
+import Forager from "./forager.js";
 
-const {vec4} = glMatrix;
+import {lerp} from "./utils.js";
+
+const {vec2, vec4} = glMatrix;
 
 let numMuckyAlgae = 0;
 let gameCanEnd = false;
@@ -11,225 +17,126 @@ let resetting = false;
 const algae = [];
 const foragers = [];
 const feeders = [];
+const root = new SceneNode();
 
 const game = Globals.game;
 const fade = game.querySelector("fade");
 
-/*
-public override void _Ready()
-{
-	Globals.MuckChanged += DetectEndgame;
-	feederMetaballs = (ShaderMaterial)GetNode<CanvasItem>("FeederMetaballs").Material;
+game.addEventListener("mousedown", ({button}) => {
+	if (button === 0) Globals.isMousePressed = true;
+});
+game.addEventListener("mouseup", ({button}) => {
+	if (button === 0) Globals.isMousePressed = false;
+});
+game.addEventListener("mouseleave", () => Globals.isMousePressed = false);
+game.addEventListener("mousemove", ({x, y}) => {
+	vec2.set(Globals.mousePosition, x, y);
 
-	SpawnAlgae();
-	SpawnForagers();
-	SpawnFeeders();
-
-	var emptyColor = new Color(Colors.Black, 0);
-	for (int i = 0; i < 10; i++) {
-		metaballData[i] = emptyColor;
-	}
-	for (int i = 0; i < 3; i++) {
-		metaballGroupData[i] = Colors.White;
-	}
-
-	var tween = fade.CreateTween()
-		.SetTrans(Tween.TransitionType.Quad)
-		.SetEase(Tween.EaseType.Out);
-	tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 0), 5);
-	tween.TweenProperty(fade, "visible", false, 0);
-}
-
-public override void _UnhandledInput(InputEvent inputEvent)
-{
-	if (inputEvent is InputEventMouse mouseEvent) {
-		Globals.isMousePressed = (mouseEvent.ButtonMask & MouseButtonMask.Left) == MouseButtonMask.Left;
-		Globals.mousePosition = GetLocalMousePosition();
-
-		foreach (var alga in algae) {
-			if (alga.mucky || !Globals.isMousePressed) {
-				alga.goalPosition = alga.restingPosition;
-			} else {
-				var localPushPosition = Globals.mousePosition - alga.restingPosition;
-				float offset = -localPushPosition.Length() / 50;
-				offset *= Mathf.Pow(3, offset);
-				alga.goalPosition = alga.restingPosition + localPushPosition * offset;
-			}
-		}
-	}
-}
-
-public override void _Process(Double delta)
-{
-	float fDelta = (float)delta;
-	foreach (var feeder in feeders) {
-		feeder.Update(fDelta);
-	}
-
-	var seedingFeeders = new List<Feeder>();
-
-	const float minAge = 3;
-
-	for (int i = 0; i < feeders.Count; i++) {
-		var feeder = feeders[i];
-		if (feeder.parent != null || feeder.age < minAge) continue;
-		if (feeder.Size >= 3) {
-			seedingFeeders.Add(feeder);
+	for (const alga of algae) {
+		if (alga.mucky || !Globals.isMousePressed) {
+			vec2.clone(alga.goalPosition, alga.restingPosition);
 		} else {
-			for (int j = i + 1; j < feeders.Count; j++) {
-				var other = feeders[j];
-				if (other.parent != null || other.age < minAge || feeder.Size + other.Size > 3) continue;
-				if (feeder.Size >= other.Size) {
-					if (feeder.TryToCombine(other)) break;
-				} else {
-					if (other.TryToCombine(feeder)) break;
-				}
-			}
+			const localPushPosition = vec2.create();
+			vec2.sub(localPushPosition, Globals.mousePosition, alga.restingPosition);
+			let offset = -vec2.length(localPushPosition) / 50;
+			offset *= Math.pow(3, offset);
+			/*
+			alga.goalPosition = alga.restingPosition + localPushPosition * offset;
+			*/
 		}
 	}
+});
 
-	int n = 0;
-	int f = 1;
-	ulong now = Time.GetTicksMsec();
-	metaballGroupData[0] = Colors.White;
-	foreach (var feeder in feeders) {
-		if (feeder.parent != null) continue;
-		int groupID = 0;
-		float throb = 0;
-		float throbTime = 0;
-		if (feeder.availableSeeds > 0) {
-			groupID = f;
-			float opacity = feeder.availableSeeds / Feeder.maxAvailableSeeds;
-			// opacity = 1 - Mathf.Pow(1 - opacity, 2);
-			opacity = Mathf.Lerp(metaballGroupData[groupID].R, opacity, 0.1f);
-			metaballGroupData[groupID] = new Color(opacity, 0, 0, 0);
-			f++;
-			throb = 7;
-			throbTime = (float)(now - feeder.throbStartTime) / 1000;
-		}
-		int i = 0;
-		foreach (var element in feeder.elements) {
-			var position = element.art.GlobalPosition;
-			metaballData[n] = new Color(position.X, position.Y, 15 + throb * (Mathf.Sin((i * (float)Math.PI * 2 / 3) + throbTime * 4) * 0.5f + 0.5f), groupID);
-			n++;
-			i++;
-		}
-	}
-	for (; f < 3; f++) {
-		metaballGroupData[f] = Colors.White;
-	}
-
-	feederMetaballs.SetShaderParameter("metaballs", metaballData);
-	feederMetaballs.SetShaderParameter("metaballGroups", metaballGroupData);
-
-	foreach (var alga in algae) {
-		alga.scene.Position = alga.scene.Position.Lerp(alga.goalPosition, 0.1f);
-
-		if (alga.ripe || alga.occupant != null) continue;
-
-		foreach (var feeder in seedingFeeders) {
-			if (feeder.Size == 3 && feeder.TryToSeed(alga)) break;
-		}
-	}
-}
-
-private void SpawnAlgae()
-{
-	List<List<Alga>> grid = new List<List<Alga>>();
-
-	const int numRows = 9, numColumns = 10;
-	var spacing = new Vector2(110, 90);
-	for (int i = 0; i < numRows; i++) {
-		var rowOffset = new Vector2(1 - (numColumns - i % 2), 1 - numRows) / 2;
-		var row = new List<Alga>();
-		for (int j = 0; j < numColumns; j++) {
+const spawnAlgae = () => {
+	const grid = [];
+	const numRows = 9, numColumns = 10;
+	const spacing = vec2.fromValues(110, 90);
+	for (let i = 0; i < numRows; i++) {
+		const rowOffset = vec2.fromValues(1 - (numColumns - i % 2), 1 - numRows) / 2;
+		const row = [];
+		for (let j = 0; j < numColumns; j++) {
 			if (i % 2 == 1 && j == numColumns - 1) {
-				row.Add(null);
+				row.push(null);
 				continue;
 			}
-			var alga = new Alga(grid.Count, row.Count, (new Vector2(j, i) + rowOffset) * spacing);
-			row.Add(alga);
-			algae.Add(alga);
-			AddChild(alga.scene);
-			alga.Reset();
+			const alga = new Alga(grid.length, row.length, (vec2.fromValues(j, i) + rowOffset) * spacing);
+			row.push(alga);
+			algae.push(alga);
+			root.addChild(alga.node);
+			alga.reset();
 		}
-		grid.Add(row);
+		grid.push(row);
 	}
 
-	void ConnectNeighbors(Alga l1, Alga l2) {
+	const connectNeighbors = (l1, l2) => {
 		if (l1 == null || l2 == null) return;
-		l1.neighbors.Add(l2);
-		l2.neighbors.Add(l1);
-	}
+		l1.neighbors.push(l2);
+		l2.neighbors.push(l1);
+	};
 
-	for (int i = 0; i < numRows; i++) {
-		for (int j = 0; j < numColumns; j++) {
-			var alga = grid[i][j];
+	for (let i = 0; i < numRows; i++) {
+		for (let j = 0; j < numColumns; j++) {
+			const alga = grid[i][j];
 			if (alga == null) continue;
 			if (j > 0) {
-				ConnectNeighbors(alga, grid[i][j - 1]);
+				connectNeighbors(alga, grid[i][j - 1]);
 			}
 			if (i > 0) {
-				ConnectNeighbors(alga, grid[i - 1][j]);
-				int j2 = j + (i % 2) * 2 - 1;
+				connectNeighbors(alga, grid[i - 1][j]);
+				const j2 = j + (i % 2) * 2 - 1;
 				if (j2 >= 0) {
-					ConnectNeighbors(alga, grid[i - 1][j2]);
+					connectNeighbors(alga, grid[i - 1][j2]);
 				}
 			}
 		}
 	}
 }
 
-private void SpawnForagers()
-{
-	const int numForagers = 2;
-	for (int i = 0; i < numForagers; i++) {
-		foragers.Add(new Forager(foragers.Count));
+const spawnForagers = () => {
+	const numForagers = 2;
+	for (let i = 0; i < numForagers; i++) {
+		foragers.push(new Forager(i));
 	}
-	ResetForagers();
+	resetForagers();
 }
 
-private void SpawnFeeders()
-{
-	const int numFeeders = 7;
-	for (int i = 0; i < numFeeders; i++) {
-		var feeder = new Feeder(feeders.Count);
-		feeders.Add(feeder);
+const spawnFeeders = () => {
+	const numFeeders = 7;
+	for (let i = 0; i < numFeeders; i++) {
+		feeders.push(new Feeder(i));
 	}
-	ResetFeeders();
+	resetFeeders();
 }
 
-private void ResetForagers()
-{
-	foreach (var forager in foragers) {
-		var alga = algae[Globals.random.Next(algae.Count)];
+const resetForagers = () => {
+	for (const forager of foragers) {
+		const alga = algae[Math.floor(Math.random() * algae.length)];
 		while (alga.occupant != null) {
-			alga = algae[Globals.random.Next(algae.Count)];
+			alga = algae[Math.floor(Math.random() * algae.length)];
 		}
-		forager.Reset();
-		forager.Place(alga);
+		forager.reset();
+		forager.place(alga);
 	}
 }
 
-private void ResetFeeders()
-{
-	foreach (var feeder in feeders)
-	{
-		feeder.Reset();
-		AddChild(feeder.scene);
-		feeder.scene.GlobalPosition = new Vector2(
-			(float)Globals.random.NextDouble() - 0.5f,
-			(float)Globals.random.NextDouble() - 0.5f
+const resetFeeders = () => {
+	for (const feeder of feeders) {
+		feeder.reset();
+		root.addChild(feeder.node);
+		/*
+		feeder.node.GlobalPosition = vec2.fromValues(
+			Math.random() - 0.5,
+			Math.random() - 0.5
 		) * Globals.screenSize;
-		feeder.velocity = new Vector2(
-			(float)Globals.random.NextDouble() - 0.5f,
-			(float)Globals.random.NextDouble() - 0.5f
+		feeder.velocity = vec2.fromValues(
+			Math.random() - 0.5,
+			Math.random() - 0.5
 		) * 200;
+		*/
 	}
 }
 
-private void DetectEndgame(Alga alga)
-{
+const detectEndgame = (alga) => {
 	if (resetting) return;
 
 	if (alga.mucky) {
@@ -240,48 +147,86 @@ private void DetectEndgame(Alga alga)
 
 	if (gameCanEnd) {
 		if (numMuckyAlgae == 0) {
-			Reset();
-		} else if ((float)numMuckyAlgae / algae.Count > 0.6) {
-			Reset();
+			reset();
+		} else if (numMuckyAlgae / algae.length > 0.6) {
+			reset();
 		}
 	} else if (!resetting && numMuckyAlgae >= 3) {
 		gameCanEnd = true;
 	}
 }
 
-private void Reset()
-{
+const reset = () => {
 	resetting = true;
 	gameCanEnd = false;
+
+	const completeReset = () => {
+		for (const alga of algae) {
+			alga.reset();
+		}
+		resetForagers();
+		resetFeeders();
+		numMuckyAlgae = 0;
+		resetting = false;
+	};
+	/*
 	fade.Visible = true;
-	var tween = fade.CreateTween()
+	const tween = fade.CreateTween()
 		.SetTrans(Tween.TransitionType.Quad);
 	tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 1), 5)
 		.SetEase(Tween.EaseType.In);
-	tween.TweenCallback(Callable.From(() => {
-		foreach (var alga in algae) {
-			alga.Reset();
-		}
-		ResetForagers();
-		ResetFeeders();
-		numMuckyAlgae = 0;
-		resetting = false;
-	}));
+	tween.TweenCallback(Callable.From(completeReset));
 	tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 0), 5)
 		.SetEase(Tween.EaseType.Out);
 	tween.TweenProperty(fade, "visible", false, 0);
+	*/
 }
-
-
-*/
 
 const metaballs = Array(10).fill().map(_ => Array(4).fill().map(_ => vec4.create()));
 const groupOpacities = Array(3).fill(1);
 
 const updateMetaballs = (time) => {
 
-	// TODO: use actual data
+	let n = 0;
+	let f = 1;
 
+	groupOpacities[0] = 1;
+	for (const feeder of feeders) {
+		if (feeder.parent != null) continue;
+		let groupID = 0;
+		let throb = 0;
+		let throbTime = 0;
+		if (feeder.numSeeds > 0) {
+			groupID = f;
+			let opacity = feeder.numSeeds / maxFeederSeeds;
+			// opacity = 1 - Mathf.Pow(1 - opacity, 2);
+			opacity = lerp(groupOpacities[groupID], opacity, 0.1);
+			groupOpacities[groupID] = opacity;
+			f++;
+			throb = 7;
+			throbTime = (time - feeder.throbStartTime) / 1000;
+		}
+		let i = 0;
+		for (const element of feeder.elements) {
+			/*
+			const position = element.art.GlobalPosition;
+			metaballData[n] = new Color(
+				position.X,
+				position.Y,
+				15 + throb * (Mathf.Sin((i * Math.PI * 2 / 3) + throbTime * 4) * 0.5 + 0.5),
+				groupID
+			);
+			*/
+			n++;
+			i++;
+		}
+	}
+
+	for (; f < 3; f++) {
+		groupOpacities[f] = 1;
+	}
+
+	/*
 	for (let i = 0; i < 10; i++) {
 		const metaball = metaballs[i];
 		const pairing = Math.floor(i / 2);
@@ -297,6 +242,7 @@ const updateMetaballs = (time) => {
 	for (let i = 0; i < 3; i++) {
 		groupOpacities[i] = Math.cos(time * 0.003 + Math.PI * 2 * i / 3) * 0.5 + 0.5;
 	}
+	*/
 };
 
 const startTime = performance.now();
@@ -306,12 +252,55 @@ const update = (now) => {
 	const delta = time - lastTime;
 	lastTime = time;
 
-	// TODO: update everything
+	for (const feeder of feeders) {
+		feeder.update(time, delta);
+	}
+
+	const seedingFeeders = [];
+	const minAge = 3;
+	for (let i = 0; i < feeders.length; i++) {
+		var feeder = feeders[i];
+		if (feeder.parent != null || feeder.age < minAge) continue;
+		if (feeder.size >= maxFeederSize) {
+			seedingFeeders.push(feeder);
+		} else {
+			for (let j = i + 1; j < feeders.length; j++) {
+				var other = feeders[j];
+				if (other.parent != null || other.age < minAge || feeder.size + other.size > maxFeederSize) continue;
+				if (feeder.size >= other.size) {
+					if (feeder.tryToCombine(other)) break;
+				} else {
+					if (other.tryToCombine(feeder)) break;
+				}
+			}
+		}
+	}
+
 	updateMetaballs(time);
+
+	for (const alga of algae) {
+		/*
+		alga.node.Position = alga.node.Position.Lerp(alga.goalPosition, 0.1);
+		*/
+
+		if (alga.ripe || alga.occupant != null) continue;
+
+		for (const feeder of seedingFeeders) {
+			if (feeder.size == maxFeederSize && feeder.tryToSeed(alga)) break;
+		}
+	}
 	Metaballs.update(metaballs, groupOpacities);
 	Metaballs.redraw();
 	requestAnimationFrame(update);
 };
+
+/*
+Globals.MuckChanged += DetectEndgame;
+*/
+
+spawnAlgae();
+spawnForagers();
+spawnFeeders();
 
 update(startTime);
 fade.classList.toggle("hidden", true);

@@ -1,100 +1,112 @@
-/*
-using Godot;
-using System;
+import SceneNode from "./scenenode.js";
+import Globals from "./globals.js";
+import Alga from "./alga.js";
 
-public class Forager
-{
-	public Node2D scene;
-	public Node2D art;
-	private Clicker clicker;
-	public Alga alga;
-	Tween jumpTween;
+export default class Forager {
+	scene;
+	art;
+	alga;
 
+	#jumpTween;
+
+	/*
 	static PackedScene foragerArt = ResourceLoader.Load<PackedScene>("res://forager.tscn");
+	*/
 
-	public Forager(int id)
-	{
-		scene = new Node2D();
-		scene.Name = $"Forager{id}";
-		art = (Node2D)foragerArt.Instantiate();
-		scene.AddChild(art);
-		clicker = new Clicker(art.GetNode<Area2D>("Area2D"), () => alga.SpreadMuck());
+	constructor(id) {
+		this.node = new SceneNode({name: `Forager${id}`});
+		this.art = new SceneNode({}); // foragerArt.Instantiate();
+		this.node.addChild(this.art);
+		/*
+		clicker = new Clicker(this.art.GetNode<Area2D>("Area2D"), () => this.alga.SpreadMuck());
+		*/
 	}
 
-	public void Reset()
-	{
-		if (jumpTween != null) {
-			jumpTween.Stop();
-			jumpTween = null;
+	reset() {
+		if (this.#jumpTween != null) {
+			/*
+			this.#jumpTween.Stop();
+			*/
+			this.#jumpTween = null;
 		}
 	}
 
-	public void Place(Alga alga)
-	{
+	place(alga) {
 		alga.occupant = this;
 		this.alga = alga;
-		alga.scene.AddChild(scene);
-		scene.LookAt(Alga.GetRandomNeighbor(alga).scene.GlobalPosition);
-		WaitToJump();
+		this.alga.node.addChild(this.node);
+		/*
+		this.node.LookAt(Alga.getRandomNeighbor(this.alga).node.GlobalPosition);
+		*/
+		this.#waitToJump();
 	}
 
-	private void WaitToJump()
-	{
-		Globals.GetTimer(Globals.random.NextDouble() * 1.5f + 0.5f, Jump);
+	#waitToJump() {
+		setTimeout( () => this.#jump(), Math.random()  * 1.5 + 0.5 );
 	}
 
-	private void Jump()
-	{
-		jumpTween = scene.CreateTween();
-		var startAngle = scene.GlobalRotation;
-		scene.Rotation = startAngle;
+	#jump() {
+		/*
+		this.#jumpTween = this.node.CreateTween();
+		const startAngle = this.node.GlobalRotation;
+		this.node.Rotation = startAngle;
+		*/
 
-		var nextAlga = Alga.GetRandomNeighbor(alga, neighbor => !neighbor.Occupied && neighbor.ripe && neighbor.mucky);
+		let nextAlga = Alga.getRandomNeighbor(this.alga, neighbor => !neighbor.occupied && neighbor.ripe && neighbor.mucky);
 
 		if (nextAlga == null) {
-			nextAlga = Alga.GetRandomNeighbor(alga, neighbor => !neighbor.Occupied && neighbor.ripe);
+			nextAlga = Alga.getRandomNeighbor(this.alga, neighbor => !neighbor.occupied && neighbor.ripe);
 		}
 
 		if (nextAlga != null) {
-			var oldAlga = alga;
-			alga = nextAlga;
+			const oldAlga = this.alga;
+			this.alga = nextAlga;
 			oldAlga.occupant = null;
-			alga.occupant = this;
+			this.alga.occupant = this;
 
-			var angleToAlga = oldAlga.scene.GetAngleTo(alga.scene.GlobalPosition);
-			if (angleToAlga - startAngle >  Math.PI) angleToAlga -= (float)Math.PI * 2;
-			if (angleToAlga - startAngle < -Math.PI) angleToAlga += (float)Math.PI * 2;
+			/*
+			const angleToAlga = oldAlga.node.GetAngleTo(this.alga.node.GlobalPosition);
+			if (angleToAlga - startAngle >  Math.PI) angleToAlga -= Math.PI * 2;
+			if (angleToAlga - startAngle < -Math.PI) angleToAlga += Math.PI * 2;
+			*/
 
-			var position = scene.GlobalPosition;
-			oldAlga.scene.RemoveChild(scene);
-			alga.scene.AddChild(scene);
-			scene.GlobalPosition = position;
+			/*
+			const position = this.node.GlobalPosition;
+			*/
+			oldAlga.node.removeChild(this.node);
+			this.alga.node.addChild(this.node);
+			/*
+			this.node.GlobalPosition = position;
+			*/
 
-			jumpTween.SetParallel(true);
+			/*
+			this.#jumpTween.SetParallel(true);
 
-			jumpTween.TweenProperty(scene, "rotation", angleToAlga, 0.1f)
+			this.#jumpTween.TweenProperty(this.node, "rotation", angleToAlga, 0.1)
 				.SetTrans(Tween.TransitionType.Quad)
 				.SetEase(Tween.EaseType.Out);
-			jumpTween.TweenProperty(scene, "position", new Vector2(0, 0), 0.3f)
+			this.#jumpTween.TweenProperty(this.node, "position", vec2.fromValues(0, 0), 0.3)
 				.SetTrans(Tween.TransitionType.Quad)
 				.SetEase(Tween.EaseType.Out);
-			jumpTween.TweenCallback(Callable.From(() => {
-				if (alga.ripe && alga.occupant == this) alga.Eat();
+			this.#jumpTween.TweenCallback(Callable.From(() => {
+				if (this.alga.ripe && this.alga.occupant == this) this.alga.Eat();
 				WaitToJump();
-			})).SetDelay(0.15f);
+			})).SetDelay(0.15);
+			*/
 
 		} else {
-			var someAlgaPosition = Alga.GetRandomNeighbor(alga).scene.GlobalPosition;
-			var angleToRandomAlga = alga.scene.GetAngleTo(someAlgaPosition);
-			if (angleToRandomAlga - startAngle >  Math.PI) angleToRandomAlga -= (float)Math.PI * 2;
-			if (angleToRandomAlga - startAngle < -Math.PI) angleToRandomAlga += (float)Math.PI * 2;
-			jumpTween.TweenProperty(scene, "rotation", angleToRandomAlga, 0.3f)
+			/*
+			const someAlgaPosition = Alga.getRandomNeighbor(this.alga).node.GlobalPosition;
+			const angleToRandomAlga = this.alga.node.GetAngleTo(someAlgaPosition);
+			if (angleToRandomAlga - startAngle >  Math.PI) angleToRandomAlga -= Math.PI * 2;
+			if (angleToRandomAlga - startAngle < -Math.PI) angleToRandomAlga += Math.PI * 2;
+			this.#jumpTween.TweenProperty(this.node, "rotation", angleToRandomAlga, 0.3)
 				.SetTrans(Tween.TransitionType.Quad)
 				.SetEase(Tween.EaseType.Out);
-			jumpTween.TweenCallback(Callable.From(() => {
+			this.#jumpTween.TweenCallback(Callable.From(() => {
 				WaitToJump();
-			})).SetDelay(0.3f);
+			})).SetDelay(0.3);
+			*/
 		}
 	}
-}
-*/
+};
