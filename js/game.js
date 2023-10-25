@@ -1,6 +1,9 @@
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
+
+const {vec4} = glMatrix;
+
 let numMuckyAlgae = 0;
 let gameCanEnd = false;
 let resetting = false;
@@ -272,7 +275,7 @@ private void Reset()
 
 */
 
-const metaballs = Array(10).fill().map(_ => Array(4).fill(0));
+const metaballs = Array(10).fill().map(_ => Array(4).fill().map(_ => vec4.create()));
 const groupOpacities = Array(3).fill(1);
 
 const updateMetaballs = (time) => {
@@ -283,10 +286,12 @@ const updateMetaballs = (time) => {
 		const metaball = metaballs[i];
 		const pairing = Math.floor(i / 2);
 		let groupID = pairing % 3;
-		metaball[0] = (pairing * 0.2 + 0.1) * Globals.screenSize[0];
-		metaball[1] = (Math.sin(time * 0.003 + i) * 0.25 + 0.5) * Globals.screenSize[1];
-		metaball[2] = 15;
-		metaball[3] = groupID;
+		vec4.set(metaball,
+			(pairing * 0.2 + 0.1) * Globals.screenSize[0],
+			(Math.sin(time * 0.003 + i) * 0.25 + 0.5) * Globals.screenSize[1],
+			15,
+			groupID
+		);
 	}
 
 	for (let i = 0; i < 3; i++) {
