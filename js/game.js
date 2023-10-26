@@ -280,7 +280,7 @@ const update = (now) => {
 
 	for (const alga of algae) {
 		/*
-		alga.node.Position = alga.node.Position.Lerp(alga.goalPosition, 0.1);
+		alga.node.transform.position = alga.node.transform.position.Lerp(alga.goalPosition, 0.1);
 		*/
 
 		if (alga.ripe || alga.occupant != null) continue;

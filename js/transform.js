@@ -1,4 +1,4 @@
-const {mat3} = glMatrix;
+const {vec2, mat3} = glMatrix;
 
 export default class Transform {
 	matrix = mat3.create();

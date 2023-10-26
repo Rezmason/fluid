@@ -1,9 +1,9 @@
-import {createNode} from "./utils.js";
+import {createNode, vec2Zero} from "./utils.js";
 import Globals from "./globals.js";
 import Alga from "./alga.js";
 
 export default class Forager {
-	scene;
+	node;
 	art;
 	alga;
 
@@ -49,7 +49,7 @@ export default class Forager {
 		/*
 		this.#jumpTween = this.node.CreateTween();
 		const startAngle = this.node.GlobalRotation;
-		this.node.Rotation = startAngle;
+		this.node.transform.rotation = startAngle;
 		*/
 
 		let nextAlga = Alga.getRandomNeighbor(this.alga, neighbor => !neighbor.occupied && neighbor.ripe && neighbor.mucky);
@@ -85,7 +85,7 @@ export default class Forager {
 			this.#jumpTween.TweenProperty(this.node, "rotation", angleToAlga, 0.1)
 				.SetTrans(Tween.TransitionType.Quad)
 				.SetEase(Tween.EaseType.Out);
-			this.#jumpTween.TweenProperty(this.node, "position", vec2.fromValues(0, 0), 0.3)
+			this.#jumpTween.TweenProperty(this.node, "position", vec2Zero, 0.3)
 				.SetTrans(Tween.TransitionType.Quad)
 				.SetEase(Tween.EaseType.Out);
 			this.#jumpTween.TweenCallback(Callable.From(() => {

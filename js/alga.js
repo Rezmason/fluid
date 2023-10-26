@@ -1,10 +1,10 @@
-import {createNode} from "./utils.js";
+import {createNode, vec2Zero} from "./utils.js";
 import Globals from "./globals.js";
 
 const {vec2} = glMatrix;
 
 export default class Alga {
-	scene;
+	node;
 	art;
 	muck;
 
@@ -28,9 +28,7 @@ export default class Alga {
 
 		this.restingPosition = vec2.clone(position);
 		this.goalPosition = vec2.clone(position);
-		/*
-		this.node.Position = vec2.clone(position);
-		*/
+		this.node.transform.position = vec2.clone(position);
 
 		this.art = createNode({}); // algaArt.Instantiate();
 		this.node.addChild(this.art);
@@ -43,7 +41,7 @@ export default class Alga {
 		/*
 		this.muck = this.art.GetNode<Node2D>("Muck");
 		this.muck.Set("modulate", new Color(1, 1, 1, 0));
-		this.muck.Set("scale", vec2.fromValues(0, 0));
+		this.muck.Set("scale", vec2Zero);
 		this.muck.Visible = false;
 		*/
 	}
@@ -76,12 +74,14 @@ export default class Alga {
 
 		/*
 		this.muck.Visible = false;
-		this.muck.Position = vec2.fromValues(0, 0);
+		*/
+		this.muck.transform.position = vec2Zero;
+		/*
 		this.muck.Modulate = new Color("white");
 
-		this.#fruitAnimation.Set("parameters/FruitBlend/blend_position", vec2.fromValues(0, 0));
-		this.art.Position = vec2.fromValues(0, 0);
+		this.#fruitAnimation.Set("parameters/FruitBlend/blend_position", vec2Zero);
 		*/
+		this.art.transform.position = vec2Zero;
 	}
 
 	#animateMuck() {
@@ -92,7 +92,7 @@ export default class Alga {
 			.SetEase(Tween.EaseType.Out);
 		const duration = 0.3;
 		const isHere = this.mucky ? 1 : 0;
-		this.#muckTween.TweenProperty(this.muck, "position", vec2.fromValues(0, 0), duration);
+		this.#muckTween.TweenProperty(this.muck, "position", vec2Zero, duration);
 		this.#muckTween.TweenProperty(this.muck, "scale", vec2.fromValues(isHere, isHere), duration);
 		this.#muckTween.TweenProperty(this.muck, "modulate", new Color(1, 1, 1, isHere), duration);
 		this.#muckTween.TweenProperty(this.muck, "visible", this.mucky, duration);
