@@ -1,4 +1,4 @@
-import SceneNode from "./scenenode.js";
+import {createNode} from "./utils.js";
 import Globals from "./globals.js";
 
 const {vec2} = glMatrix;
@@ -24,7 +24,7 @@ export default class Alga {
 	*/
 
 	constructor(row, column, position) {
-		this.node = new SceneNode({name: `Alga${row}_{column`});
+		this.node = createNode({name: `Alga${row}_{column`});
 
 		this.restingPosition = vec2.clone(position);
 		this.goalPosition = vec2.clone(position);
@@ -32,13 +32,13 @@ export default class Alga {
 		this.node.Position = vec2.clone(position);
 		*/
 
-		this.art = new SceneNode({}); // algaArt.Instantiate();
+		this.art = createNode({}); // algaArt.Instantiate();
 		this.node.addChild(this.art);
 		/*
 		this.#fruitAnimation = this.art.GetNode<AnimationTree>("AnimationTree");
 		*/
 
-		this.muck = new SceneNode({});
+		this.muck = createNode({});
 		this.art.addChild(this.muck);
 		/*
 		this.muck = this.art.GetNode<Node2D>("Muck");

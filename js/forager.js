@@ -1,4 +1,4 @@
-import SceneNode from "./scenenode.js";
+import {createNode} from "./utils.js";
 import Globals from "./globals.js";
 import Alga from "./alga.js";
 
@@ -14,8 +14,8 @@ export default class Forager {
 	*/
 
 	constructor(id) {
-		this.node = new SceneNode({name: `Forager${id}`});
-		this.art = new SceneNode({}); // foragerArt.Instantiate();
+		this.node = createNode({name: `Forager${id}`});
+		this.art = createNode({}); // foragerArt.Instantiate();
 		this.node.addChild(this.art);
 		/*
 		clicker = new Clicker(this.art.GetNode<Area2D>("Area2D"), () => this.alga.SpreadMuck());

@@ -1,4 +1,4 @@
-import SceneNode from "./scenenode.js";
+import {createNode} from "./utils.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
@@ -17,7 +17,7 @@ let resetting = false;
 const algae = [];
 const foragers = [];
 const feeders = [];
-const root = new SceneNode();
+const rootNode = createNode();
 
 const game = Globals.game;
 const fade = game.querySelector("fade");
@@ -62,7 +62,7 @@ const spawnAlgae = () => {
 			const alga = new Alga(grid.length, row.length, (vec2.fromValues(j, i) + rowOffset) * spacing);
 			row.push(alga);
 			algae.push(alga);
-			root.addChild(alga.node);
+			rootNode.addChild(alga.node);
 			alga.reset();
 		}
 		grid.push(row);
@@ -122,7 +122,7 @@ const resetForagers = () => {
 const resetFeeders = () => {
 	for (const feeder of feeders) {
 		feeder.reset();
-		root.addChild(feeder.node);
+		rootNode.addChild(feeder.node);
 		/*
 		feeder.node.GlobalPosition = vec2.fromValues(
 			Math.random() - 0.5,

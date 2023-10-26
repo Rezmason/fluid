@@ -1,4 +1,4 @@
-import SceneNode from "./scenenode.js";
+import {createNode} from "./utils.js";
 import Globals from "./globals.js";
 
 const {vec2} = glMatrix;
@@ -31,8 +31,8 @@ class Feeder {
 	*/
 
 	constructor(id) {
-		this.node = new SceneNode({name: `Feeder${id}`});
-		this.art = new SceneNode({}); // feederArt.Instantiate();
+		this.node = createNode({name: `Feeder${id}`});
+		this.art = createNode(); // feederArt.Instantiate();
 		this.node.addChild(this.art);
 	}
 
