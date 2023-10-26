@@ -28,7 +28,7 @@ export default class Alga {
 
 		this.restingPosition = vec2.clone(position);
 		this.goalPosition = vec2.clone(position);
-		this.node.transform.position = vec2.clone(position);
+		this.node.transform.position = position;
 
 		this.art = createNode({}); // algaArt.Instantiate();
 		this.node.addChild(this.art);
@@ -85,13 +85,13 @@ export default class Alga {
 	}
 
 	#animateMuck() {
+		const isHere = this.mucky ? 1 : 0;
 		/*
 		this.muck.Visible = true;
 		this.#muckTween = this.muck.CreateTween().SetParallel(true)
 			.SetTrans(Tween.TransitionType.Quad)
 			.SetEase(Tween.EaseType.Out);
 		const duration = 0.3;
-		const isHere = this.mucky ? 1 : 0;
 		this.#muckTween.TweenProperty(this.muck, "position", vec2Zero, duration);
 		this.#muckTween.TweenProperty(this.muck, "scale", vec2.fromValues(isHere, isHere), duration);
 		this.#muckTween.TweenProperty(this.muck, "modulate", new Color(1, 1, 1, isHere), duration);
@@ -137,24 +137,20 @@ export default class Alga {
 				if (Math.random() < 0.25) this.spreadMuck();
 				this.#waitToSpreadMuck();
 			},
-			Math.random() * 3 + 1
+			1000 * (Math.random() * 3 + 1)
 		);
 	}
 
 	spreadMuck() {
 		const cleanNeighbor = getRandomNeighbor(this, neighbor => !neighbor.mucky);
 		if (cleanNeighbor != null) {
-			/*
-			cleanNeighbor.#receiveMuckFrom(this.node.GlobalPosition);
-			*/
+			cleanNeighbor.#receiveMuckFrom(getGlobalPosition(this.node));
 		}
 	}
 
 	#receiveMuckFrom(origin) {
 		this.mucky = true;
-		/*
-		this.muck.GlobalPosition = origin;
-		*/
+		setGlobalPosition(this.muck, origin);
 		this.#animateMuck();
 		this.#animateFruit();
 		Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
@@ -164,6 +160,6 @@ export default class Alga {
 	static getRandomNeighbor(alga, pred = null) {
 		const candidates = pred == null ? alga.neighbors : alga.neighbors.filter(pred);
 		if (candidates.length == 0) return null;
-		return candidates[Math.random(candidates.length)];
+		return candidates[Math.floor(Math.random(candidates.length))];
 	}
 };

@@ -1,4 +1,4 @@
-import {createNode} from "./utils.js";
+import {createNode, chain, getGlobalPosition, setGlobalPosition} from "./utils.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
@@ -36,13 +36,13 @@ game.addEventListener("mousemove", ({x, y}) => {
 		if (alga.mucky || !Globals.isMousePressed) {
 			vec2.clone(alga.goalPosition, alga.restingPosition);
 		} else {
-			const localPushPosition = vec2.create();
-			vec2.sub(localPushPosition, Globals.mousePosition, alga.restingPosition);
+			const localPushPosition = chain(
+				vec2.create(),
+				[vec2.sub, Globals.mousePosition, alga.restingPosition]
+			);
 			let offset = -vec2.length(localPushPosition) / 50;
 			offset *= Math.pow(3, offset);
-			/*
-			alga.goalPosition = alga.restingPosition + localPushPosition * offset;
-			*/
+			vec2.add(alga.goalPosition, alga.restingPosition, chain(localPushPosition, [vec2.scale, null, offset]));
 		}
 	}
 });
@@ -123,16 +123,14 @@ const resetFeeders = () => {
 	for (const feeder of feeders) {
 		feeder.reset();
 		rootNode.addChild(feeder.node);
-		/*
-		feeder.node.GlobalPosition = vec2.fromValues(
+		setGlobalPosition(feeder.node, chain(vec2.fromValues(
 			Math.random() - 0.5,
 			Math.random() - 0.5
-		) * Globals.screenSize;
-		feeder.velocity = vec2.fromValues(
-			Math.random() - 0.5,
-			Math.random() - 0.5
-		) * 200;
-		*/
+		), [vec2.scale, null, Globals.screenSize]));
+		chain(feeder.velocity,
+			[vec2.set, Math.random() - 0.5, Math.random() - 0.5],
+			[vec2.scale, null, 200]
+		);
 	}
 }
 
@@ -159,8 +157,8 @@ const detectEndgame = (alga) => {
 const reset = () => {
 	resetting = true;
 	gameCanEnd = false;
-
-	const completeReset = () => {
+	fade.classList.toggle("hidden", true);
+	setTimeout(() => {
 		for (const alga of algae) {
 			alga.reset();
 		}
@@ -168,18 +166,9 @@ const reset = () => {
 		resetFeeders();
 		numMuckyAlgae = 0;
 		resetting = false;
-	};
-	/*
-	fade.Visible = true;
-	const tween = fade.CreateTween()
-		.SetTrans(Tween.TransitionType.Quad);
-	tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 1), 5)
-		.SetEase(Tween.EaseType.In);
-	tween.TweenCallback(Callable.From(completeReset));
-	tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 0), 5)
-		.SetEase(Tween.EaseType.Out);
-	tween.TweenProperty(fade, "visible", false, 0);
-	*/
+
+		fade.classList.toggle("hidden", false);
+	}, 1000 * 5);
 }
 
 const metaballs = Array(10).fill().map(_ => Array(4).fill().map(_ => vec4.create()));
@@ -199,7 +188,7 @@ const updateMetaballs = (time) => {
 		if (feeder.numSeeds > 0) {
 			groupID = f;
 			let opacity = feeder.numSeeds / maxFeederSeeds;
-			// opacity = 1 - Mathf.Pow(1 - opacity, 2);
+			// opacity = 1 - Math.pow(1 - opacity, 2);
 			opacity = lerp(groupOpacities[groupID], opacity, 0.1);
 			groupOpacities[groupID] = opacity;
 			f++;
@@ -208,15 +197,13 @@ const updateMetaballs = (time) => {
 		}
 		let i = 0;
 		for (const element of feeder.elements) {
-			/*
-			const position = element.art.GlobalPosition;
-			metaballData[n] = new Color(
-				position.X,
-				position.Y,
-				15 + throb * (Mathf.Sin((i * Math.PI * 2 / 3) + throbTime * 4) * 0.5 + 0.5),
+			const position = getGlobalPosition(element.art);
+			vec4.set(metaballs[n],
+				position[0],
+				position[1],
+				15 + throb * (Math.sin((i * Math.PI * 2 / 3) + throbTime * 4) * 0.5 + 0.5),
 				groupID
 			);
-			*/
 			n++;
 			i++;
 		}
@@ -279,9 +266,9 @@ const update = (now) => {
 	updateMetaballs(time);
 
 	for (const alga of algae) {
-		/*
-		alga.node.transform.position = alga.node.transform.position.Lerp(alga.goalPosition, 0.1);
-		*/
+		alga.node.transform.position = chain(alga.node.transform.position,
+			[vec2.lerp, null, alga.goalPosition, 0.1]
+		);
 
 		if (alga.ripe || alga.occupant != null) continue;
 

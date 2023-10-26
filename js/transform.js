@@ -25,8 +25,8 @@ export default class Transform {
 	}
 
 	set rotation(v) {
-		if (this.rotation !== v) {
-			this.rotation = v;
+		if (this.#rotation !== v) {
+			this.#rotation = v;
 			const x = this.matrix[2];
 			const y = this.matrix[5];
 			mat3.fromRotation(this.matrix, v);

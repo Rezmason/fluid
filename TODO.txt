@@ -1,7 +1,13 @@
-Transform objects
-	globalPosition, globalRotation
 Display list of renderables
+	alga (+ muck)
+	feeder
+	forager
+Tweening
+	alga
+	forager
 SVG art
+	alga (+ muck)
+	forager
 Mouse interaction
 	Make sure foragers can be clicked
 Muck event dispatch
