@@ -1,5 +1,5 @@
 const alga = `<circle transform="scale(0.4 0.4)" r="22.5" fill="#f4e9cb"></circle>`;
-const muck = `<circle r="59" fill="#c0c0c0"></circle>`;
+const muck = `<circle r="59" fill="none" stroke="#c0c0c0"></circle>`;
 const forager = `
 <g fill="transparent">
 	<rect y="-9" height="18" width="27"></rect>

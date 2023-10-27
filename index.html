@@ -33,6 +33,8 @@
 					border-radius: 1vmin;
 					overflow: hidden;
 					cursor: pointer;
+					user-select: none;
+					-webkit-user-select: none;
 				}
 
 				game#fluid #scene {
@@ -54,7 +56,7 @@
 					height: 100%;
 				}
 			</style>
-			<svg id="scene" viewBox="0 0 1024 768"></svg>
+			<svg id="scene" viewBox="-512 -384 1024 768"></svg>
 			<canvas id="metaballs" width="1024" height="768"></canvas>
 			<fade></fade>
 			<!-- <script src="lib/gl-matrix.js"></script> -->

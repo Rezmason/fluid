@@ -1,4 +1,4 @@
-import {createNode, renderNode, chain, getGlobalPosition, setGlobalPosition, setGlobalRotation} from "./utils.js";
+import {createNode, renderNode, chain, getGlobalPosition, setGlobalPosition, getGlobalRotation, setGlobalRotation} from "./utils.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
@@ -18,8 +18,6 @@ const algae = [];
 const foragers = [];
 const feeders = [];
 const rootNode = createNode({name: "root"});
-
-rootNode.transform.position = chain(vec2.clone(Globals.gameSize), [vec2.scale, null, 0.5]);
 
 const game = Globals.game;
 const fade = game.querySelector("fade");
@@ -88,15 +86,20 @@ const resize = () => {
 window.addEventListener("resize", resize);
 resize();
 
+const numTestSceneNodes = 6;
 const testSceneNodes = [];
-const testTrace = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-testTrace.setAttribute("fill", "none");
-testTrace.setAttribute("stroke", "red");
-testTrace.setAttribute("stroke-width", 3);
-testTrace.setAttribute("id", "TestTrace");
+// const testTrace = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+// testTrace.setAttribute("fill", "none");
+// testTrace.setAttribute("stroke", "orange");
+// testTrace.setAttribute("stroke-width", 3);
+// testTrace.setAttribute("id", "TestTrace");
+const testDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+testDot.setAttribute("fill", "red");
+testDot.setAttribute("id", "TestDot");
+testDot.setAttribute("r", "5");
 const spawnTestScene = () => {
 	let node = rootNode;
-	for (let i = 0; i < 4; i++) {
+	for (let i = 0; i < numTestSceneNodes; i++) {
 		const child = createNode({name:`Test${i}`});
 		child.transform.position = vec2.fromValues(100, 0);
 		node.addChild(child);
@@ -105,21 +108,26 @@ const spawnTestScene = () => {
 	}
 
 	renderNode(rootNode, scene);
-	rootNode.domElement.appendChild(testTrace);
+	// rootNode.domElement.appendChild(testTrace);
+	rootNode.domElement.appendChild(testDot);
 };
 
 const updateTestScene = (time, delta) => {
-	let s = "";
-	for (let i = 0; i < 4; i++) {
+	// const points = [];
+	for (let i = 0; i < numTestSceneNodes; i++) {
 		const node = testSceneNodes[i];
-		node.transform.position = vec2.fromValues(Math.sin(time / 500) * 20 + 80, 0);
-		node.transform.rotation += 0.2 * delta;
+		// node.transform.position = vec2.fromValues(Math.sin(time / 500) * (10 + 20 * i) + 80, 0);
+		node.transform.rotation += (1 + i) * delta;
 
 		const globalPosition = getGlobalPosition(node);
-		s += globalPosition[0].toFixed(3) + "," + globalPosition[1].toFixed(3) + " ";
+		// points.push([
+		// 	globalPosition[0].toFixed(3),
+		// 	globalPosition[1].toFixed(3)
+		// ]);
 	}
-	testTrace.setAttribute("points", s);
-	// setGlobalPosition(testSceneNodes[3], vec2.fromValues(100, 100));
+	// testTrace.setAttribute("points", points.flat().join(" "));
+	setGlobalPosition(testSceneNodes[3], vec2.fromValues(-100, -100));
+	setGlobalPosition(testSceneNodes[4], vec2.fromValues(100, -100));
 	// setGlobalRotation(testSceneNodes[3], 0);
 }
 
@@ -340,15 +348,15 @@ const update = (now) => {
 		if (feeder.size >= maxFeederSize) {
 			seedingFeeders.push(feeder);
 		} else {
-			for (let j = i + 1; j < feeders.length; j++) {
-				var other = feeders[j];
-				if (other.parent != null || other.age < minAge || feeder.size + other.size > maxFeederSize) continue;
-				if (feeder.size >= other.size) {
-					if (feeder.tryToCombine(other)) break;
-				} else {
-					if (other.tryToCombine(feeder)) break;
-				}
-			}
+			// for (let j = i + 1; j < feeders.length; j++) {
+			// 	var other = feeders[j];
+			// 	if (other.parent != null || other.age < minAge || feeder.size + other.size > maxFeederSize) continue;
+			// 	if (feeder.size >= other.size) {
+			// 		if (feeder.tryToCombine(other)) break;
+			// 	} else {
+			// 		if (other.tryToCombine(feeder)) break;
+			// 	}
+			// }
 		}
 	}
 

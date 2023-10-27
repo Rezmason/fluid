@@ -4,6 +4,7 @@ import Art from "./art.js";
 import Alga from "./alga.js";
 
 export default class Forager {
+	name;
 	node;
 	art;
 	alga;
@@ -11,7 +12,8 @@ export default class Forager {
 	#jumpTween;
 
 	constructor(id) {
-		this.node = createNode({name: `Forager${id}`});
+		this.name = `Forager${id}`;
+		this.node = createNode({name: this.name});
 		this.art = createNode({art: Art.forager});
 		this.node.addChild(this.art);
 		/*

@@ -5,10 +5,7 @@ import Art from "./art.js";
 const {vec2} = glMatrix;
 
 export default class Alga {
-	node;
-	art;
-	muck;
-
+	name;
 	neighbors = [];
 	ripe = false;
 	mucky = false;
@@ -16,12 +13,17 @@ export default class Alga {
 	goalPosition;
 	occupant = null;
 
+	node;
+	art;
+	muck;
+
 	#fruitAnimation;
 	#muckTween;
 	#fruitTween;
 
 	constructor(row, column, position) {
-		this.node = createNode({name: `Alga${row}_${column}`});
+		this.name = `Alga${row}_${column}`;
+		this.node = createNode({name: this.name});
 
 		this.restingPosition = vec2.clone(position);
 		this.goalPosition = vec2.clone(position);

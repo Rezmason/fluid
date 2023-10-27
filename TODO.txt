@@ -1,4 +1,3 @@
-Fix getGlobalPosition and setGlobalPosition
 Feeder clusters aren't positioning properly
 Tweening
 	alga (+muck)

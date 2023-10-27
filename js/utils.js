@@ -2,7 +2,7 @@ import SceneNode from "./scenenode.js";
 import Transform from "./transform.js";
 import Globals from "./globals.js";
 
-const {vec2, mat3} = glMatrix;
+const {vec2, mat2d} = glMatrix;
 
 const createNode = (properties = null) =>
 	new SceneNode({
@@ -24,7 +24,7 @@ const renderNode = (node, scene) => {
 		node.domElement.append(node.artContainer);
 
 		node.artContainer.innerHTML = node.art ?? [
-			`<circle r="5" fill="#ff000060"></circle>`,
+			`<circle r="20" fill="#ff000060"></circle>`,
 			`<text>${node.name ?? "..."}</text>`
 		].join("");
 
@@ -68,53 +68,57 @@ const vec2Clamp = (out, a, min, max) => {
 	vec2Min(out, out, max)
 }
 
-const getConcatenatedMatrix = (node) => {
-	const concatenated = mat3.create();
+const localToGlobalMatrix = (node) => {
+	const matrix = mat2d.create();
 	while (node != null) {
-		mat3.multiply(concatenated, node.transform.matrix, concatenated);
+		mat2d.multiply(matrix, node.transform.matrix, matrix);
 		node = node.parent;
 	}
-	return concatenated;
-};
-
-const getConcatenatedRotation = (node) => {
-	let concatenated = 0;
-	while (node != null) {
-		concatenated += node.transform.rotation;
-		node = node.parent;
-	}
-	return concatenated;
+	return matrix;
 };
 
 const getGlobalPosition = (node) => {
-	const concatenated = getConcatenatedMatrix(node);
-	return vec2.fromValues(
-		concatenated[2],
-		concatenated[5]
-	);
+	const matrix = localToGlobalMatrix(node);
+	return vec2.fromValues(matrix[4], matrix[5]);
 };
 
 const setGlobalPosition = (node, v) => {
-	const invConcatenated = chain(
-		getConcatenatedMatrix(node),
-		[mat3.invert, null]
+
+	if (node.parent == null) {
+		node.transform.position = v;
+		return;
+	}
+
+	const g2l = chain(
+		localToGlobalMatrix(node.parent),
+		[mat2d.invert, null]
 	);
-	// TODO: verify this
+
 	node.transform.position = vec2.fromValues(
-		v[0] + invConcatenated[2],
-		v[1] + invConcatenated[5]
+		v[0] * g2l[0] + v[1] * g2l[2] + g2l[4],
+		v[0] * g2l[1] + v[1] * g2l[3] + g2l[5]
 	);
 };
 
-// These cheat, because nothing scales in this project.
+// These cheat— angles are preserved for uniform scales,
+// and all scales in this project are uniform
+
+const localToGlobalRotation = (node) => {
+	let globalRotation = 0;
+	while (node != null) {
+		globalRotation += node.transform.rotation;
+		node = node.parent;
+	}
+	return globalRotation;
+};
 
 const getGlobalRotation = (node) => {
-	return getConcatenatedRotation(node);
+	return localToGlobalRotation(node);
 };
 
 const setGlobalRotation = (node, angle) => {
-	const concatenated = getConcatenatedRotation(node);
-	const diff = angle - concatenated;
+	const globalRotation = localToGlobalRotation(node);
+	const diff = angle - globalRotation;
 	node.transform.rotation += diff;
 };
 
