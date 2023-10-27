@@ -164,9 +164,9 @@ const resetFeeders = () => {
 		feeder.reset();
 		rootNode.addChild(feeder.node);
 		setGlobalPosition(feeder.node, chain(vec2.fromValues(
-			Math.random() - 0.5,
-			Math.random() - 0.5
-		), [vec2.scale, null, Globals.gameSize]));
+			Math.random(),
+			Math.random()
+		), [vec2.mul, null, Globals.gameSize]));
 		chain(feeder.velocity,
 			[vec2.set, Math.random() - 0.5, Math.random() - 0.5],
 			[vec2.scale, null, 200]
@@ -211,7 +211,7 @@ const reset = () => {
 	}, 1000 * 5);
 }
 
-const metaballs = Array(10).fill().map(_ => Array(4).fill().map(_ => vec4.create()));
+const metaballs = Array(10).fill().map(_ => vec4.create());
 const groupOpacities = Array(3).fill(1);
 
 const updateMetaballs = (time) => {
@@ -237,8 +237,9 @@ const updateMetaballs = (time) => {
 		}
 		let i = 0;
 		for (const element of feeder.elements) {
+			const metaball = metaballs[n];
 			const position = getGlobalPosition(element.art);
-			vec4.set(metaballs[n],
+			vec4.set(metaball,
 				position[0],
 				position[1],
 				15 + throb * (Math.sin((i * Math.PI * 2 / 3) + throbTime * 4) * 0.5 + 0.5),
@@ -252,8 +253,9 @@ const updateMetaballs = (time) => {
 	for (; f < 3; f++) {
 		groupOpacities[f] = 1;
 	}
+};
 
-	/*
+const testMetaballs = (time) => {
 	for (let i = 0; i < 10; i++) {
 		const metaball = metaballs[i];
 		const pairing = Math.floor(i / 2);
@@ -269,7 +271,6 @@ const updateMetaballs = (time) => {
 	for (let i = 0; i < 3; i++) {
 		groupOpacities[i] = Math.cos(time * 0.003 + Math.PI * 2 * i / 3) * 0.5 + 0.5;
 	}
-	*/
 };
 
 const startTime = performance.now();
@@ -306,6 +307,7 @@ const update = (now) => {
 	renderNode(rootNode, scene);
 
 	updateMetaballs(time);
+	// testMetaballs(time);
 
 	for (const alga of algae) {
 		alga.node.transform.position = chain(alga.node.transform.position,

@@ -1,5 +1,6 @@
-import {createNode, vec2Zero, vec2One, vec2Clamp, vec2FromAngle, lerp, chain, getGlobalPosition, setGlobalPosition} from "./utils.js";
+import {createNode, vec2Zero, vec2One, vec2Clamp, vec2FromAngle, lerp, chain, getGlobalPosition, setGlobalPosition, getGlobalRotation, setGlobalRotation} from "./utils.js";
 import Globals from "./globals.js";
+import Art from "./art.js";
 
 const {vec2} = glMatrix;
 
@@ -32,13 +33,9 @@ class Feeder {
 	node;
 	art;
 
-	/*
-	static PackedScene feederArt = ResourceLoader.Load<PackedScene>("res://feeder.tscn");
-	*/
-
 	constructor(id) {
 		this.node = createNode({name: `Feeder${id}`});
-		this.art = createNode(); // feederArt.Instantiate();
+		this.art = createNode({art: Art.feeder});
 		this.node.addChild(this.art);
 	}
 
@@ -66,8 +63,8 @@ class Feeder {
 		if (this.size < maxFeederSize || this.numSeeds <= 0) return false;
 		const minSeedDistSquared = minSeedDist * minSeedDist;
 		if (vec2.sqrDist(
-				getGlobalPosition(this.node.GlobalPosition),
-				getGlobalPosition(alga.node.GlobalPosition)
+				getGlobalPosition(this.node),
+				getGlobalPosition(alga.node)
 			) > minSeedDistSquared) {
 			return false;
 		}
@@ -190,6 +187,7 @@ class Feeder {
 		vec2.add(this.velocity, this.velocity, chain(pushForce, [vec2.scale, null, mag * delta]));
 		const position = this.node.transform.position;
 		const bobVelocity = Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
+		// const bobVelocity = 0;
 		const displacement = chain(vec2.clone(bobDirection),
 			[vec2.scale, null, bobVelocity],
 			[vec2.add, null, this.velocity],
@@ -209,7 +207,11 @@ class Feeder {
 		}
 
 		this.node.transform.position = position;
-		this.node.GlobalRotation += ((oldPosition[0] + oldPosition[1]) - (position[0] + position[1])) / this.size * 0.005;
+
+		setGlobalRotation(this.node,
+			getGlobalRotation(this.node) +
+			((oldPosition[0] + oldPosition[1]) - (position[0] + position[1])) / this.size * 0.005
+		);
 		
 		if (this.size == 2) {
 			for (const feeder of this.elements) {

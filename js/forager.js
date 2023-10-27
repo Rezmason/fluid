@@ -1,5 +1,6 @@
 import {createNode, vec2Zero, vec2AngleTo, getGlobalPosition, setGlobalPosition, getGlobalRotation} from "./utils.js";
 import Globals from "./globals.js";
+import Art from "./art.js";
 import Alga from "./alga.js";
 
 export default class Forager {
@@ -9,13 +10,9 @@ export default class Forager {
 
 	#jumpTween;
 
-	/*
-	static PackedScene foragerArt = ResourceLoader.Load<PackedScene>("res://forager.tscn");
-	*/
-
 	constructor(id) {
 		this.node = createNode({name: `Forager${id}`});
-		this.art = createNode({}); // foragerArt.Instantiate();
+		this.art = createNode({art: Art.forager});
 		this.node.addChild(this.art);
 		/*
 		clicker = new Clicker(this.art.GetNode<Area2D>("Area2D"), () => this.alga.SpreadMuck());

@@ -1,15 +1,11 @@
-Display list of renderables
-	alga (+ muck)
-	feeder
-	forager
+Verify getGlobalPosition and getGlobalRotation
+Verify setGlobalPosition and setGlobalRotation
+Feeder clusters aren't positioning properly
+Prevent transparent metaballs from tinting underlying content in Firefox
 Tweening
-	alga
+	alga (+muck)
 	forager
-SVG art
-	alga (+ muck)
-	forager
-Mouse interaction
-	Make sure foragers can be clicked
+Make sure foragers can be clicked
 Muck event dispatch
 	Make a signal.js
 Inspect performance

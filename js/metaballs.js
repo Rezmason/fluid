@@ -18,6 +18,7 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 
 	#define threshold 0.015
 	#define smoothness 0.0005
+	#define height 768.0
 	#define color vec3(0.478431, 0.0901961, 0)
 	uniform float sceneScale;
 	uniform vec4[10] metaballs;
@@ -28,6 +29,8 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 	void main(void) {
 
 		vec2 uv = gl_FragCoord.xy * sceneScale;
+		uv.y = height - uv.y;
+
 		float smoothing = smoothness * sceneScale;
 
 		float sums[3] = float[3](0.0, 0.0, 0.0);

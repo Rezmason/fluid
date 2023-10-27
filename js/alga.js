@@ -1,5 +1,6 @@
 import {createNode, vec2Zero} from "./utils.js";
 import Globals from "./globals.js";
+import Art from "./art.js";
 
 const {vec2} = glMatrix;
 
@@ -19,10 +20,6 @@ export default class Alga {
 	#muckTween;
 	#fruitTween;
 
-	/*
-	static PackedScene algaArt = ResourceLoader.Load<PackedScene>("res://alga.tscn");
-	*/
-
 	constructor(row, column, position) {
 		this.node = createNode({name: `Alga${row}_${column}`});
 
@@ -30,14 +27,14 @@ export default class Alga {
 		this.goalPosition = vec2.clone(position);
 		this.node.transform.position = position;
 
-		this.art = createNode({}); // algaArt.Instantiate();
+		this.art = createNode({art: Art.alga});
 		this.node.addChild(this.art);
 		/*
 		this.#fruitAnimation = this.art.GetNode<AnimationTree>("AnimationTree");
 		*/
 
-		this.muck = createNode({});
-		this.art.addChild(this.muck);
+		this.muck = createNode({art: Art.muck});
+		this.art.addChild(this.muck, 0);
 		/*
 		this.muck = this.art.GetNode<Node2D>("Muck");
 		this.muck.Set("modulate", new Color(1, 1, 1, 0));

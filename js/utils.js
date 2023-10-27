@@ -11,14 +11,24 @@ const createNode = (properties = null) =>
 	...properties
 });
 
+const createSVGGroup = () => document.createElementNS("http://www.w3.org/2000/svg", "g");
+
 const renderNode = (node, scene) => {
 	if (node.domElement == null) {
-		node.domElement = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		node.domElement = createSVGGroup();
 		node.domElement.setAttribute("id", node.name);
+		node.childContainer = createSVGGroup();
+		node.artContainer = createSVGGroup();
 
-		node.domElement.innerHTML = `<rect width="10" height="10" fill="red"></rect>`;
+		node.domElement.append(node.childContainer);
+		node.domElement.append(node.artContainer);
 
-		const domParent = node.parent?.domElement ?? scene;
+		node.artContainer.innerHTML = node.art ?? [
+			// `<circle r="5" fill="#ff000060"></circle>`,
+			// `<text>${node.name ?? "..."}</text>`
+		].join("");
+
+		const domParent = node.parent?.childContainer ?? scene;
 		domParent.appendChild(node.domElement);
 	}
 	if (node.transform.stale) {
@@ -90,7 +100,7 @@ const setGlobalPosition = (node, v) => {
 		[mat3.invert, null]
 	);
 	// TODO: verify this
-	node.position = vec2.fromValues(
+	node.transform.position = vec2.fromValues(
 		v[0] + invConcatenated[2],
 		v[1] + invConcatenated[5]
 	);
@@ -105,7 +115,7 @@ const getGlobalRotation = (node) => {
 const setGlobalRotation = (node, angle) => {
 	const concatenated = getConcatenatedRotation(node);
 	const diff = angle - concatenated;
-	node.rotation += diff;
+	node.transform.rotation += diff;
 };
 
 const chain = (subject, ...ops) => {
