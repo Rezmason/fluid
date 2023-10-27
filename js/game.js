@@ -54,7 +54,18 @@ game.addEventListener("mouseup", ({button}) => {
 	}
 });
 game.addEventListener("mouseleave", () => Globals.isMousePressed = false);
-game.addEventListener("mousemove", ({x, y}) => {
+
+let lastMouseMove = null;
+game.addEventListener("mousemove", (event) => {
+	lastMouseMove = event;
+});
+
+const updateMouse = () => {
+
+	if (lastMouseMove == null) return;
+	const {x, y} = lastMouseMove;
+	lastMouseMove = null;
+
 	chain(Globals.mousePosition,
 		[vec2.set, x, y],
 		[vec2.sub, null, gamePosition],
@@ -64,7 +75,7 @@ game.addEventListener("mousemove", ({x, y}) => {
 	);
 
 	updateAlgaeGoalPositions();
-});
+}
 
 const gamePosition = vec2.create();
 const gameSize = vec2.create();
@@ -279,6 +290,8 @@ const update = (now) => {
 	const time = now - startTime;
 	const delta = (time - lastTime) / 1000;
 	lastTime = time;
+
+	updateMouse();
 
 	for (const feeder of feeders) {
 		feeder.update(time, delta);
