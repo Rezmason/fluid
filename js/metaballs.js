@@ -92,7 +92,7 @@ const resizeObserver = new ResizeObserver(([entry]) => {
 	const size = [boxSize.inlineSize, boxSize.blockSize];
 	[feederMetaballs.width, feederMetaballs.height] = size;
 	gl.viewport(0, 0, ...size);
-	gl.uniform1f(uSceneScale, Globals.screenSize[0] / size[0]);
+	gl.uniform1f(uSceneScale, Globals.gameSize[0] / size[0]);
 	redraw();
 });
 

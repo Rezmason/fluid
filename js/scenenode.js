@@ -6,9 +6,13 @@ export default class SceneNode {
 		Object.assign(this, properties);
 	}
 
-	addChild(child, index = -1) {
+	addChild(child, index = null) {
 		child.parent?.removeChild(child);
-		this.children.splice(index, 0, child);
+		if (index == null) {
+			this.children.push(child);
+		} else {
+			this.children.splice(index, 0, child);
+		}
 		child.parent = this;
 		return this;
 	}

@@ -1,4 +1,4 @@
-import {createNode, chain, getGlobalPosition, setGlobalPosition} from "./utils.js";
+import {createNode, renderNode, chain, getGlobalPosition, setGlobalPosition} from "./utils.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
@@ -17,24 +17,18 @@ let resetting = false;
 const algae = [];
 const foragers = [];
 const feeders = [];
-const rootNode = createNode();
+const rootNode = createNode({name: "root"});
+
+rootNode.transform.position = chain(vec2.clone(Globals.gameSize), [vec2.scale, null, 0.5]);
 
 const game = Globals.game;
 const fade = game.querySelector("fade");
+const scene = game.querySelector("#scene");
 
-game.addEventListener("mousedown", ({button}) => {
-	if (button === 0) Globals.isMousePressed = true;
-});
-game.addEventListener("mouseup", ({button}) => {
-	if (button === 0) Globals.isMousePressed = false;
-});
-game.addEventListener("mouseleave", () => Globals.isMousePressed = false);
-game.addEventListener("mousemove", ({x, y}) => {
-	vec2.set(Globals.mousePosition, x, y);
-
+const updateAlgaeGoalPositions = () => {
 	for (const alga of algae) {
 		if (alga.mucky || !Globals.isMousePressed) {
-			vec2.clone(alga.goalPosition, alga.restingPosition);
+			vec2.copy(alga.goalPosition, alga.restingPosition);
 		} else {
 			const localPushPosition = chain(
 				vec2.create(),
@@ -45,21 +39,67 @@ game.addEventListener("mousemove", ({x, y}) => {
 			vec2.add(alga.goalPosition, alga.restingPosition, chain(localPushPosition, [vec2.scale, null, offset]));
 		}
 	}
+};
+
+game.addEventListener("mousedown", ({button}) => {
+	if (button === 0) {
+		Globals.isMousePressed = true;
+		updateAlgaeGoalPositions();
+	}
 });
+game.addEventListener("mouseup", ({button}) => {
+	if (button === 0) {
+		Globals.isMousePressed = false;
+		updateAlgaeGoalPositions();
+	}
+});
+game.addEventListener("mouseleave", () => Globals.isMousePressed = false);
+game.addEventListener("mousemove", ({x, y}) => {
+	chain(Globals.mousePosition,
+		[vec2.set, x, y],
+		[vec2.sub, null, gamePosition],
+		[vec2.div, null, gameSize],
+		[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
+		[vec2.mul, null, Globals.gameSize],
+	);
+
+	updateAlgaeGoalPositions();
+});
+
+const gamePosition = vec2.create();
+const gameSize = vec2.create();
+
+const resize = () => {
+	const rect = game.getBoundingClientRect();
+	vec2.set(gamePosition, rect.x, rect.y);
+	vec2.set(gameSize, rect.width, rect.height);
+};
+window.addEventListener("resize", resize);
+resize();
 
 const spawnAlgae = () => {
 	const grid = [];
 	const numRows = 9, numColumns = 10;
 	const spacing = vec2.fromValues(110, 90);
 	for (let i = 0; i < numRows; i++) {
-		const rowOffset = vec2.fromValues(1 - (numColumns - i % 2), 1 - numRows) / 2;
+		const rowOffset = chain(
+			vec2.fromValues(1 - (numColumns - i % 2), 1 - numRows),
+			[vec2.scale, null, 0.5]
+		);
 		const row = [];
 		for (let j = 0; j < numColumns; j++) {
 			if (i % 2 == 1 && j == numColumns - 1) {
 				row.push(null);
 				continue;
 			}
-			const alga = new Alga(grid.length, row.length, (vec2.fromValues(j, i) + rowOffset) * spacing);
+			const alga = new Alga(
+				grid.length,
+				row.length,
+				chain(vec2.fromValues(j, i),
+					[vec2.add, null, rowOffset],
+					[vec2.mul, null, spacing]
+				)
+			);
 			row.push(alga);
 			algae.push(alga);
 			rootNode.addChild(alga.node);
@@ -110,7 +150,7 @@ const spawnFeeders = () => {
 
 const resetForagers = () => {
 	for (const forager of foragers) {
-		const alga = algae[Math.floor(Math.random() * algae.length)];
+		let alga = algae[Math.floor(Math.random() * algae.length)];
 		while (alga.occupant != null) {
 			alga = algae[Math.floor(Math.random() * algae.length)];
 		}
@@ -126,7 +166,7 @@ const resetFeeders = () => {
 		setGlobalPosition(feeder.node, chain(vec2.fromValues(
 			Math.random() - 0.5,
 			Math.random() - 0.5
-		), [vec2.scale, null, Globals.screenSize]));
+		), [vec2.scale, null, Globals.gameSize]));
 		chain(feeder.velocity,
 			[vec2.set, Math.random() - 0.5, Math.random() - 0.5],
 			[vec2.scale, null, 200]
@@ -219,8 +259,8 @@ const updateMetaballs = (time) => {
 		const pairing = Math.floor(i / 2);
 		let groupID = pairing % 3;
 		vec4.set(metaball,
-			(pairing * 0.2 + 0.1) * Globals.screenSize[0],
-			(Math.sin(time * 0.003 + i) * 0.25 + 0.5) * Globals.screenSize[1],
+			(pairing * 0.2 + 0.1) * Globals.gameSize[0],
+			(Math.sin(time * 0.003 + i) * 0.25 + 0.5) * Globals.gameSize[1],
 			15,
 			groupID
 		);
@@ -236,7 +276,7 @@ const startTime = performance.now();
 let lastTime = startTime;
 const update = (now) => {
 	const time = now - startTime;
-	const delta = time - lastTime;
+	const delta = (time - lastTime) / 1000;
 	lastTime = time;
 
 	for (const feeder of feeders) {
@@ -262,6 +302,8 @@ const update = (now) => {
 			}
 		}
 	}
+
+	renderNode(rootNode, scene);
 
 	updateMetaballs(time);
 

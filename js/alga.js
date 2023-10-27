@@ -24,7 +24,7 @@ export default class Alga {
 	*/
 
 	constructor(row, column, position) {
-		this.node = createNode({name: `Alga${row}_{column`});
+		this.node = createNode({name: `Alga${row}_${column}`});
 
 		this.restingPosition = vec2.clone(position);
 		this.goalPosition = vec2.clone(position);

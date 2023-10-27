@@ -5,7 +5,30 @@ import Globals from "./globals.js";
 const {vec2, mat3} = glMatrix;
 
 const createNode = (properties = null) =>
-	new SceneNode({ transform: new Transform(), ...properties });
+	new SceneNode({
+		transform: new Transform(),
+		domElement: null,
+	...properties
+});
+
+const renderNode = (node, scene) => {
+	if (node.domElement == null) {
+		node.domElement = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		node.domElement.setAttribute("id", node.name);
+
+		node.domElement.innerHTML = `<rect width="10" height="10" fill="red"></rect>`;
+
+		const domParent = node.parent?.domElement ?? scene;
+		domParent.appendChild(node.domElement);
+	}
+	if (node.transform.stale) {
+		node.transform.render();
+	}
+	node.domElement.setAttribute("transform", node.transform.svgTransform);
+	for (const child of node.children) {
+		renderNode(child, scene);
+	}
+};
 
 const lerp = (p, q, percent) => (1 - percent) * p + percent * q;
 
@@ -31,8 +54,8 @@ const vec2Max = (out, a, b) => {
 }
 
 const vec2Clamp = (out, a, min, max) => {
-	vec2Min(out, a, min);
-	vec2Max(out, out, max)
+	vec2Max(out, a, min);
+	vec2Min(out, out, max)
 }
 
 const getConcatenatedMatrix = (node) => {
@@ -47,7 +70,7 @@ const getConcatenatedMatrix = (node) => {
 const getConcatenatedRotation = (node) => {
 	let concatenated = 0;
 	while (node != null) {
-		concatenated += node.rotation;
+		concatenated += node.transform.rotation;
 		node = node.parent;
 	}
 	return concatenated;
@@ -96,6 +119,7 @@ export {
 	chain,
 	lerp,
 	createNode,
+	renderNode,
 	vec2Zero,
 	vec2One,
 	vec2FromAngle,

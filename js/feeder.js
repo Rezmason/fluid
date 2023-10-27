@@ -9,7 +9,14 @@ const maxFeederSeeds = 40;
 const maxFeederSize = 3;
 const minSeedDist = 100;
 const minDist = 80;
-const margin = 50;
+const margin = chain(vec2.clone(vec2One),
+	[vec2.scale, null, 100],
+	[vec2.sub, Globals.gameSize, null],
+	[vec2.scale, null, 0.5]
+);
+const invMargin = chain(vec2.clone(margin),
+	[vec2.scale, null, -1]
+);
 
 class Feeder {
 
@@ -183,35 +190,22 @@ class Feeder {
 		vec2.add(this.velocity, this.velocity, chain(pushForce, [vec2.scale, null, mag * delta]));
 		const position = this.node.transform.position;
 		const bobVelocity = Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
-		chain(
-			position,
-			[vec2.add, null, chain(
-				vec2.clone(this.velocity),
-				[vec2.add, null, chain(
-					vec2.clone(bobDirection),
-					[vec2.scale, null, bobVelocity]
-				)],
-				[vec2.scale, null, mag * delta]
-			)],
-			[vec2.add, null, vec2FromAngle(Math.random() * Math.PI, 0.1)]
+		const displacement = chain(vec2.clone(bobDirection),
+			[vec2.scale, null, bobVelocity],
+			[vec2.add, null, this.velocity],
+			[vec2.scale, null, mag * delta]
 		);
+		vec2.add(position, position, displacement);
+		// vec2.add(position, position, vec2FromAngle(Math.random() * Math.PI * 2, 0.1));
+
 		vec2.lerp(this.velocity, this.velocity, vec2Zero, 0.01);
 		
 		// Avoid the edges
 		{
-			const currentRadius = 50;
-			const currentMargin = chain(vec2.clone(vec2One),
-				[vec2.scale, null, margin + currentRadius],
-				[vec2.sub, Globals.screenSize, null],
-				[vec2.scale, null, 0.5]
+			const goalPosition = chain(vec2.clone(position),
+			[vec2Clamp, null, invMargin, margin]
 			);
-			const goalPosition = chain(position,
-				[vec2Clamp, null, chain(vec2.clone(currentMargin),
-						[vec2.scale, null, -1]
-					),
-				currentMargin]
-			);
-			vec2.lerp(position, goalPosition, goalPosition, 0.08);
+			vec2.lerp(position, position, goalPosition, 0.08);
 		}
 
 		this.node.transform.position = position;
@@ -221,12 +215,14 @@ class Feeder {
 			for (const feeder of this.elements) {
 				const art = feeder.art;
 				const artPosition = this.art.transform.position;
-				const goalPosition = chain(vec2.create(),
-					[vec2.scale, artPosition, (minDist / 2) / vec2.length(artPosition)]
-				);
-				this.art.transform.position = chain(artPosition,
-					[vec2.lerp, null, goalPosition, 0.2]
-				);
+				if (vec2.length(artPosition) > 0) {
+					const goalPosition = chain(vec2.create(),
+						[vec2.scale, artPosition, (minDist / 2) / vec2.length(artPosition)]
+					);
+					this.art.transform.position = chain(artPosition,
+						[vec2.lerp, null, goalPosition, 0.2]
+					);
+				}
 			}
 		} else if (this.size == maxFeederSize) {
 			const averagePosition = chain(this.elements[0].art.transform.position,
@@ -236,13 +232,15 @@ class Feeder {
 			);
 			for (const feeder of this.elements) {
 				const art = feeder.art;
-				const goalPosition = chain(vec2.create(),
-					[vec2.sub, this.art.transform.position, averagePosition]
-				);
-				vec2.scale(goalPosition, goalPosition, (minDist / 2) / vec2.length(goalPosition));
-				this.art.transform.position = chain(this.art.transform.position,
-					[vec2.lerp, null, goalPosition, 0.2]
-				);
+				if (vec2.length(art.transform.position) > 0) {
+					const goalPosition = chain(vec2.create(),
+						[vec2.sub, this.art.transform.position, averagePosition]
+					);
+					vec2.scale(goalPosition, goalPosition, (minDist / 2) / vec2.length(goalPosition));
+					this.art.transform.position = chain(this.art.transform.position,
+						[vec2.lerp, null, goalPosition, 0.2]
+					);
+				}
 			}
 		}
 	}
