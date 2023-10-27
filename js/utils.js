@@ -24,8 +24,8 @@ const renderNode = (node, scene) => {
 		node.domElement.append(node.artContainer);
 
 		node.artContainer.innerHTML = node.art ?? [
-			// `<circle r="5" fill="#ff000060"></circle>`,
-			// `<text>${node.name ?? "..."}</text>`
+			`<circle r="5" fill="#ff000060"></circle>`,
+			`<text>${node.name ?? "..."}</text>`
 		].join("");
 
 		const domParent = node.parent?.childContainer ?? scene;

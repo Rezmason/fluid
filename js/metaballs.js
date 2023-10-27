@@ -92,7 +92,7 @@ const redraw = () => {
 }
 
 const resizeObserver = new ResizeObserver(([entry]) => {
-	const boxSize = entry.devicePixelContentBoxSize[0];
+	const boxSize = entry.borderBoxSize[0];
 	const size = [boxSize.inlineSize, boxSize.blockSize];
 	[feederMetaballs.width, feederMetaballs.height] = size;
 	gl.viewport(0, 0, ...size);

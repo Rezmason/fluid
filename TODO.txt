@@ -1,5 +1,4 @@
-Verify getGlobalPosition and getGlobalRotation
-Verify setGlobalPosition and setGlobalRotation
+Fix getGlobalPosition and setGlobalPosition
 Feeder clusters aren't positioning properly
 Tweening
 	alga (+muck)

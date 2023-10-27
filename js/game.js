@@ -1,4 +1,4 @@
-import {createNode, renderNode, chain, getGlobalPosition, setGlobalPosition} from "./utils.js";
+import {createNode, renderNode, chain, getGlobalPosition, setGlobalPosition, setGlobalRotation} from "./utils.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
@@ -87,6 +87,41 @@ const resize = () => {
 };
 window.addEventListener("resize", resize);
 resize();
+
+const testSceneNodes = [];
+const testTrace = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+testTrace.setAttribute("fill", "none");
+testTrace.setAttribute("stroke", "red");
+testTrace.setAttribute("stroke-width", 3);
+testTrace.setAttribute("id", "TestTrace");
+const spawnTestScene = () => {
+	let node = rootNode;
+	for (let i = 0; i < 4; i++) {
+		const child = createNode({name:`Test${i}`});
+		child.transform.position = vec2.fromValues(100, 0);
+		node.addChild(child);
+		testSceneNodes.push(child);
+		node = child;
+	}
+
+	renderNode(rootNode, scene);
+	rootNode.domElement.appendChild(testTrace);
+};
+
+const updateTestScene = (time, delta) => {
+	let s = "";
+	for (let i = 0; i < 4; i++) {
+		const node = testSceneNodes[i];
+		node.transform.position = vec2.fromValues(Math.sin(time / 500) * 20 + 80, 0);
+		node.transform.rotation += 0.2 * delta;
+
+		const globalPosition = getGlobalPosition(node);
+		s += globalPosition[0].toFixed(3) + "," + globalPosition[1].toFixed(3) + " ";
+	}
+	testTrace.setAttribute("points", s);
+	// setGlobalPosition(testSceneNodes[3], vec2.fromValues(100, 100));
+	// setGlobalRotation(testSceneNodes[3], 0);
+}
 
 const spawnAlgae = () => {
 	const grid = [];
@@ -317,6 +352,8 @@ const update = (now) => {
 		}
 	}
 
+	updateTestScene(time, delta);
+
 	renderNode(rootNode, scene);
 
 	updateMetaballs(time);
@@ -342,9 +379,10 @@ const update = (now) => {
 Globals.MuckChanged += DetectEndgame;
 */
 
-spawnAlgae();
-spawnForagers();
-spawnFeeders();
+// spawnAlgae();
+// spawnForagers();
+// spawnFeeders();
+spawnTestScene();
 
 update(startTime);
 fade.classList.toggle("hidden", true);

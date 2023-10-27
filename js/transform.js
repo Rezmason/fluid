@@ -1,7 +1,5 @@
 const {vec2, mat3} = glMatrix;
 
-const twipped = (n) => Math.floor(n * 20) / 20;
-
 export default class Transform {
 	matrix = mat3.create();
 	#position = vec2.create();
@@ -18,11 +16,9 @@ export default class Transform {
 	}
 
 	set position(v) {
-		const twippedX = twipped(v[0]);
-		const twippedY = twipped(v[1]);
-		if (this.matrix[2] !== twippedX || this.matrix[5] !== twippedY) {
-			this.#position[0] = this.matrix[2] = twippedX;
-			this.#position[1] = this.matrix[5] = twippedY;
+		if (this.matrix[2] !== v[0] || this.matrix[5] !== v[1]) {
+			this.#position[0] = this.matrix[2] = v[0];
+			this.#position[1] = this.matrix[5] = v[1];
 			this.stale = true;
 		}
 	}
@@ -33,7 +29,7 @@ export default class Transform {
 
 	set rotation(v) {
 		if (this.#rotation !== v) {
-			this.#rotation = twipped(v);
+			this.#rotation = v;
 			const position = this.position;
 			mat3.fromRotation(this.matrix, v);
 			this.position = position;
