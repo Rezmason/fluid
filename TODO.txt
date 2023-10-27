@@ -1,7 +1,6 @@
 Verify getGlobalPosition and getGlobalRotation
 Verify setGlobalPosition and setGlobalRotation
 Feeder clusters aren't positioning properly
-Prevent transparent metaballs from tinting underlying content in Firefox
 Tweening
 	alga (+muck)
 	forager

@@ -5,7 +5,8 @@ const feederMetaballs = game.querySelector("#metaballs");
 
 const gl = feederMetaballs.getContext("webgl2", {
 	depth: false,
-	stencil: false
+	stencil: false,
+	premultipliedAlpha: false
 });
 gl.clearColor(1, 1, 1, 1);
 
