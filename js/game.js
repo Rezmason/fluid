@@ -20,7 +20,6 @@ const feeders = [];
 const rootNode = createNode({name: "root"});
 
 const game = Globals.game;
-const fade = game.querySelector("fade");
 const scene = game.querySelector("#scene");
 
 const updateAlgaeGoalPositions = () => {
@@ -85,51 +84,6 @@ const resize = () => {
 };
 window.addEventListener("resize", resize);
 resize();
-
-const numTestSceneNodes = 6;
-const testSceneNodes = [];
-// const testTrace = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-// testTrace.setAttribute("fill", "none");
-// testTrace.setAttribute("stroke", "orange");
-// testTrace.setAttribute("stroke-width", 3);
-// testTrace.setAttribute("id", "TestTrace");
-const testDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-testDot.setAttribute("fill", "red");
-testDot.setAttribute("id", "TestDot");
-testDot.setAttribute("r", "5");
-const spawnTestScene = () => {
-	let node = rootNode;
-	for (let i = 0; i < numTestSceneNodes; i++) {
-		const child = createNode({name:`Test${i}`});
-		child.transform.position = vec2.fromValues(100, 0);
-		node.addChild(child);
-		testSceneNodes.push(child);
-		node = child;
-	}
-
-	renderNode(rootNode, scene);
-	// rootNode.domElement.appendChild(testTrace);
-	rootNode.domElement.appendChild(testDot);
-};
-
-const updateTestScene = (time, delta) => {
-	// const points = [];
-	for (let i = 0; i < numTestSceneNodes; i++) {
-		const node = testSceneNodes[i];
-		// node.transform.position = vec2.fromValues(Math.sin(time / 500) * (10 + 20 * i) + 80, 0);
-		node.transform.rotation += (1 + i) * delta;
-
-		const globalPosition = getGlobalPosition(node);
-		// points.push([
-		// 	globalPosition[0].toFixed(3),
-		// 	globalPosition[1].toFixed(3)
-		// ]);
-	}
-	// testTrace.setAttribute("points", points.flat().join(" "));
-	setGlobalPosition(testSceneNodes[3], vec2.fromValues(-100, -100));
-	setGlobalPosition(testSceneNodes[4], vec2.fromValues(100, -100));
-	// setGlobalRotation(testSceneNodes[3], 0);
-}
 
 const spawnAlgae = () => {
 	const grid = [];
@@ -251,7 +205,12 @@ const detectEndgame = (alga) => {
 const reset = () => {
 	resetting = true;
 	gameCanEnd = false;
-	fade.classList.toggle("hidden", true);
+	/*
+	var tween = fade.CreateTween()
+			.SetTrans(Tween.TransitionType.Quad);
+		tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 1), 5)
+			.SetEase(Tween.EaseType.In);
+	*/
 	setTimeout(() => {
 		for (const alga of algae) {
 			alga.reset();
@@ -261,7 +220,11 @@ const reset = () => {
 		numMuckyAlgae = 0;
 		resetting = false;
 
-		fade.classList.toggle("hidden", false);
+		/*
+		tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 0), 5)
+			.SetEase(Tween.EaseType.Out);
+		tween.TweenProperty(fade, "visible", false, 0);
+		*/
 	}, 1000 * 5);
 }
 
@@ -348,19 +311,17 @@ const update = (now) => {
 		if (feeder.size >= maxFeederSize) {
 			seedingFeeders.push(feeder);
 		} else {
-			// for (let j = i + 1; j < feeders.length; j++) {
-			// 	var other = feeders[j];
-			// 	if (other.parent != null || other.age < minAge || feeder.size + other.size > maxFeederSize) continue;
-			// 	if (feeder.size >= other.size) {
-			// 		if (feeder.tryToCombine(other)) break;
-			// 	} else {
-			// 		if (other.tryToCombine(feeder)) break;
-			// 	}
-			// }
+			for (let j = i + 1; j < feeders.length; j++) {
+				var other = feeders[j];
+				if (other.parent != null || other.age < minAge || feeder.size + other.size > maxFeederSize) continue;
+				if (feeder.size >= other.size) {
+					if (feeder.tryToCombine(other)) break;
+				} else {
+					if (other.tryToCombine(feeder)) break;
+				}
+			}
 		}
 	}
-
-	updateTestScene(time, delta);
 
 	renderNode(rootNode, scene);
 
@@ -387,10 +348,15 @@ const update = (now) => {
 Globals.MuckChanged += DetectEndgame;
 */
 
-// spawnAlgae();
-// spawnForagers();
-// spawnFeeders();
-spawnTestScene();
+spawnAlgae();
+spawnForagers();
+spawnFeeders();
 
 update(startTime);
-fade.classList.toggle("hidden", true);
+/*
+var tween = fade.CreateTween()
+	.SetTrans(Tween.TransitionType.Quad)
+	.SetEase(Tween.EaseType.Out);
+tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 0), 5);
+tween.TweenProperty(fade, "visible", false, 0);
+*/

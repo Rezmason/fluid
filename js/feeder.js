@@ -36,7 +36,7 @@ class Feeder {
 	constructor(id) {
 		this.name = `Feeder${id}`;
 		this.node = createNode({name: this.name});
-		this.art = createNode({art: Art.feeder});
+		this.art = createNode({art: null /*Art.feeder*/});
 		this.node.addChild(this.art);
 	}
 
@@ -187,8 +187,8 @@ class Feeder {
 		const mag = 10;
 		vec2.add(this.velocity, this.velocity, chain(pushForce, [vec2.scale, null, mag * delta]));
 		const position = this.node.transform.position;
-		const bobVelocity = Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
-		// const bobVelocity = 0;
+		// const bobVelocity = Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
+		const bobVelocity = 0;
 		const displacement = chain(vec2.clone(bobDirection),
 			[vec2.scale, null, bobVelocity],
 			[vec2.add, null, this.velocity],
@@ -217,30 +217,30 @@ class Feeder {
 		if (this.size == 2) {
 			for (const feeder of this.elements) {
 				const art = feeder.art;
-				const artPosition = this.art.transform.position;
+				const artPosition = art.transform.position;
 				if (vec2.length(artPosition) > 0) {
 					const goalPosition = chain(vec2.create(),
 						[vec2.scale, artPosition, (minDist / 2) / vec2.length(artPosition)]
 					);
-					this.art.transform.position = chain(artPosition,
-						[vec2.lerp, null, goalPosition, 0.2]
-					);
+					vec2.lerp(artPosition, artPosition, goalPosition, 0.2);
+					art.transform.position = artPosition;
 				}
 			}
-		} else if (this.size == maxFeederSize) {
+		} else if (this.size == 3) {
 			const averagePosition = chain(this.elements[0].art.transform.position,
 				[vec2.add, null, this.elements[1].art.transform.position],
 				[vec2.add, null, this.elements[2].art.transform.position],
-				[vec2.scale, null, 1 / maxFeederSize]
+				[vec2.scale, null, 1 / 3]
 			);
 			for (const feeder of this.elements) {
 				const art = feeder.art;
-				if (vec2.length(art.transform.position) > 0) {
+				const artPosition = art.transform.position;
+				if (vec2.length(artPosition) > 0) {
 					const goalPosition = chain(vec2.create(),
-						[vec2.sub, this.art.transform.position, averagePosition]
+						[vec2.sub, artPosition, averagePosition]
 					);
 					vec2.scale(goalPosition, goalPosition, (minDist / 2) / vec2.length(goalPosition));
-					this.art.transform.position = chain(this.art.transform.position,
+					art.transform.position = chain(artPosition,
 						[vec2.lerp, null, goalPosition, 0.2]
 					);
 				}

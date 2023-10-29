@@ -1,7 +1,7 @@
-Feeder clusters aren't positioning properly
 Tweening
 	alga (+muck)
 	forager
+	fade through metaballs
 Sizing of game
 	aspect ratio 4 / 3
 	width no greater than 90vw

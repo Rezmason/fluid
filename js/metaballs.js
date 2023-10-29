@@ -6,7 +6,8 @@ const feederMetaballs = game.querySelector("#metaballs");
 const gl = feederMetaballs.getContext("webgl2", {
 	depth: false,
 	stencil: false,
-	premultipliedAlpha: false
+	// premultipliedAlpha: true
+	alpha: false
 });
 gl.clearColor(1, 1, 1, 1);
 
@@ -19,6 +20,7 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 
 	#define threshold 0.015
 	#define smoothness 0.0005
+	#define width 1024.0
 	#define height 768.0
 	#define color vec3(0.478431, 0.0901961, 0)
 	uniform float sceneScale;
@@ -30,7 +32,8 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 	void main(void) {
 
 		vec2 uv = gl_FragCoord.xy * sceneScale;
-		uv.y = height - uv.y;
+		uv.x = uv.x - width * 0.5;
+		uv.y = height * 0.5 - uv.y;
 
 		float smoothing = smoothness * sceneScale;
 
@@ -52,7 +55,8 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 			);
 		}
 
-		outColor = vec4(color, value);
+		outColor = vec4(mix(vec3(1.0), color, value), 1.0);
+		// outColor = vec4(color, value);
 	}
 `);
 gl.compileShader(fragShader);
@@ -94,6 +98,9 @@ const redraw = () => {
 const resizeObserver = new ResizeObserver(([entry]) => {
 	const boxSize = entry.borderBoxSize[0];
 	const size = [boxSize.inlineSize, boxSize.blockSize];
+	const resolution = window.devicePixelRatio;
+	size[0] /= resolution;
+	size[1] /= resolution;
 	[feederMetaballs.width, feederMetaballs.height] = size;
 	gl.viewport(0, 0, ...size);
 	gl.uniform1f(uSceneScale, Globals.gameSize[0] / size[0]);
