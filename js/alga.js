@@ -29,20 +29,21 @@ export default class Alga {
 		this.goalPosition = vec2.clone(position);
 		this.node.transform.position = position;
 
-		this.art = createNode({art: Art.alga});
-		this.node.addChild(this.art);
+		this.muck = createNode({art: Art.muck, tags: ["muck"]});
+		this.node.addChild(this.muck);
+
+		this.fruit = createNode({art: Art.fruit, tags: ["fruit"]});
+		this.node.addChild(this.fruit);
 		/*
-		this.#fruitAnimation = this.art.GetNode<AnimationTree>("AnimationTree");
+		this.#fruitAnimation = this.fruit.GetNode<AnimationTree>("AnimationTree");
 		*/
 
-		this.muck = createNode({art: Art.muck});
-		this.art.addChild(this.muck, 0);
 		/*
-		this.muck = this.art.GetNode<Node2D>("Muck");
+		this.muck = this.fruit.GetNode<Node2D>("Muck");
 		this.muck.Set("modulate", new Color(1, 1, 1, 0));
 		this.muck.Set("scale", vec2Zero);
-		this.muck.Visible = false;
 		*/
+		this.muck.visible = false;
 	}
 
 	get occupied() {
@@ -71,22 +72,20 @@ export default class Alga {
 			this.#fruitTween = null;
 		}
 
-		/*
-		this.muck.Visible = false;
-		*/
+		this.muck.visible = false;
 		this.muck.transform.position = vec2Zero;
 		/*
 		this.muck.Modulate = new Color("white");
 
 		this.#fruitAnimation.Set("parameters/FruitBlend/blend_position", vec2Zero);
 		*/
-		this.art.transform.position = vec2Zero;
+		this.fruit.transform.position = vec2Zero;
 	}
 
 	#animateMuck() {
 		const isHere = this.mucky ? 1 : 0;
+		this.muck.visible = true;
 		/*
-		this.muck.Visible = true;
 		this.#muckTween = this.muck.CreateTween().SetParallel(true)
 			.SetTrans(Tween.TransitionType.Quad)
 			.SetEase(Tween.EaseType.Out);
@@ -100,7 +99,7 @@ export default class Alga {
 
 	#animateFruit() {
 		/*
-		fruitTween = this.art.CreateTween();
+		fruitTween = this.fruit.CreateTween();
 		fruitTween.TweenProperty(this.#fruitAnimation, "parameters/FruitBlend/blend_position",
 			vec2.fromValues(
 				this.mucky ? 1 : 0,

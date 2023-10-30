@@ -12,6 +12,7 @@ Portrait orientation should swap width and height
 Make sure foragers can be clicked
 Muck event dispatch
 	Make a signal.js
+Adjust physics
 Inspect performance
 splash screen
 music
