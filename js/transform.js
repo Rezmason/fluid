@@ -8,6 +8,7 @@ export default class Transform {
 	#rotation = 0;
 	stale = true;
 	svgTransform = "none";
+	cssTransform = "none";
 
 	constructor() {
 
@@ -47,8 +48,10 @@ export default class Transform {
 			tw(m[1], 1000),
 			tw(m[2], 1000),
 			tw(m[3], 1000),
-			tw(m[4], 20),
-			tw(m[5], 20),
+			tw(m[4], 200),
+			tw(m[5], 200),
 		].join(",")})`;
+
+		this.cssTransform = "translateZ(0) " + this.svgTransform;
 	}
 }

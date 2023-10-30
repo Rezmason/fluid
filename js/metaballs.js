@@ -6,8 +6,8 @@ const feederMetaballs = game.querySelector("#metaballs");
 const gl = feederMetaballs.getContext("webgl2", {
 	depth: false,
 	stencil: false,
-	// premultipliedAlpha: true
-	alpha: false
+	premultipliedAlpha: false
+	// alpha: false
 });
 gl.clearColor(1, 1, 1, 1);
 
@@ -55,8 +55,8 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 			);
 		}
 
-		outColor = vec4(mix(vec3(1.0), color, value), 1.0);
-		// outColor = vec4(color, value);
+		// outColor = vec4(mix(vec3(1.0), color, value), 1.0);
+		outColor = vec4(color, value);
 	}
 `);
 gl.compileShader(fragShader);
@@ -98,7 +98,7 @@ const redraw = () => {
 const resizeObserver = new ResizeObserver(([entry]) => {
 	const boxSize = entry.borderBoxSize[0];
 	const size = [boxSize.inlineSize, boxSize.blockSize];
-	const resolution = window.devicePixelRatio;
+	const resolution = window.devicePixelRatio * 1;
 	size[0] /= resolution;
 	size[1] /= resolution;
 	[feederMetaballs.width, feederMetaballs.height] = size;

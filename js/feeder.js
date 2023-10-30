@@ -36,7 +36,9 @@ class Feeder {
 	constructor(id) {
 		this.name = `Feeder${id}`;
 		this.node = createNode({name: this.name});
-		this.art = createNode({art: null /*Art.feeder*/});
+		this.art = createNode({
+			// art: Art.feeder
+		});
 		this.node.addChild(this.art);
 	}
 

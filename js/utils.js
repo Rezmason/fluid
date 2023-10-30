@@ -24,17 +24,20 @@ const renderNode = (node, scene) => {
 		node.domElement.append(node.artContainer);
 
 		node.artContainer.innerHTML = node.art ?? [
-			`<rect x="-1" y="-1" width="6" height="2" fill="#00600080"></circle>`,
-			`<text>${node.name ?? "..."}</text>`
+			// `<rect x="-1" y="-1" width="6" height="2" fill="#00600080"></circle>`,
+			// `<text>${node.name ?? "..."}</text>`
 		].join("");
 
 		const domParent = node.parent?.childContainer ?? scene;
 		domParent.appendChild(node.domElement);
+	} else if (node.parent != null) {
+		if (node.parent.domElement != node.domElement.parentNode.parentNode)
+		node.parent.domElement.appendChild(node.domElement);
 	}
 	if (node.transform.stale) {
 		node.transform.render();
+		node.domElement.style.transform = node.transform.cssTransform;
 	}
-	node.domElement.setAttribute("transform", node.transform.svgTransform);
 	for (const child of node.children) {
 		renderNode(child, scene);
 	}
