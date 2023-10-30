@@ -6,6 +6,7 @@ const {vec2, mat2d} = glMatrix;
 
 const createNode = (properties = null) =>
 	new SceneNode({
+		visible: true,
 		transform: new Transform(),
 		domElement: null,
 	...properties
@@ -14,30 +15,34 @@ const createNode = (properties = null) =>
 const createSVGGroup = () => document.createElementNS("http://www.w3.org/2000/svg", "g");
 
 const renderNode = (node, scene) => {
+	const domElement = node.domElement ?? createSVGGroup();
 	if (node.domElement == null) {
-		node.domElement = createSVGGroup();
-		node.domElement.setAttribute("id", node.name);
-		node.childContainer = createSVGGroup();
-		node.artContainer = createSVGGroup();
-
-		node.domElement.append(node.childContainer);
-		node.domElement.append(node.artContainer);
-
-		node.artContainer.innerHTML = node.art ?? [
-			// `<rect x="-1" y="-1" width="6" height="2" fill="#00600080"></circle>`,
-			// `<text>${node.name ?? "..."}</text>`
-		].join("");
-
-		const domParent = node.parent?.childContainer ?? scene;
-		domParent.appendChild(node.domElement);
-	} else if (node.parent != null) {
-		if (node.parent.domElement != node.domElement.parentNode.parentNode)
-		node.parent.domElement.appendChild(node.domElement);
+		node.domElement = domElement;
+		domElement.setAttribute("id", node.name);
+		node.domElement.innerHTML = node.art ?? "";
 	}
+
+	if (node.parent == null) {
+		if (domElement.parentNode !== scene) scene.append(domElement);
+	} else {
+		const domParent = node.parent.domElement;
+		if (domElement.parentNode !== domParent) {
+			domParent.append(domElement);
+		}
+	}
+
+	const style = domElement.style;
+	const visibility = style.getPropertyValue("visibility");
+	const isVisible = visibility === "visible";
+	if (visibility === "" || node.visible !== isVisible) {
+		style.setProperty("visibility", node.visible ? "visible" : "hidden");
+	}
+
 	if (node.transform.stale) {
 		node.transform.render();
-		node.domElement.style.transform = node.transform.cssTransform;
+		style.transform = node.transform.cssTransform;
 	}
+
 	for (const child of node.children) {
 		renderNode(child, scene);
 	}
