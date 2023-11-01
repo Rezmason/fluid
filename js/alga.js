@@ -1,4 +1,4 @@
-import {createNode, vec2Zero} from "./utils.js";
+import {createNode, vec2Zero, lerp} from "./utils.js";
 import Globals from "./globals.js";
 import {tween, delay, quadEaseOut} from "./tween.js";
 
@@ -36,15 +36,12 @@ export default class Alga {
 
 		this.fruit = createNode({
 			tags: ["fruit"],
-			art: `<circle transform="scale(0.4)" r="22.5" fill="#f4e9cb"></circle>`
+			art: `<circle r="22.5" fill="#f4e9cb"></circle>`
 		});
 		this.node.addChild(this.fruit);
 		/*
-		this.muck = this.fruit.GetNode<Node2D>("Muck");
 		this.muck.Set("modulate", new Color(1, 1, 1, 0));
-		this.muck.Set("scale", vec2Zero);
 		*/
-		this.muck.visible = false;
 	}
 
 	get occupied() {
@@ -71,35 +68,42 @@ export default class Alga {
 
 		this.muck.visible = false;
 		this.muck.transform.position = vec2Zero;
+		this.muck.transform.scale = 0;
 		/*
-		reset muck opacity to 1
-		reset fruit scale to 0.4
+		reset muck opacity to 0
 		reset fruit color to #f4e9cb
 		*/
 		this.fruit.transform.position = vec2Zero;
+		this.fruit.transform.scale = 0.4;
 	}
 
 	#animateMuck() {
-		const isHere = this.mucky ? 1 : 0;
-		this.muck.visible = true;
+		const oldPosition = this.muck.transform.position;
+		const newPosition = vec2Zero;
+		const oldScale = this.muck.transform.scale;
+		const newScale = this.mucky ? 1 : 0;
 		this.#muckTween = tween((at) => {
+			this.muck.visible = true;
+			this.muck.transform.position = vec2.lerp(oldPosition, newPosition, at);
+			this.muck.transform.scale = lerp(oldScale, newScale, at);
 			/*
-			tween "position" to vec2Zero
-			tween "scale" to vec2.fromValues(isHere, isHere)
 			tween "opacity" to isHere ? 1 : 0
-			tween "visible" to this.mucky
 			*/
+			if (at >= 1) this.muck.visible = this.mucky;
 		}, 0.5, quadEaseOut);
 	}
 
 	#animateFruit() {
+		const oldScale = this.fruit.transform.scale;
+		const newScale = this.ripe ? 1 : 0.4;
 		this.#fruitTween = tween((at) => {
 			/*
-			tween "scale" and "color"
-			ripe: scale 1.0, color #f79965
-			unripe and mucky: scale 0.4, color #ffffff
-			unripe and not mucky: scale 0.4, color #f4e9cb
+			tween color
+			ripe: color #f79965
+			unripe and mucky: color #ffffff
+			unripe and not mucky: color #f4e9cb
 			*/
+			this.fruit.transform.scale = lerp(oldScale, newScale, at);
 		}, 0.5, quadEaseOut);
 	}
 
@@ -116,7 +120,7 @@ export default class Alga {
 			this.mucky = false;
 			this.#animateMuck();
 			this.#animateFruit();
-			Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
+			// Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
 		}
 	}
 
@@ -143,7 +147,7 @@ export default class Alga {
 		setGlobalPosition(this.muck, origin);
 		this.#animateMuck();
 		this.#animateFruit();
-		Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
+		// Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
 		this.#waitToSpreadMuck();
 	}
 

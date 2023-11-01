@@ -2,10 +2,10 @@ Tweening
 	alga
 		fruit
 		muck
-z-ordering (namely each forager over all algae)
+Make sure foragers can be clicked
 One feeder flickers if two are created
 	Persist feeder group IDs, don't assign them every frame
-Make sure foragers can be clicked
+z-ordering (namely each forager over all algae)
 Muck event dispatch
 	Make a signal.js
 Sizing of game

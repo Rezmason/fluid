@@ -143,7 +143,10 @@ export default class Forager {
 				this.node.transform.position = chain(vec2.create(),
 					[vec2.lerp, oldPosition, vec2Zero, at]
 				);
-				if (at >= 1) this.#waitToJump();
+				if (at >= 1) {
+					if (this.alga.ripe && this.alga.occupant === this) this.alga.eat();
+					this.#waitToJump();
+				}
 			}, 0.3, quadEaseOut);
 
 		} else {
