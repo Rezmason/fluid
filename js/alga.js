@@ -134,7 +134,7 @@ export default class Alga {
 			this.mucky = false;
 			this.#animateMuck();
 			this.#animateFruit();
-			// Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
+			Globals.muckChanged.dispatchEvent(new CustomEvent("muckChanged", {detail: this}));
 		}
 	}
 
@@ -161,7 +161,7 @@ export default class Alga {
 		setGlobalPosition(this.muck, origin);
 		this.#animateMuck();
 		this.#animateFruit();
-		// Globals.muckChanged.dispatchEvent("muckChanged", {alga: this});
+		Globals.muckChanged.dispatchEvent(new CustomEvent("muckChanged", {detail: this}));
 		this.#waitToSpreadMuck();
 	}
 

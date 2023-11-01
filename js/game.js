@@ -185,6 +185,8 @@ const resetFeeders = () => {
 	}
 }
 
+Globals.muckChanged.addEventListener("muckChanged", ({detail}) => detectEndgame(detail));
+
 const detectEndgame = (alga) => {
 	if (resetting) return;
 
@@ -195,7 +197,7 @@ const detectEndgame = (alga) => {
 	}
 
 	if (gameCanEnd) {
-		if (numMuckyAlgae == 0) {
+		if (numMuckyAlgae === 0) {
 			reset();
 		} else if (numMuckyAlgae / algae.length > 0.6) {
 			reset();
