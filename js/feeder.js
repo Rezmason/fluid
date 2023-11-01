@@ -188,8 +188,8 @@ class Feeder {
 		const mag = 10;
 		vec2.add(this.velocity, this.velocity, chain(pushForce, [vec2.scale, null, mag * delta]));
 		const position = this.node.transform.position;
-		// const bobVelocity = Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
-		const bobVelocity = 0;
+		const bobVelocity = Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
+		// const bobVelocity = 0;
 		const displacement = chain(vec2.clone(bobDirection),
 			[vec2.scale, null, bobVelocity],
 			[vec2.add, null, this.velocity],

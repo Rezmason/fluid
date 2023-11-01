@@ -1,7 +1,8 @@
 Tweening
 	alga
-		muck
 		fruit
+		muck
+z-ordering (namely each forager over all algae)
 One feeder flickers if two are created
 	Persist feeder group IDs, don't assign them every frame
 Make sure foragers can be clicked
