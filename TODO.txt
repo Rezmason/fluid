@@ -1,7 +1,3 @@
-Tweening
-	alga
-		fruit
-		muck
 Make sure foragers can be clicked
 One feeder flickers if two are created
 	Persist feeder group IDs, don't assign them every frame

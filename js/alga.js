@@ -1,8 +1,19 @@
-import {createNode, vec2Zero, lerp} from "./utils.js";
+import {createNode, vec2Zero, lerp, chain, hexColor} from "./utils.js";
 import Globals from "./globals.js";
 import {tween, delay, quadEaseOut} from "./tween.js";
 
-const {vec2} = glMatrix;
+const {vec2, vec4} = glMatrix;
+
+const fruitColors = {
+	ripe: hexColor("#f79965ff"),
+	unripe: hexColor("#f4e9cbff"),
+	muckyUnripe: hexColor("#ffffff"),
+};
+
+const muckColors = {
+	mucky: hexColor("#c0c0c0ff"),
+	clean: hexColor("#c0c0c000")
+};
 
 export default class Alga {
 	name;
@@ -30,18 +41,15 @@ export default class Alga {
 
 		this.muck = createNode({
 			tags: ["muck"],
-			art: `<circle r="59" fill="#c0c0c0"></circle>`
+			art: `<circle r="59" fill="currentColor"></circle>`
 		});
 		this.node.addChild(this.muck);
 
 		this.fruit = createNode({
 			tags: ["fruit"],
-			art: `<circle r="22.5" fill="#f4e9cb"></circle>`
+			art: `<circle r="22.5" fill="currentColor"></circle>`
 		});
 		this.node.addChild(this.fruit);
-		/*
-		this.muck.Set("modulate", new Color(1, 1, 1, 0));
-		*/
 	}
 
 	get occupied() {
@@ -69,12 +77,12 @@ export default class Alga {
 		this.muck.visible = false;
 		this.muck.transform.position = vec2Zero;
 		this.muck.transform.scale = 0;
-		/*
-		reset muck opacity to 0
-		reset fruit color to #f4e9cb
-		*/
+		this.muck.colorTransform.color = muckColors.clean;
+
 		this.fruit.transform.position = vec2Zero;
 		this.fruit.transform.scale = 0.4;
+
+		this.fruit.colorTransform.color = fruitColors.unripe;
 	}
 
 	#animateMuck() {
@@ -82,13 +90,13 @@ export default class Alga {
 		const newPosition = vec2Zero;
 		const oldScale = this.muck.transform.scale;
 		const newScale = this.mucky ? 1 : 0;
+		const oldColor = this.muck.colorTransform.color;
+		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
 		this.#muckTween = tween((at) => {
 			this.muck.visible = true;
 			this.muck.transform.position = vec2.lerp(oldPosition, newPosition, at);
 			this.muck.transform.scale = lerp(oldScale, newScale, at);
-			/*
-			tween "opacity" to isHere ? 1 : 0
-			*/
+			this.muck.colorTransform.color = chain(vec4.create(), [vec4.lerp, oldColor, newColor, at]);
 			if (at >= 1) this.muck.visible = this.mucky;
 		}, 0.5, quadEaseOut);
 	}
@@ -96,14 +104,12 @@ export default class Alga {
 	#animateFruit() {
 		const oldScale = this.fruit.transform.scale;
 		const newScale = this.ripe ? 1 : 0.4;
+		const oldColor = this.fruit.colorTransform.color;
+		const newColor = this.ripe ? fruitColors.ripe : this.mucky ? fruitColors.muckyUnripe : fruitColors.unripe;
+
 		this.#fruitTween = tween((at) => {
-			/*
-			tween color
-			ripe: color #f79965
-			unripe and mucky: color #ffffff
-			unripe and not mucky: color #f4e9cb
-			*/
 			this.fruit.transform.scale = lerp(oldScale, newScale, at);
+			this.fruit.colorTransform.color = chain(vec4.create(), [vec4.lerp, oldColor, newColor, at]);
 		}, 0.5, quadEaseOut);
 	}
 

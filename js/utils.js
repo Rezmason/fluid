@@ -1,13 +1,15 @@
 import SceneNode from "./scenenode.js";
 import Transform from "./transform.js";
+import ColorTransform from "./colortransform.js";
 import Globals from "./globals.js";
 
-const {vec2, mat2d} = glMatrix;
+const {vec2, mat2d, vec4} = glMatrix;
 
 const createNode = (properties = null) =>
 	new SceneNode({
 		visible: true,
 		transform: new Transform(),
+		colorTransform: new ColorTransform(),
 		domElement: null,
 	...properties
 });
@@ -42,6 +44,11 @@ const renderNode = (node, scene) => {
 	if (node.transform.stale) {
 		node.transform.render();
 		style.transform = node.transform.cssTransform;
+	}
+
+	if (node.colorTransform.stale) {
+		node.colorTransform.render();
+		style.color = node.colorTransform.cssColor;
 	}
 
 	for (const child of node.children) {
@@ -131,6 +138,8 @@ const setGlobalRotation = (node, angle) => {
 	node.transform.rotation += diff;
 };
 
+const hexColor = (hex) => vec4.fromValues(...hex.match(/[\da-fA-F]{2}/g).map(n => parseInt(n, 16) * 100 / 0xFF));
+
 const chain = (subject, ...ops) => {
 	for (const op of ops) {
 		op[0](subject, ...op.slice(1).map(v => v ?? subject));
@@ -153,5 +162,6 @@ export {
 	getGlobalPosition,
 	setGlobalPosition,
 	getGlobalRotation,
-	setGlobalRotation
+	setGlobalRotation,
+	hexColor
 };
