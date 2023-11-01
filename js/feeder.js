@@ -24,6 +24,7 @@ class Feeder {
 	numSeeds;
 	throbStartTime;
 	velocity = vec2.create();
+	groupID;
 
 	elements = [];
 	parent;
@@ -59,6 +60,7 @@ class Feeder {
 		this.age = 0;
 		this.numSeeds = 0;
 		this.throbStartTime = 0;
+		this.groupID = 0;
 	}
 	
 	tryToSeed(alga) {
@@ -80,6 +82,7 @@ class Feeder {
 	}
 	
 	#burst() {
+		this.groupID = 0;
 		const oldPosition = getGlobalPosition(this.node);
 		const artPositions = [];
 		for (const feeder of this.elements) {

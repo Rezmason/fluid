@@ -1,5 +1,3 @@
-One feeder flickers if two are created
-	Persist feeder group IDs, don't assign them every frame
 z-ordering (namely each forager over all algae)
 Sizing of game
 	aspect ratio 4 / 3

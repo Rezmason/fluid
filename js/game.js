@@ -226,6 +226,15 @@ const reset = () => {
 const metaballStates = Array(10).fill().map(_ => vec4.create());
 const groupOpacities = Array(3).fill(1);
 
+const getUniqueGroupID = () => {
+	for (let i = 1; i < 10; i++) {
+		if (!feeders.some(feeder => feeder.groupID === i)) {
+			return i;
+		}
+	}
+	return 0;
+}
+
 const updateMetaballs = (time) => {
 
 	let n = 0;
@@ -234,15 +243,17 @@ const updateMetaballs = (time) => {
 	groupOpacities[0] = 1;
 	for (const feeder of feeders) {
 		if (feeder.parent != null) continue;
-		let groupID = 0;
 		let throb = 0;
 		let throbTime = 0;
-		if (feeder.numSeeds > 0) {
-			groupID = f;
+		if (feeder.size >= 3) {
+			if (feeder.groupID === 0) {
+				feeder.groupID = getUniqueGroupID();
+				console.log("New triple:", feeder.groupID);
+			}
 			let opacity = feeder.numSeeds / maxFeederSeeds;
 			// opacity = 1 - Math.pow(1 - opacity, 2);
-			opacity = lerp(groupOpacities[groupID], opacity, 0.1);
-			groupOpacities[groupID] = opacity;
+			opacity = lerp(groupOpacities[feeder.groupID], opacity, 0.1);
+			groupOpacities[feeder.groupID] = opacity;
 			f++;
 			throb = 7;
 			throbTime = (time - feeder.throbStartTime) / 1000;
@@ -255,7 +266,7 @@ const updateMetaballs = (time) => {
 				position[0],
 				position[1],
 				15 + throb * (Math.sin((i * Math.PI * 2 / 3) + throbTime * 4) * 0.5 + 0.5),
-				groupID
+				feeder.groupID
 			);
 			n++;
 			i++;
