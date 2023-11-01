@@ -7,6 +7,7 @@ import {Feeder, maxFeederSize, maxFeederSeeds} from "./feeder.js";
 import Forager from "./forager.js";
 
 import {lerp} from "./utils.js";
+import {delay} from "./tween.js";
 
 const {vec2, vec4} = glMatrix;
 
@@ -174,7 +175,9 @@ const resetFeeders = () => {
 		setGlobalPosition(feeder.node, chain(vec2.fromValues(
 			Math.random(),
 			Math.random()
-		), [vec2.mul, null, Globals.gameSize]));
+		),
+		[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
+		[vec2.mul, null, Globals.gameSize]));
 		chain(feeder.velocity,
 			[vec2.set, Math.random() - 0.5, Math.random() - 0.5],
 			[vec2.scale, null, 200]
@@ -205,13 +208,8 @@ const detectEndgame = (alga) => {
 const reset = () => {
 	resetting = true;
 	gameCanEnd = false;
-	/*
-	var tween = fade.CreateTween()
-			.SetTrans(Tween.TransitionType.Quad);
-		tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 1), 5)
-			.SetEase(Tween.EaseType.In);
-	*/
-	setTimeout(() => {
+	Metaballs.fadeOut();
+	delay(() => {
 		for (const alga of algae) {
 			alga.reset();
 		}
@@ -219,16 +217,11 @@ const reset = () => {
 		resetFeeders();
 		numMuckyAlgae = 0;
 		resetting = false;
-
-		/*
-		tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 0), 5)
-			.SetEase(Tween.EaseType.Out);
-		tween.TweenProperty(fade, "visible", false, 0);
-		*/
-	}, 1000 * 5);
+		Metaballs.fadeIn();
+	}, 5);
 }
 
-const metaballs = Array(10).fill().map(_ => vec4.create());
+const metaballStates = Array(10).fill().map(_ => vec4.create());
 const groupOpacities = Array(3).fill(1);
 
 const updateMetaballs = (time) => {
@@ -254,7 +247,7 @@ const updateMetaballs = (time) => {
 		}
 		let i = 0;
 		for (const element of feeder.elements) {
-			const metaball = metaballs[n];
+			const metaball = metaballStates[n];
 			const position = getGlobalPosition(element.art);
 			vec4.set(metaball,
 				position[0],
@@ -274,7 +267,7 @@ const updateMetaballs = (time) => {
 
 const testMetaballs = (time) => {
 	for (let i = 0; i < 10; i++) {
-		const metaball = metaballs[i];
+		const metaball = metaballStates[i];
 		const pairing = Math.floor(i / 2);
 		let groupID = pairing % 3;
 		vec4.set(metaball,
@@ -339,7 +332,7 @@ const update = (now) => {
 			if (feeder.size == maxFeederSize && feeder.tryToSeed(alga)) break;
 		}
 	}
-	Metaballs.update(metaballs, groupOpacities);
+	Metaballs.update(metaballStates, groupOpacities);
 	Metaballs.redraw();
 	requestAnimationFrame(update);
 };
@@ -353,10 +346,4 @@ spawnForagers();
 spawnFeeders();
 
 update(startTime);
-/*
-var tween = fade.CreateTween()
-	.SetTrans(Tween.TransitionType.Quad)
-	.SetEase(Tween.EaseType.Out);
-tween.TweenProperty(fade, "modulate", new Color(1, 1, 1, 0), 5);
-tween.TweenProperty(fade, "visible", false, 0);
-*/
+Metaballs.fadeIn();

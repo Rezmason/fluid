@@ -52,6 +52,28 @@
 					height: 100%;
 				}
 			</style>
+			<style>
+				@keyframes breath-cycle {
+					0%, 100% {
+						transform: scale(1);
+						animation-timing-function: ease-in;
+					}
+
+					20% {
+						transform: scale(1.2);
+						animation-timing-function: ease-out;
+					}
+
+					40% {
+						transform: scale(1.25);
+						animation-timing-function: ease-out;
+					}
+				}
+
+				.breathing {
+					animation: breath-cycle 3s linear infinite;
+				}
+			</style>
 			<svg id="scene" viewBox="-512 -384 1024 768"></svg>
 			<canvas id="metaballs" width="1024" height="768"></canvas>
 			<script src="lib/gl-matrix.js"></script>

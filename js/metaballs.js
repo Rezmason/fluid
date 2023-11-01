@@ -1,5 +1,7 @@
 import Globals from "./globals.js";
 
+import {tween, quadEaseIn, quadEaseOut} from "./tween.js";
+
 const game = Globals.game;
 const feederMetaballs = game.querySelector("#metaballs");
 
@@ -22,7 +24,9 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 	#define smoothness 0.0005
 	#define width 1024.0
 	#define height 768.0
+	#define white vec3(1.0)
 	#define color vec3(0.478431, 0.0901961, 0)
+	uniform float fade;
 	uniform float sceneScale;
 	uniform vec4[10] metaballs;
 	uniform vec4[3] metaballGroups;
@@ -55,8 +59,9 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 			);
 		}
 
-		// outColor = vec4(mix(vec3(1.0), color, value), 1.0);
-		outColor = vec4(color, value);
+		vec4 background = vec4(white, mix(0.0, 1.0, fade));
+		vec4 foreground = vec4(mix(color, white, fade), 1.0);
+		outColor = mix(background, foreground, value);
 	}
 `);
 gl.compileShader(fragShader);
@@ -72,6 +77,7 @@ gl.linkProgram(program);
 const uSceneScale = gl.getUniformLocation(program, "sceneScale");
 const uMetaballs = gl.getUniformLocation(program, "metaballs");
 const uMetaballGroups = gl.getUniformLocation(program, "metaballGroups");
+const uFade = gl.getUniformLocation(program, "fade");
 
 const vertices = [
 	[-1,-1], [ 1,-1], [ 1, 1],
@@ -92,6 +98,7 @@ const redraw = () => {
 	gl.useProgram(program);
 	gl.uniform4fv(uMetaballGroups, metaballGroupData);
 	gl.uniform4fv(uMetaballs, metaballData);
+	gl.uniform1f(uFade, fade);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
 
@@ -109,6 +116,12 @@ const resizeObserver = new ResizeObserver(([entry]) => {
 
 resizeObserver.observe(game);
 
+let fade = 1;
+
+const fadeOut = () => tween((at) => fade = at, 5, quadEaseIn);
+
+const fadeIn = () => tween((at) => fade = 1 - at, 5, quadEaseIn);
+
 export default {
 	update: (metaballs, groupOpacities) => {
 		for (let i = 0; i < 10; i++) {
@@ -119,5 +132,7 @@ export default {
 			metaballGroupData[i * 4] = groupOpacities[i];
 		}
 	},
-	redraw
+	redraw,
+	fadeOut,
+	fadeIn
 };

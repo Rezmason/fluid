@@ -1,6 +1,5 @@
 import {createNode, vec2Zero, vec2One, vec2Clamp, vec2FromAngle, lerp, chain, getGlobalPosition, setGlobalPosition, getGlobalRotation, setGlobalRotation} from "./utils.js";
 import Globals from "./globals.js";
-import Art from "./art.js";
 
 const {vec2} = glMatrix;
 
@@ -11,7 +10,7 @@ const maxFeederSize = 3;
 const minSeedDist = 100;
 const minDist = 80;
 const margin = chain(vec2.clone(vec2One),
-	[vec2.scale, null, 100],
+	[vec2.scale, null, 125],
 	[vec2.sub, Globals.gameSize, null],
 	[vec2.scale, null, 0.5]
 );
@@ -37,7 +36,7 @@ class Feeder {
 		this.name = `Feeder${id}`;
 		this.node = createNode({name: this.name});
 		this.art = createNode({
-			// art: Art.feeder
+			// art: `<circle r="28.5" fill="#7a1700"></circle>`
 		});
 		this.node.addChild(this.art);
 	}
@@ -180,7 +179,7 @@ class Feeder {
 				vec2.create(),
 				[vec2.sub, Globals.mousePosition, this.node.transform.position]
 			);
-			const force = 2000 / vec2.sqrLen(localPushPosition);
+			const force = 750 / vec2.sqrLen(localPushPosition);
 			if (force > 0.05) {
 				vec2.scale(pushForce, localPushPosition, -force);
 			}
@@ -206,7 +205,7 @@ class Feeder {
 			const goalPosition = chain(vec2.clone(position),
 			[vec2Clamp, null, invMargin, margin]
 			);
-			vec2.lerp(position, position, goalPosition, 0.08);
+			vec2.lerp(position, position, goalPosition, 0.16);
 		}
 
 		this.node.transform.position = position;

@@ -1,6 +1,6 @@
 import {createNode, vec2Zero} from "./utils.js";
 import Globals from "./globals.js";
-import Art from "./art.js";
+import {tween, delay, quadEaseOut} from "./tween.js";
 
 const {vec2} = glMatrix;
 
@@ -17,7 +17,6 @@ export default class Alga {
 	art;
 	muck;
 
-	#fruitAnimation;
 	#muckTween;
 	#fruitTween;
 
@@ -29,15 +28,17 @@ export default class Alga {
 		this.goalPosition = vec2.clone(position);
 		this.node.transform.position = position;
 
-		this.muck = createNode({art: Art.muck, tags: ["muck"]});
+		this.muck = createNode({
+			tags: ["muck"],
+			art: `<circle r="59" fill="#c0c0c0"></circle>`
+		});
 		this.node.addChild(this.muck);
 
-		this.fruit = createNode({art: Art.fruit, tags: ["fruit"]});
+		this.fruit = createNode({
+			tags: ["fruit"],
+			art: `<circle transform="scale(0.4)" r="22.5" fill="#f4e9cb"></circle>`
+		});
 		this.node.addChild(this.fruit);
-		/*
-		this.#fruitAnimation = this.fruit.GetNode<AnimationTree>("AnimationTree");
-		*/
-
 		/*
 		this.muck = this.fruit.GetNode<Node2D>("Muck");
 		this.muck.Set("modulate", new Color(1, 1, 1, 0));
@@ -59,25 +60,21 @@ export default class Alga {
 		}
 
 		if (this.#muckTween != null) {
-			/*
-			this.#muckTween.Stop();
-			*/
+			this.#muckTween?.stop();
 			this.#muckTween = null;
 		}
 
 		if (this.#fruitTween != null) {
-			/*
-			this.#fruitTween.Stop();
-			*/
+			this.#fruitTween?.stop();
 			this.#fruitTween = null;
 		}
 
 		this.muck.visible = false;
 		this.muck.transform.position = vec2Zero;
 		/*
-		this.muck.Modulate = new Color("white");
-
-		this.#fruitAnimation.Set("parameters/FruitBlend/blend_position", vec2Zero);
+		reset muck opacity to 1
+		reset fruit scale to 0.4
+		reset fruit color to #f4e9cb
 		*/
 		this.fruit.transform.position = vec2Zero;
 	}
@@ -85,30 +82,25 @@ export default class Alga {
 	#animateMuck() {
 		const isHere = this.mucky ? 1 : 0;
 		this.muck.visible = true;
-		/*
-		this.#muckTween = this.muck.CreateTween().SetParallel(true)
-			.SetTrans(Tween.TransitionType.Quad)
-			.SetEase(Tween.EaseType.Out);
-		const duration = 0.3;
-		this.#muckTween.TweenProperty(this.muck, "position", vec2Zero, duration);
-		this.#muckTween.TweenProperty(this.muck, "scale", vec2.fromValues(isHere, isHere), duration);
-		this.#muckTween.TweenProperty(this.muck, "modulate", new Color(1, 1, 1, isHere), duration);
-		this.#muckTween.TweenProperty(this.muck, "visible", this.mucky, duration);
-		*/
+		this.#muckTween = tween((at) => {
+			/*
+			tween "position" to vec2Zero
+			tween "scale" to vec2.fromValues(isHere, isHere)
+			tween "opacity" to isHere ? 1 : 0
+			tween "visible" to this.mucky
+			*/
+		}, 0.5, quadEaseOut);
 	}
 
 	#animateFruit() {
-		/*
-		fruitTween = this.fruit.CreateTween();
-		fruitTween.TweenProperty(this.#fruitAnimation, "parameters/FruitBlend/blend_position",
-			vec2.fromValues(
-				this.mucky ? 1 : 0,
-				this.ripe ? 1 : 0
-			), 0.5
-		)
-		.SetTrans(Tween.TransitionType.Quad)
-		.SetEase(Tween.EaseType.Out);
-		*/
+		this.#fruitTween = tween((at) => {
+			/*
+			tween "scale" and "color"
+			ripe: scale 1.0, color #f79965
+			unripe and mucky: scale 0.4, color #ffffff
+			unripe and not mucky: scale 0.4, color #f4e9cb
+			*/
+		}, 0.5, quadEaseOut);
 	}
 
 	ripen() {
@@ -129,13 +121,13 @@ export default class Alga {
 	}
 
 	#waitToSpreadMuck() {
-		setTimeout(
+		delay(
 			() => {
 				if (!this.mucky) return;
 				if (Math.random() < 0.25) this.spreadMuck();
 				this.#waitToSpreadMuck();
 			},
-			1000 * (Math.random() * 3 + 1)
+			Math.random() * 3 + 1
 		);
 	}
 
@@ -158,6 +150,6 @@ export default class Alga {
 	static getRandomNeighbor(alga, pred = null) {
 		const candidates = pred == null ? alga.neighbors : alga.neighbors.filter(pred);
 		if (candidates.length == 0) return null;
-		return candidates[Math.floor(Math.random(candidates.length))];
+		return candidates[Math.floor(Math.random() * candidates.length)];
 	}
 };

@@ -1,17 +1,17 @@
 Tweening
-	alga (+muck)
-	forager
-	fade through metaballs
+	alga
+		muck
+		fruit
+One feeder flickers if two are created
+	Persist feeder group IDs, don't assign them every frame
+Make sure foragers can be clicked
+Muck event dispatch
+	Make a signal.js
 Sizing of game
 	aspect ratio 4 / 3
 	width no greater than 90vw
 	height no greater than 90vh
-One feeder flickers if two are created
-	Persist feeder group IDs, don't assign them every frame
 Portrait orientation should swap width and height
-Make sure foragers can be clicked
-Muck event dispatch
-	Make a signal.js
 Adjust physics
 Inspect performance
 splash screen

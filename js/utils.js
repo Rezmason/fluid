@@ -19,6 +19,7 @@ const renderNode = (node, scene) => {
 	if (node.domElement == null) {
 		node.domElement = domElement;
 		domElement.setAttribute("id", node.name);
+		domElement.setAttribute("class", (node.tags ?? []).join(" "));
 		node.domElement.innerHTML = node.art ?? "";
 	}
 
