@@ -23,6 +23,10 @@ const renderNode = (node, scene) => {
 		domElement.setAttribute("id", node.name);
 		domElement.setAttribute("class", (node.tags ?? []).join(" "));
 		node.domElement.innerHTML = node.art ?? "";
+
+		if (node.click != null) {
+			node.domElement.addEventListener("click", node.click);
+		}
 	}
 
 	if (node.parent == null) {

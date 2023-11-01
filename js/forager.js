@@ -18,7 +18,7 @@ export default class Forager {
 
 	constructor(id) {
 		this.name = `Forager${id}`;
-		this.node = createNode({name: this.name});
+		this.node = createNode({name: this.name, click: () => this.alga.spreadMuck()});
 		this.art = createNode({
 			art: `
 				<g>

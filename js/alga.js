@@ -1,4 +1,4 @@
-import {createNode, vec2Zero, lerp, chain, hexColor} from "./utils.js";
+import {createNode, vec2Zero, lerp, chain, hexColor, getGlobalPosition, setGlobalPosition} from "./utils.js";
 import Globals from "./globals.js";
 import {tween, delay, quadEaseOut} from "./tween.js";
 
@@ -7,7 +7,7 @@ const {vec2, vec4} = glMatrix;
 const fruitColors = {
 	ripe: hexColor("#f79965ff"),
 	unripe: hexColor("#f4e9cbff"),
-	muckyUnripe: hexColor("#ffffff"),
+	muckyUnripe: hexColor("#ffffffff"),
 };
 
 const muckColors = {
@@ -86,6 +86,7 @@ export default class Alga {
 	}
 
 	#animateMuck() {
+		this.#muckTween?.stop();
 		const oldPosition = this.muck.transform.position;
 		const newPosition = vec2Zero;
 		const oldScale = this.muck.transform.scale;
@@ -94,7 +95,7 @@ export default class Alga {
 		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
 		this.#muckTween = tween((at) => {
 			this.muck.visible = true;
-			this.muck.transform.position = vec2.lerp(oldPosition, newPosition, at);
+			this.muck.transform.position = chain(vec4.create(), [vec2.lerp, oldPosition, newPosition, at]);
 			this.muck.transform.scale = lerp(oldScale, newScale, at);
 			this.muck.colorTransform.color = chain(vec4.create(), [vec4.lerp, oldColor, newColor, at]);
 			if (at >= 1) this.muck.visible = this.mucky;
@@ -102,11 +103,18 @@ export default class Alga {
 	}
 
 	#animateFruit() {
+		this.#fruitTween?.stop();
 		const oldScale = this.fruit.transform.scale;
 		const newScale = this.ripe ? 1 : 0.4;
 		const oldColor = this.fruit.colorTransform.color;
-		const newColor = this.ripe ? fruitColors.ripe : this.mucky ? fruitColors.muckyUnripe : fruitColors.unripe;
-
+		let newColor;
+		if (this.ripe) {
+			newColor = fruitColors.ripe;
+		} else if (this.mucky) {
+			newColor = fruitColors.muckyUnripe;
+		} else {
+			newColor = fruitColors.unripe;
+		}
 		this.#fruitTween = tween((at) => {
 			this.fruit.transform.scale = lerp(oldScale, newScale, at);
 			this.fruit.colorTransform.color = chain(vec4.create(), [vec4.lerp, oldColor, newColor, at]);
@@ -142,7 +150,7 @@ export default class Alga {
 	}
 
 	spreadMuck() {
-		const cleanNeighbor = getRandomNeighbor(this, neighbor => !neighbor.mucky);
+		const cleanNeighbor = Alga.getRandomNeighbor(this, neighbor => !neighbor.mucky);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(getGlobalPosition(this.node));
 		}
