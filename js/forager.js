@@ -1,7 +1,7 @@
 import {createNode, vec2Zero, vec2AngleTo, getGlobalPosition, setGlobalPosition, getGlobalRotation} from "./utils.js";
 import Globals from "./globals.js";
 import Alga from "./alga.js";
-import {tween, delay, quadEaseOut} from "./tween.js";
+import {tween, delay, quadEaseIn, quadEaseOut} from "./tween.js";
 import {lerp, chain} from "./utils.js";
 
 const {vec2} = glMatrix;
@@ -14,19 +14,19 @@ export default class Forager {
 
 	#jumpTween;
 	#turnTween;
+	#breatheTween;
 
 	constructor(id) {
 		this.name = `Forager${id}`;
 		this.node = createNode({name: this.name});
 		this.art = createNode({
 			art: `
-				<g class="breathing">
+				<g>
 					<g fill="transparent">
 						<rect y="-9" height="18" width="27"></rect>
 						<circle r="15"><circle>
 					</g>
 					<path
-						style="animation-delay: ${Math.random()}s"
 						fill="#d4a672"
 						d="
 							M -38.1,+00.0
@@ -55,10 +55,38 @@ export default class Forager {
 	}
 
 	reset() {
-		if (this.#jumpTween != null) {
-			this.#jumpTween?.stop();
-			this.#jumpTween = null;
-		}
+		this.#jumpTween?.stop();
+		this.#jumpTween = null;
+		this.#turnTween?.stop();
+		this.#turnTween = null;
+
+		this.#breatheTween?.stop();
+
+		delay(() => this.#gasp(), Math.random() * 1.5 + 0.5 );
+	}
+
+	#gasp() {
+		this.#breatheTween?.stop();
+		this.#breatheTween = tween((at) => {
+			this.art.transform.scale = lerp(0.9, 1, at);
+			if (at >= 1) this.#inhale();
+		}, 0.6, quadEaseIn);
+	}
+
+	#inhale() {
+		this.#breatheTween?.stop();
+		this.#breatheTween = tween((at) => {
+			this.art.transform.scale = lerp(1, 1.1, at);
+			if (at >= 1) this.#exhale();
+		}, 0.6, quadEaseOut);
+	}
+
+	#exhale() {
+		this.#breatheTween?.stop();
+		this.#breatheTween = tween((at) => {
+			this.art.transform.scale = lerp(1.1, 0.9, at);
+			if (at >= 1) this.#gasp();
+		}, 0.6, quadEaseOut);
 	}
 
 	place(alga) {

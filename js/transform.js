@@ -6,6 +6,7 @@ export default class Transform {
 	matrix = mat2d.create();
 	#position = vec2.create();
 	#rotation = 0;
+	#scale = 1;
 	stale = true;
 	svgTransform = "none";
 	cssTransform = "none";
@@ -33,11 +34,28 @@ export default class Transform {
 	set rotation(v) {
 		if (this.#rotation !== v) {
 			this.#rotation = v;
-			const position = this.position;
-			mat2d.fromRotation(this.matrix, v);
-			this.position = position;
+			this.#recompose();
 			this.stale = true;
 		}
+	}
+
+	get scale() {
+		return this.#scale;
+	}
+
+	set scale(v) {
+		if (this.#scale !== v) {
+			this.#scale = v;
+			this.#recompose();
+			this.stale = true;
+		}
+	}
+
+	#recompose() {
+		const position = this.position;
+		mat2d.fromRotation(this.matrix, this.#rotation);
+		mat2d.multiplyScalar(this.matrix, this.matrix, this.#scale);
+		this.position = position;
 	}
 
 	render() {
