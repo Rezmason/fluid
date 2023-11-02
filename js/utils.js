@@ -58,6 +58,20 @@ const renderNode = (node, scene) => {
 	for (const child of node.children) {
 		renderNode(child, scene);
 	}
+
+	if (node.reorderedChildren.size > 0) {
+		const reorderedChildrenIndices = Array.from(node.reorderedChildren.values()).map(child => ([child, node.children.indexOf(child)]));
+		reorderedChildrenIndices.sort(([p, pIndex], [q, qIndex]) => pIndex - qIndex);
+		for (const [child] of reorderedChildrenIndices) {
+			domElement.removeChild(child.domElement);
+		}
+		for (const [child, index] of reorderedChildrenIndices) {
+			const item = domElement.children[index];
+			if (item == null) domElement.append(child.domElement);
+			else domElement.insertBefore(child.domElement, item);
+		}
+		node.reorderedChildren.clear();
+	}
 };
 
 const lerp = (p, q, percent) => (1 - percent) * p + percent * q;

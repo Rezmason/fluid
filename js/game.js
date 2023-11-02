@@ -19,6 +19,11 @@ const algae = [];
 const foragers = [];
 const feeders = [];
 const rootNode = createNode({name: "root"});
+const algaeNode = createNode({name: "algae"});
+const feedersNode = createNode({name: "feeders"});
+
+rootNode.addChild(algaeNode);
+rootNode.addChild(feedersNode);
 
 const game = Globals.game;
 const scene = game.querySelector("#scene");
@@ -111,7 +116,7 @@ const spawnAlgae = () => {
 			);
 			row.push(alga);
 			algae.push(alga);
-			rootNode.addChild(alga.node);
+			algaeNode.addChild(alga.node);
 			alga.reset();
 		}
 		grid.push(row);
@@ -171,7 +176,7 @@ const resetForagers = () => {
 const resetFeeders = () => {
 	for (const feeder of feeders) {
 		feeder.reset();
-		rootNode.addChild(feeder.node);
+		feedersNode.addChild(feeder.node);
 		setGlobalPosition(feeder.node, chain(vec2.fromValues(
 			Math.random(),
 			Math.random()
@@ -248,7 +253,6 @@ const updateMetaballs = (time) => {
 		if (feeder.size >= 3) {
 			if (feeder.groupID === 0) {
 				feeder.groupID = getUniqueGroupID();
-				console.log("New triple:", feeder.groupID);
 			}
 			let opacity = feeder.numSeeds / maxFeederSeeds;
 			// opacity = 1 - Math.pow(1 - opacity, 2);

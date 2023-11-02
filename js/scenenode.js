@@ -1,5 +1,6 @@
 export default class SceneNode {
 	children = [];
+	reorderedChildren = new Set();
 	parent = null;
 
 	constructor(properties) {
@@ -7,12 +8,20 @@ export default class SceneNode {
 	}
 
 	addChild(child, index = null) {
-		child.parent?.removeChild(child);
+		const oldParent = child.parent;
+		oldParent?.removeChild(child);
+
+		if (oldParent === this) {
+			this.reorderedChildren.add(child);
+		}
+
 		if (index == null) {
 			this.children.push(child);
 		} else {
 			this.children.splice(index, 0, child);
+			this.reorderedChildren.add(child);
 		}
+
 		child.parent = this;
 		return this;
 	}
@@ -24,6 +33,7 @@ export default class SceneNode {
 	}
 
 	removeChildAt(index) {
+		this.reorderedChildren.delete(this.children[index]);
 		this.children[index].parent = null;
 		this.children.splice(index, 1);
 		return this;
@@ -32,6 +42,7 @@ export default class SceneNode {
 	removeChildren() {
 		this.child.forEach(child => (child.parent = null));
 		this.children.length = 0;
+		this.reorderedChildren.clear();
 		return this;
 	}
 };

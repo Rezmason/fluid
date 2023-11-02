@@ -165,6 +165,10 @@ export default class Alga {
 		this.#waitToSpreadMuck();
 	}
 
+	moveToTop() {
+		this.node.parent.addChild(this.node);
+	}
+
 	static getRandomNeighbor(alga, pred = null) {
 		const candidates = pred == null ? alga.neighbors : alga.neighbors.filter(pred);
 		if (candidates.length == 0) return null;

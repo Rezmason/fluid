@@ -49,9 +49,6 @@ export default class Forager {
 				`
 		});
 		this.node.addChild(this.art);
-		/*
-		clicker = new Clicker(this.art.GetNode<Area2D>("Area2D"), () => this.alga.SpreadMuck());
-		*/
 	}
 
 	reset() {
@@ -93,6 +90,7 @@ export default class Forager {
 		alga.occupant = this;
 		this.alga = alga;
 		this.alga.node.addChild(this.node);
+		this.alga.moveToTop();
 		const otherAlga = Alga.getRandomNeighbor(this.alga);
 		const angleToAlga = vec2AngleTo(
 			getGlobalPosition(this.alga.node),
@@ -131,6 +129,7 @@ export default class Forager {
 			const globalPosition = getGlobalPosition(this.node);
 			oldAlga.node.removeChild(this.node);
 			this.alga.node.addChild(this.node);
+			this.alga.moveToTop();
 			setGlobalPosition(this.node, globalPosition);
 			const oldPosition = this.node.transform.position;
 
