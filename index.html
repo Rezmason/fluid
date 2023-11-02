@@ -28,8 +28,9 @@
 			<style type="text/css">
 				game#fluid {
 					position: relative;
-					width: 90vw;
-					aspect-ratio: 4 / 3;
+					--aspect-ratio: calc(4 / 3);
+					height: calc(min(100vh, 100vw / var(--aspect-ratio)) - 4em);
+					aspect-ratio: var(--aspect-ratio);
 					border-radius: 1vmin;
 					overflow: hidden;
 					cursor: pointer;
