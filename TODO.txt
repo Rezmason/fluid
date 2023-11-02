@@ -1,4 +1,3 @@
-smin for metaball sums
 Sizing of game
 	aspect ratio 4 / 3
 	width no greater than 90vw
@@ -8,3 +7,4 @@ Adjust physics
 Inspect performance
 splash screen
 music
+smin for metaball sums

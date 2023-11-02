@@ -52,7 +52,7 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 			vec4 metaballGroup = metaballGroups[i];
 			float outsideEdge = sums[i] - threshold;
 			float insideEdge = sums[i] - threshold - 0.0085;
-			float insideOpacity = metaballGroup[0];
+			float insideOpacity = pow(metaballGroup[0], 0.5);
 			value = max(value,
 				smoothstep(-smoothing, +smoothing, outsideEdge) *
 				mix(1.0, insideOpacity, smoothstep(-smoothing, +smoothing, insideEdge))
