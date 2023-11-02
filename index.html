@@ -62,8 +62,10 @@
 					}
 				}
 
-				game#fluid #splash {
+				game#fluid img#splash {
 					animation: fade-away 2s cubic-bezier(0.11, 0, 0.5, 0) forwards 3s;
+					user-select: none;
+					pointer-events: none;
 				}
 			</style>
 			<svg id="scene" viewBox="-512 -384 1024 768"></svg>
