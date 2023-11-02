@@ -1,5 +1,5 @@
-Inspect performance
-splash screen
 music
+Inspect performance further
+	Do breathing tweens leak memory?
 smin for metaball sums
 Portrait orientation should swap width and height
