@@ -103,7 +103,7 @@ class Feeder {
 			setGlobalPosition(feeder.node, artPositions[i]);
 			chain(feeder.velocity,
 				[vec2.sub, artPositions[i], oldPosition],
-				[vec2.scale, null, 6]
+				[vec2.scale, null, 5]
 			);
 			feeder.art.transform.position = vec2Zero;
 		}
@@ -182,7 +182,7 @@ class Feeder {
 				vec2.create(),
 				[vec2.sub, Globals.mousePosition, this.node.transform.position]
 			);
-			const force = 750 / vec2.sqrLen(localPushPosition);
+			const force = 850 / vec2.sqrLen(localPushPosition);
 			if (force > 0.05) {
 				vec2.scale(pushForce, localPushPosition, -force);
 			}
@@ -208,7 +208,7 @@ class Feeder {
 			const goalPosition = chain(vec2.clone(position),
 			[vec2Clamp, null, invMargin, margin]
 			);
-			vec2.lerp(position, position, goalPosition, 0.16);
+			vec2.lerp(position, position, goalPosition, 0.12);
 		}
 
 		this.node.transform.position = position;

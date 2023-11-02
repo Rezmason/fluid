@@ -1,4 +1,3 @@
-Adjust physics
 Inspect performance
 splash screen
 music
