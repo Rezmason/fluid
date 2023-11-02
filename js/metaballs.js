@@ -8,8 +8,6 @@ const feederMetaballs = game.querySelector("#metaballs");
 const gl = feederMetaballs.getContext("webgl2", {
 	depth: false,
 	stencil: false,
-	premultipliedAlpha: false
-	// alpha: false
 });
 gl.clearColor(1, 1, 1, 1);
 
@@ -58,8 +56,7 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 				mix(1.0, insideOpacity, smoothstep(-smoothing, +smoothing, insideEdge))
 			);
 		}
-
-		vec4 background = vec4(white, mix(0.0, 1.0, fade));
+		vec4 background = vec4(fade);
 		vec4 foreground = vec4(mix(color, white, fade), 1.0);
 		outColor = mix(background, foreground, value);
 	}
