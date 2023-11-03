@@ -131,10 +131,13 @@ export default class Alga {
 	eat() {
 		if (this.ripe) {
 			this.ripe = false;
+			const wasMucky = this.mucky;
 			this.mucky = false;
 			this.#animateMuck();
 			this.#animateFruit();
-			Globals.muckChanged.dispatchEvent(new CustomEvent("muckChanged", {detail: this}));
+			if (wasMucky) {
+				Globals.muckChanged.dispatchEvent(new CustomEvent("muckChanged", {detail: this}));
+			}
 		}
 	}
 
@@ -142,10 +145,10 @@ export default class Alga {
 		delay(
 			() => {
 				if (!this.mucky) return;
-				if (Math.random() < 0.25) this.spreadMuck();
+				if (Math.random() < 0.2) this.spreadMuck();
 				this.#waitToSpreadMuck();
 			},
-			Math.random() * 3 + 1
+			Math.random() * 4 + 1
 		);
 	}
 
