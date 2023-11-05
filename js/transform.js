@@ -1,4 +1,4 @@
-const {vec2, mat2d} = glMatrix;
+const { vec2, mat2d } = glMatrix;
 
 const tw = (n, p) => Math.floor(n * p) / p;
 
@@ -11,9 +11,7 @@ export default class Transform {
 	svgTransform = "none";
 	cssTransform = "none";
 
-	constructor() {
-
-	}
+	constructor() {}
 
 	get position() {
 		return vec2.clone(this.#position);

@@ -1,13 +1,11 @@
-const {vec4} = glMatrix;
+const { vec4 } = glMatrix;
 
 export default class ColorTransform {
 	#color = vec4.fromValues(0, 0, 0, 1);
 	stale = true;
 	cssColor = "black";
 
-	constructor() {
-
-	}
+	constructor() {}
 
 	get color() {
 		return vec4.clone(this.#color);

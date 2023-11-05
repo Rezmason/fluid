@@ -3,7 +3,7 @@ import Transform from "./transform.js";
 import ColorTransform from "./colortransform.js";
 import Globals from "./globals.js";
 
-const {vec2, mat2d, vec4} = glMatrix;
+const { vec2, mat2d, vec4 } = glMatrix;
 
 const createNode = (properties = null) =>
 	new SceneNode({
@@ -11,10 +11,11 @@ const createNode = (properties = null) =>
 		transform: new Transform(),
 		colorTransform: new ColorTransform(),
 		domElement: null,
-	...properties
-});
+		...properties,
+	});
 
-const createSVGGroup = () => document.createElementNS("http://www.w3.org/2000/svg", "g");
+const createSVGGroup = () =>
+	document.createElementNS("http://www.w3.org/2000/svg", "g");
 
 const renderNode = (node, scene) => {
 	const domElement = node.domElement ?? createSVGGroup();
@@ -60,8 +61,12 @@ const renderNode = (node, scene) => {
 	}
 
 	if (node.reorderedChildren.size > 0) {
-		const reorderedChildrenIndices = Array.from(node.reorderedChildren.values()).map(child => ([child, node.children.indexOf(child)]));
-		reorderedChildrenIndices.sort(([p, pIndex], [q, qIndex]) => pIndex - qIndex);
+		const reorderedChildrenIndices = Array.from(
+			node.reorderedChildren.values()
+		).map((child) => [child, node.children.indexOf(child)]);
+		reorderedChildrenIndices.sort(
+			([p, pIndex], [q, qIndex]) => pIndex - qIndex
+		);
 		for (const [child] of reorderedChildrenIndices) {
 			domElement.removeChild(child.domElement);
 		}
@@ -80,27 +85,25 @@ const vec2Zero = vec2.create();
 
 const vec2One = vec2.fromValues(1, 1);
 
-const vec2FromAngle = (angle, magnitude = 1) => chain(
-	vec2.fromValues(magnitude, 0),
-	[vec2.rotate, null, vec2Zero, angle]
-);
+const vec2FromAngle = (angle, magnitude = 1) =>
+	chain(vec2.fromValues(magnitude, 0), [vec2.rotate, null, vec2Zero, angle]);
 
 const vec2AngleTo = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]);
 
 const vec2Min = (out, a, b) => {
 	out[0] = Math.min(a[0], b[0]);
 	out[1] = Math.min(a[1], b[1]);
-}
+};
 
 const vec2Max = (out, a, b) => {
 	out[0] = Math.max(a[0], b[0]);
 	out[1] = Math.max(a[1], b[1]);
-}
+};
 
 const vec2Clamp = (out, a, min, max) => {
 	vec2Max(out, a, min);
-	vec2Min(out, out, max)
-}
+	vec2Min(out, out, max);
+};
 
 const localToGlobalMatrix = (node) => {
 	const matrix = mat2d.create();
@@ -117,16 +120,12 @@ const getGlobalPosition = (node) => {
 };
 
 const setGlobalPosition = (node, v) => {
-
 	if (node.parent == null) {
 		node.transform.position = v;
 		return;
 	}
 
-	const g2l = chain(
-		localToGlobalMatrix(node.parent),
-		[mat2d.invert, null]
-	);
+	const g2l = chain(localToGlobalMatrix(node.parent), [mat2d.invert, null]);
 
 	node.transform.position = vec2.fromValues(
 		v[0] * g2l[0] + v[1] * g2l[2] + g2l[4],
@@ -156,11 +155,14 @@ const setGlobalRotation = (node, angle) => {
 	node.transform.rotation += diff;
 };
 
-const hexColor = (hex) => vec4.fromValues(...hex.match(/[\da-fA-F]{2}/g).map(n => parseInt(n, 16) * 100 / 0xFF));
+const hexColor = (hex) =>
+	vec4.fromValues(
+		...hex.match(/[\da-fA-F]{2}/g).map((n) => (parseInt(n, 16) * 100) / 0xff)
+	);
 
 const chain = (subject, ...ops) => {
 	for (const op of ops) {
-		op[0](subject, ...op.slice(1).map(v => v ?? subject));
+		op[0](subject, ...op.slice(1).map((v) => v ?? subject));
 	}
 	return subject;
 };
@@ -181,5 +183,5 @@ export {
 	setGlobalPosition,
 	getGlobalRotation,
 	setGlobalRotation,
-	hexColor
+	hexColor,
 };

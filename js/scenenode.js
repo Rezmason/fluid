@@ -40,9 +40,9 @@ export default class SceneNode {
 	}
 
 	removeChildren() {
-		this.child.forEach(child => (child.parent = null));
+		this.child.forEach((child) => (child.parent = null));
 		this.children.length = 0;
 		this.reorderedChildren.clear();
 		return this;
 	}
-};
+}

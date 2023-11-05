@@ -1,15 +1,23 @@
-import {createNode, renderNode, chain, getGlobalPosition, setGlobalPosition, getGlobalRotation, setGlobalRotation} from "./utils.js";
+import {
+	createNode,
+	renderNode,
+	chain,
+	getGlobalPosition,
+	setGlobalPosition,
+	getGlobalRotation,
+	setGlobalRotation,
+} from "./utils.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
 import Alga from "./alga.js";
-import {Feeder, maxFeederSize, maxFeederSeeds} from "./feeder.js";
+import { Feeder, maxFeederSize, maxFeederSeeds } from "./feeder.js";
 import Forager from "./forager.js";
 
-import {lerp} from "./utils.js";
-import {delay} from "./tween.js";
+import { lerp } from "./utils.js";
+import { delay } from "./tween.js";
 
-const {vec2, vec4} = glMatrix;
+const { vec2, vec4 } = glMatrix;
 
 let numMuckyAlgae = 0;
 let gameCanEnd = false;
@@ -18,9 +26,9 @@ let resetting = false;
 const algae = [];
 const foragers = [];
 const feeders = [];
-const rootNode = createNode({name: "root"});
-const algaeNode = createNode({name: "algae"});
-const feedersNode = createNode({name: "feeders"});
+const rootNode = createNode({ name: "root" });
+const algaeNode = createNode({ name: "algae" });
+const feedersNode = createNode({ name: "feeders" });
 
 rootNode.addChild(algaeNode);
 rootNode.addChild(feedersNode);
@@ -33,30 +41,35 @@ const updateAlgaeGoalPositions = () => {
 		if (alga.mucky || !Globals.isMousePressed) {
 			vec2.copy(alga.goalPosition, alga.restingPosition);
 		} else {
-			const localPushPosition = chain(
-				vec2.create(),
-				[vec2.sub, Globals.mousePosition, alga.restingPosition]
-			);
+			const localPushPosition = chain(vec2.create(), [
+				vec2.sub,
+				Globals.mousePosition,
+				alga.restingPosition,
+			]);
 			let offset = -vec2.length(localPushPosition) / 50;
 			offset *= Math.pow(3, offset);
-			vec2.add(alga.goalPosition, alga.restingPosition, chain(localPushPosition, [vec2.scale, null, offset]));
+			vec2.add(
+				alga.goalPosition,
+				alga.restingPosition,
+				chain(localPushPosition, [vec2.scale, null, offset])
+			);
 		}
 	}
 };
 
-game.addEventListener("mousedown", ({button}) => {
+game.addEventListener("mousedown", ({ button }) => {
 	if (button === 0) {
 		Globals.isMousePressed = true;
 		updateAlgaeGoalPositions();
 	}
 });
-game.addEventListener("mouseup", ({button}) => {
+game.addEventListener("mouseup", ({ button }) => {
 	if (button === 0) {
 		Globals.isMousePressed = false;
 		updateAlgaeGoalPositions();
 	}
 });
-game.addEventListener("mouseleave", () => Globals.isMousePressed = false);
+game.addEventListener("mouseleave", () => (Globals.isMousePressed = false));
 
 let lastMouseMove = null;
 game.addEventListener("mousemove", (event) => {
@@ -64,21 +77,21 @@ game.addEventListener("mousemove", (event) => {
 });
 
 const updateMouse = () => {
-
 	if (lastMouseMove == null) return;
-	const {x, y} = lastMouseMove;
+	const { x, y } = lastMouseMove;
 	lastMouseMove = null;
 
-	chain(Globals.mousePosition,
+	chain(
+		Globals.mousePosition,
 		[vec2.set, x, y],
 		[vec2.sub, null, gamePosition],
 		[vec2.div, null, gameSize],
 		[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
-		[vec2.mul, null, Globals.gameSize],
+		[vec2.mul, null, Globals.gameSize]
 	);
 
 	updateAlgaeGoalPositions();
-}
+};
 
 const gamePosition = vec2.create();
 const gameSize = vec2.create();
@@ -93,11 +106,12 @@ resize();
 
 const spawnAlgae = () => {
 	const grid = [];
-	const numRows = 9, numColumns = 10;
+	const numRows = 9,
+		numColumns = 10;
 	const spacing = vec2.fromValues(110, 90);
 	for (let i = 0; i < numRows; i++) {
 		const rowOffset = chain(
-			vec2.fromValues(1 - (numColumns - i % 2), 1 - numRows),
+			vec2.fromValues(1 - (numColumns - (i % 2)), 1 - numRows),
 			[vec2.scale, null, 0.5]
 		);
 		const row = [];
@@ -109,7 +123,8 @@ const spawnAlgae = () => {
 			const alga = new Alga(
 				grid.length,
 				row.length,
-				chain(vec2.fromValues(j, i),
+				chain(
+					vec2.fromValues(j, i),
 					[vec2.add, null, rowOffset],
 					[vec2.mul, null, spacing]
 				)
@@ -144,7 +159,7 @@ const spawnAlgae = () => {
 			}
 		}
 	}
-}
+};
 
 const spawnForagers = () => {
 	const numForagers = 2;
@@ -152,7 +167,7 @@ const spawnForagers = () => {
 		foragers.push(new Forager(i));
 	}
 	resetForagers();
-}
+};
 
 const spawnFeeders = () => {
 	const numFeeders = 7;
@@ -160,7 +175,7 @@ const spawnFeeders = () => {
 		feeders.push(new Feeder(i));
 	}
 	resetFeeders();
-}
+};
 
 const resetForagers = () => {
 	for (const forager of foragers) {
@@ -171,24 +186,27 @@ const resetForagers = () => {
 		forager.reset();
 		forager.place(alga);
 	}
-}
+};
 
 const resetFeeders = () => {
 	for (const feeder of feeders) {
 		feeder.reset();
 		feedersNode.addChild(feeder.node);
-		setGlobalPosition(feeder.node, chain(vec2.fromValues(
-			Math.random(),
-			Math.random()
-		),
-		[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
-		[vec2.mul, null, Globals.gameSize]));
-		chain(feeder.velocity,
+		setGlobalPosition(
+			feeder.node,
+			chain(
+				vec2.fromValues(Math.random(), Math.random()),
+				[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
+				[vec2.mul, null, Globals.gameSize]
+			)
+		);
+		chain(
+			feeder.velocity,
 			[vec2.set, Math.random() - 0.5, Math.random() - 0.5],
 			[vec2.scale, null, 200]
 		);
 	}
-}
+};
 
 const detectEndgame = (alga) => {
 	if (resetting) return;
@@ -208,7 +226,7 @@ const detectEndgame = (alga) => {
 	} else if (!resetting && numMuckyAlgae >= 3) {
 		gameCanEnd = true;
 	}
-}
+};
 
 const reset = () => {
 	resetting = true;
@@ -224,22 +242,23 @@ const reset = () => {
 		resetting = false;
 		Metaballs.fadeIn();
 	}, 5);
-}
+};
 
-const metaballStates = Array(10).fill().map(_ => vec4.create());
+const metaballStates = Array(10)
+	.fill()
+	.map((_) => vec4.create());
 const groupOpacities = Array(3).fill(1);
 
 const getUniqueGroupID = () => {
 	for (let i = 1; i < 10; i++) {
-		if (!feeders.some(feeder => feeder.groupID === i)) {
+		if (!feeders.some((feeder) => feeder.groupID === i)) {
 			return i;
 		}
 	}
 	return 0;
-}
+};
 
 const updateMetaballs = (time) => {
-
 	let n = 0;
 	let f = 1;
 
@@ -264,10 +283,12 @@ const updateMetaballs = (time) => {
 		for (const element of feeder.elements) {
 			const metaball = metaballStates[n];
 			const position = getGlobalPosition(element.art);
-			vec4.set(metaball,
+			vec4.set(
+				metaball,
 				position[0],
 				position[1],
-				15 + throb * (Math.sin((i * Math.PI * 2 / 3) + throbTime * 4) * 0.5 + 0.5),
+				15 +
+					throb * (Math.sin((i * Math.PI * 2) / 3 + throbTime * 4) * 0.5 + 0.5),
 				feeder.groupID
 			);
 			n++;
@@ -285,7 +306,8 @@ const testMetaballs = (time) => {
 		const metaball = metaballStates[i];
 		const pairing = Math.floor(i / 2);
 		let groupID = pairing % 3;
-		vec4.set(metaball,
+		vec4.set(
+			metaball,
 			(pairing * 0.2 + 0.1) * Globals.gameSize[0],
 			(Math.sin(time * 0.003 + i) * 0.25 + 0.5) * Globals.gameSize[1],
 			15,
@@ -294,7 +316,8 @@ const testMetaballs = (time) => {
 	}
 
 	for (let i = 0; i < 3; i++) {
-		groupOpacities[i] = Math.cos(time * 0.003 + Math.PI * 2 * i / 3) * 0.5 + 0.5;
+		groupOpacities[i] =
+			Math.cos(time * 0.003 + (Math.PI * 2 * i) / 3) * 0.5 + 0.5;
 	}
 };
 
@@ -321,7 +344,12 @@ const update = (now) => {
 		} else {
 			for (let j = i + 1; j < feeders.length; j++) {
 				var other = feeders[j];
-				if (other.parent != null || other.age < minAge || feeder.size + other.size > maxFeederSize) continue;
+				if (
+					other.parent != null ||
+					other.age < minAge ||
+					feeder.size + other.size > maxFeederSize
+				)
+					continue;
 				if (feeder.size >= other.size) {
 					if (feeder.tryToCombine(other)) break;
 				} else {
@@ -337,9 +365,12 @@ const update = (now) => {
 	// testMetaballs(time);
 
 	for (const alga of algae) {
-		alga.node.transform.position = chain(alga.node.transform.position,
-			[vec2.lerp, null, alga.goalPosition, 0.1]
-		);
+		alga.node.transform.position = chain(alga.node.transform.position, [
+			vec2.lerp,
+			null,
+			alga.goalPosition,
+			0.1,
+		]);
 
 		if (alga.ripe || alga.occupant != null) continue;
 
@@ -352,7 +383,9 @@ const update = (now) => {
 	requestAnimationFrame(update);
 };
 
-Globals.muckChanged.addEventListener("muckChanged", ({detail}) => detectEndgame(detail));
+Globals.muckChanged.addEventListener("muckChanged", ({ detail }) =>
+	detectEndgame(detail)
+);
 
 spawnAlgae();
 spawnForagers();

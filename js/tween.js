@@ -18,7 +18,7 @@ const tick = () => {
 
 	if (activeTweens.size > 0) startTick();
 	// else console.log("tween tick stopped.");
-}
+};
 
 const startTick = () => {
 	requestAnimationFrame(tick);
@@ -26,7 +26,7 @@ const startTick = () => {
 
 const tween = (f, seconds, ease = null) => {
 	const start = Date.now() / 1000;
-	const tween = {f, seconds, ease, start};
+	const tween = { f, seconds, ease, start };
 	if (seconds > 0) {
 		f(0);
 		activeTweens.add(tween);
@@ -40,19 +40,14 @@ const tween = (f, seconds, ease = null) => {
 			activeTweens.delete(tween);
 			if (!cancel) tween?.f(1);
 			tween.f = null;
-		}
+		},
 	};
 };
 
 const delay = (f, seconds) => setTimeout(f, 1000 * seconds);
 
-const quadEaseIn = t => t * t;
+const quadEaseIn = (t) => t * t;
 
-const quadEaseOut = t => 1 - (1 - t) * (1 - t);
+const quadEaseOut = (t) => 1 - (1 - t) * (1 - t);
 
-export {
-	tween,
-	delay,
-	quadEaseIn,
-	quadEaseOut
-}
+export { tween, delay, quadEaseIn, quadEaseOut };

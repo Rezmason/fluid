@@ -1,6 +1,6 @@
 import Globals from "./globals.js";
 
-import {tween, quadEaseIn, quadEaseOut} from "./tween.js";
+import { tween, quadEaseIn, quadEaseOut } from "./tween.js";
 
 const game = Globals.game;
 const feederMetaballs = game.querySelector("#metaballs");
@@ -12,10 +12,17 @@ const gl = feederMetaballs.getContext("webgl2", {
 gl.clearColor(1, 1, 1, 1);
 
 const vertShader = gl.createShader(gl.VERTEX_SHADER);
-gl.shaderSource(vertShader, "#version 300 es\n" + "in vec2 pos; void main(void) { gl_Position = vec4(pos, 0.0, 1.0); }");
+gl.shaderSource(
+	vertShader,
+	"#version 300 es\n" +
+		"in vec2 pos; void main(void) { gl_Position = vec4(pos, 0.0, 1.0); }"
+);
 gl.compileShader(vertShader);
 const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
-gl.shaderSource(fragShader, "#version 300 es\n" + `
+gl.shaderSource(
+	fragShader,
+	"#version 300 es\n" +
+		`
 	precision mediump float;
 
 	#define threshold 0.015
@@ -60,7 +67,8 @@ gl.shaderSource(fragShader, "#version 300 es\n" + `
 		vec4 foreground = vec4(mix(color, white, fade), 1.0);
 		outColor = mix(background, foreground, value);
 	}
-`);
+`
+);
 gl.compileShader(fragShader);
 if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS)) {
 	const info = gl.getShaderInfoLog(fragShader);
@@ -77,8 +85,12 @@ const uMetaballGroups = gl.getUniformLocation(program, "metaballGroups");
 const uFade = gl.getUniformLocation(program, "fade");
 
 const vertices = [
-	[-1,-1], [ 1,-1], [ 1, 1],
-	[-1,-1], [ 1, 1], [-1, 1]
+	[-1, -1],
+	[1, -1],
+	[1, 1],
+	[-1, -1],
+	[1, 1],
+	[-1, 1],
 ].flat();
 const buffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -97,7 +109,7 @@ const redraw = () => {
 	gl.uniform4fv(uMetaballs, metaballData);
 	gl.uniform1f(uFade, fade);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
-}
+};
 
 const resizeObserver = new ResizeObserver(([entry]) => {
 	const boxSize = entry.borderBoxSize[0];
@@ -115,9 +127,9 @@ resizeObserver.observe(game);
 
 let fade = 1;
 
-const fadeOut = () => tween((at) => fade = at, 5, quadEaseIn);
+const fadeOut = () => tween((at) => (fade = at), 5, quadEaseIn);
 
-const fadeIn = () => tween((at) => fade = 1 - at, 5, quadEaseIn);
+const fadeIn = () => tween((at) => (fade = 1 - at), 5, quadEaseIn);
 
 export default {
 	update: (metaballs, groupOpacities) => {
@@ -131,5 +143,5 @@ export default {
 	},
 	redraw,
 	fadeOut,
-	fadeIn
+	fadeIn,
 };

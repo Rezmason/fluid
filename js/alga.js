@@ -1,8 +1,16 @@
-import {createNode, vec2Zero, lerp, chain, hexColor, getGlobalPosition, setGlobalPosition} from "./utils.js";
+import {
+	createNode,
+	vec2Zero,
+	lerp,
+	chain,
+	hexColor,
+	getGlobalPosition,
+	setGlobalPosition,
+} from "./utils.js";
 import Globals from "./globals.js";
-import {tween, delay, quadEaseOut} from "./tween.js";
+import { tween, delay, quadEaseOut } from "./tween.js";
 
-const {vec2, vec4} = glMatrix;
+const { vec2, vec4 } = glMatrix;
 
 const fruitColors = {
 	ripe: hexColor("#f79965ff"),
@@ -12,7 +20,7 @@ const fruitColors = {
 
 const muckColors = {
 	mucky: hexColor("#c0c0c0ff"),
-	clean: hexColor("#c0c0c000")
+	clean: hexColor("#c0c0c000"),
 };
 
 export default class Alga {
@@ -33,7 +41,7 @@ export default class Alga {
 
 	constructor(row, column, position) {
 		this.name = `Alga${row}_${column}`;
-		this.node = createNode({name: this.name});
+		this.node = createNode({ name: this.name });
 
 		this.restingPosition = vec2.clone(position);
 		this.goalPosition = vec2.clone(position);
@@ -41,13 +49,13 @@ export default class Alga {
 
 		this.muck = createNode({
 			tags: ["muck"],
-			art: `<circle r="59" fill="currentColor"></circle>`
+			art: `<circle r="59" fill="currentColor"></circle>`,
 		});
 		this.node.addChild(this.muck);
 
 		this.fruit = createNode({
 			tags: ["fruit"],
-			art: `<circle r="22.5" fill="currentColor"></circle>`
+			art: `<circle r="22.5" fill="currentColor"></circle>`,
 		});
 		this.node.addChild(this.fruit);
 	}
@@ -93,13 +101,27 @@ export default class Alga {
 		const newScale = this.mucky ? 1 : 0;
 		const oldColor = this.muck.colorTransform.color;
 		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
-		this.#muckTween = tween((at) => {
-			this.muck.visible = true;
-			this.muck.transform.position = chain(vec4.create(), [vec2.lerp, oldPosition, newPosition, at]);
-			this.muck.transform.scale = lerp(oldScale, newScale, at);
-			this.muck.colorTransform.color = chain(vec4.create(), [vec4.lerp, oldColor, newColor, at]);
-			if (at >= 1) this.muck.visible = this.mucky;
-		}, 0.5, quadEaseOut);
+		this.#muckTween = tween(
+			(at) => {
+				this.muck.visible = true;
+				this.muck.transform.position = chain(vec4.create(), [
+					vec2.lerp,
+					oldPosition,
+					newPosition,
+					at,
+				]);
+				this.muck.transform.scale = lerp(oldScale, newScale, at);
+				this.muck.colorTransform.color = chain(vec4.create(), [
+					vec4.lerp,
+					oldColor,
+					newColor,
+					at,
+				]);
+				if (at >= 1) this.muck.visible = this.mucky;
+			},
+			0.5,
+			quadEaseOut
+		);
 	}
 
 	#animateFruit() {
@@ -115,10 +137,19 @@ export default class Alga {
 		} else {
 			newColor = fruitColors.unripe;
 		}
-		this.#fruitTween = tween((at) => {
-			this.fruit.transform.scale = lerp(oldScale, newScale, at);
-			this.fruit.colorTransform.color = chain(vec4.create(), [vec4.lerp, oldColor, newColor, at]);
-		}, 0.5, quadEaseOut);
+		this.#fruitTween = tween(
+			(at) => {
+				this.fruit.transform.scale = lerp(oldScale, newScale, at);
+				this.fruit.colorTransform.color = chain(vec4.create(), [
+					vec4.lerp,
+					oldColor,
+					newColor,
+					at,
+				]);
+			},
+			0.5,
+			quadEaseOut
+		);
 	}
 
 	ripen() {
@@ -136,24 +167,26 @@ export default class Alga {
 			this.#animateMuck();
 			this.#animateFruit();
 			if (wasMucky) {
-				Globals.muckChanged.dispatchEvent(new CustomEvent("muckChanged", {detail: this}));
+				Globals.muckChanged.dispatchEvent(
+					new CustomEvent("muckChanged", { detail: this })
+				);
 			}
 		}
 	}
 
 	#waitToSpreadMuck() {
-		delay(
-			() => {
-				if (!this.mucky) return;
-				if (Math.random() < 0.2) this.spreadMuck();
-				this.#waitToSpreadMuck();
-			},
-			Math.random() * 4 + 1
-		);
+		delay(() => {
+			if (!this.mucky) return;
+			if (Math.random() < 0.2) this.spreadMuck();
+			this.#waitToSpreadMuck();
+		}, Math.random() * 4 + 1);
 	}
 
 	spreadMuck() {
-		const cleanNeighbor = Alga.getRandomNeighbor(this, neighbor => !neighbor.mucky);
+		const cleanNeighbor = Alga.getRandomNeighbor(
+			this,
+			(neighbor) => !neighbor.mucky
+		);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(getGlobalPosition(this.node));
 		}
@@ -164,7 +197,9 @@ export default class Alga {
 		setGlobalPosition(this.muck, origin);
 		this.#animateMuck();
 		this.#animateFruit();
-		Globals.muckChanged.dispatchEvent(new CustomEvent("muckChanged", {detail: this}));
+		Globals.muckChanged.dispatchEvent(
+			new CustomEvent("muckChanged", { detail: this })
+		);
 		this.#waitToSpreadMuck();
 	}
 
@@ -173,8 +208,9 @@ export default class Alga {
 	}
 
 	static getRandomNeighbor(alga, pred = null) {
-		const candidates = pred == null ? alga.neighbors : alga.neighbors.filter(pred);
+		const candidates =
+			pred == null ? alga.neighbors : alga.neighbors.filter(pred);
 		if (candidates.length == 0) return null;
 		return candidates[Math.floor(Math.random() * candidates.length)];
 	}
-};
+}
