@@ -1,12 +1,6 @@
-import {
-	createNode,
-	renderNode,
-	chain,
-	getGlobalPosition,
-	setGlobalPosition,
-	getGlobalRotation,
-	setGlobalRotation,
-} from "./utils.js";
+import { chain } from "./mathutils.js";
+import render2D from "./render2d.js";
+import SceneNode2D from "./scenenode2d.js";
 import Globals from "./globals.js";
 import Metaballs from "./metaballs.js";
 
@@ -14,7 +8,7 @@ import Alga from "./alga.js";
 import { Feeder, maxFeederSize, maxFeederSeeds } from "./feeder.js";
 import Forager from "./forager.js";
 
-import { lerp } from "./utils.js";
+import { lerp } from "./mathutils.js";
 import { delay } from "./tween.js";
 
 const { vec2, vec4 } = glMatrix;
@@ -26,9 +20,9 @@ let resetting = false;
 const algae = [];
 const foragers = [];
 const feeders = [];
-const rootNode = createNode({ name: "root" });
-const algaeNode = createNode({ name: "algae" });
-const feedersNode = createNode({ name: "feeders" });
+const rootNode = new SceneNode2D({ name: "root" });
+const algaeNode = new SceneNode2D({ name: "algae" });
+const feedersNode = new SceneNode2D({ name: "feeders" });
 
 rootNode.addChild(algaeNode);
 rootNode.addChild(feedersNode);
@@ -192,13 +186,10 @@ const resetFeeders = () => {
 	for (const feeder of feeders) {
 		feeder.reset();
 		feedersNode.addChild(feeder.node);
-		setGlobalPosition(
-			feeder.node,
-			chain(
-				vec2.fromValues(Math.random(), Math.random()),
-				[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
-				[vec2.mul, null, Globals.gameSize]
-			)
+		feeder.node.globalPosition = chain(
+			vec2.fromValues(Math.random(), Math.random()),
+			[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
+			[vec2.mul, null, Globals.gameSize]
 		);
 		chain(
 			feeder.velocity,
@@ -282,7 +273,7 @@ const updateMetaballs = (time) => {
 		let i = 0;
 		for (const element of feeder.elements) {
 			const metaball = metaballStates[n];
-			const position = getGlobalPosition(element.art);
+			const position = element.art.globalPosition;
 			vec4.set(
 				metaball,
 				position[0],
@@ -308,8 +299,8 @@ const testMetaballs = (time) => {
 		let groupID = pairing % 3;
 		vec4.set(
 			metaball,
-			(pairing * 0.2 + 0.1) * Globals.gameSize[0],
-			(Math.sin(time * 0.003 + i) * 0.25 + 0.5) * Globals.gameSize[1],
+			(pairing * 0.2 - 0.4) * Globals.gameSize[0],
+			Math.sin(time * 0.003 + i) * 0.25 * Globals.gameSize[1],
 			15,
 			groupID
 		);
@@ -359,8 +350,7 @@ const update = (now) => {
 		}
 	}
 
-	renderNode(rootNode, scene);
-
+	render2D(rootNode, scene);
 	updateMetaballs(time);
 	// testMetaballs(time);
 

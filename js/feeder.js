@@ -1,17 +1,13 @@
+import Globals from "./globals.js";
+import SceneNode2D from "./scenenode2d.js";
 import {
-	createNode,
 	vec2Zero,
 	vec2One,
 	vec2Clamp,
 	vec2FromAngle,
 	lerp,
 	chain,
-	getGlobalPosition,
-	setGlobalPosition,
-	getGlobalRotation,
-	setGlobalRotation,
-} from "./utils.js";
-import Globals from "./globals.js";
+} from "./mathutils.js";
 
 const { vec2 } = glMatrix;
 
@@ -46,8 +42,8 @@ class Feeder {
 
 	constructor(id) {
 		this.name = `Feeder${id}`;
-		this.node = createNode({ name: this.name });
-		this.art = createNode({
+		this.node = new SceneNode2D({ name: this.name });
+		this.art = new SceneNode2D({
 			// art: `<circle r="28.5" fill="#7a1700"></circle>`
 		});
 		this.node.addChild(this.art);
@@ -78,7 +74,7 @@ class Feeder {
 		if (this.size < maxFeederSize || this.numSeeds <= 0) return false;
 		const minSeedDistSquared = minSeedDist * minSeedDist;
 		if (
-			vec2.sqrDist(getGlobalPosition(this.node), getGlobalPosition(alga.node)) >
+			vec2.sqrDist(this.node.globalPosition, alga.node.globalPosition) >
 			minSeedDistSquared
 		) {
 			return false;
@@ -94,10 +90,10 @@ class Feeder {
 
 	#burst() {
 		this.groupID = 0;
-		const oldPosition = getGlobalPosition(this.node);
+		const oldPosition = this.node.globalPosition;
 		const artPositions = [];
 		for (const feeder of this.elements) {
-			artPositions.push(getGlobalPosition(feeder.art));
+			artPositions.push(feeder.art.globalPosition);
 		}
 
 		const parentNode = this.node.parent;
@@ -111,7 +107,7 @@ class Feeder {
 		for (let i = 0; i < maxFeederSize; i++) {
 			const feeder = this.elements[i];
 			feeder.age = 0;
-			setGlobalPosition(feeder.node, artPositions[i]);
+			feeder.node.globalPosition = artPositions[i];
 			chain(
 				feeder.velocity,
 				[vec2.sub, artPositions[i], oldPosition],
@@ -130,11 +126,11 @@ class Feeder {
 		if (this.size >= maxFeederSize) return false;
 
 		const minDistSquared = minDist * minDist;
-		const otherGlobalPosition = getGlobalPosition(other.art);
+		const otherGlobalPosition = other.art.globalPosition;
 
 		for (const feeder of this.elements) {
 			if (
-				vec2.sqrDist(getGlobalPosition(feeder.art), otherGlobalPosition) >
+				vec2.sqrDist(feeder.art.globalPosition, otherGlobalPosition) >
 				minDistSquared
 			) {
 				return false;
@@ -162,7 +158,7 @@ class Feeder {
 		const averageGlobalPosition = vec2.clone(vec2Zero);
 		const artPositions = [];
 		for (const feeder of this.elements) {
-			const feederArtGlobalPosition = getGlobalPosition(feeder.art);
+			const feederArtGlobalPosition = feeder.art.globalPosition;
 			vec2.add(
 				averageGlobalPosition,
 				averageGlobalPosition,
@@ -172,14 +168,14 @@ class Feeder {
 		}
 		vec2.scale(averageGlobalPosition, averageGlobalPosition, 1 / this.size);
 
-		setGlobalPosition(this.node, averageGlobalPosition);
+		this.node.globalPosition = averageGlobalPosition;
 		other.node.parent.removeChild(other.node);
 		this.node.addChild(other.node);
 		other.node.transform.position = vec2Zero;
 		other.node.transform.rotation = 0;
 
 		for (let i = 0; i < this.size; i++) {
-			setGlobalPosition(this.elements[i].art, artPositions[i]);
+			this.elements[i].art.globalPosition = artPositions[i];
 		}
 
 		return true;
@@ -240,13 +236,10 @@ class Feeder {
 
 		this.node.transform.position = position;
 
-		setGlobalRotation(
-			this.node,
-			getGlobalRotation(this.node) +
-				((oldPosition[0] + oldPosition[1] - (position[0] + position[1])) /
-					this.size) *
-					0.005
-		);
+		this.node.globalRotation +=
+			((oldPosition[0] + oldPosition[1] - (position[0] + position[1])) /
+				this.size) *
+			0.005;
 
 		if (this.size == 2) {
 			for (const feeder of this.elements) {

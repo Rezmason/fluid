@@ -1,3 +1,6 @@
+Replace chain with something nicer
+	What does tensorflow use?
+		Does it generate a function?
 music
 Inspect performance further
 	Do breathing tweens leak memory?

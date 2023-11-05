@@ -1,6 +1,5 @@
 import Globals from "./globals.js";
-
-import { tween, quadEaseIn, quadEaseOut } from "./tween.js";
+import { tween, quadEaseIn } from "./tween.js";
 
 const game = Globals.game;
 const feederMetaballs = game.querySelector("#metaballs");

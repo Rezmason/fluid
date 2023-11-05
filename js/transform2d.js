@@ -2,7 +2,7 @@ const { vec2, mat2d } = glMatrix;
 
 const tw = (n, p) => Math.floor(n * p) / p;
 
-export default class Transform {
+export default class Transform2D {
 	matrix = mat2d.create();
 	#position = vec2.create();
 	#rotation = 0;

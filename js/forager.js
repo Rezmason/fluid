@@ -1,15 +1,8 @@
-import {
-	createNode,
-	vec2Zero,
-	vec2AngleTo,
-	getGlobalPosition,
-	setGlobalPosition,
-	getGlobalRotation,
-} from "./utils.js";
-import Globals from "./globals.js";
+import { vec2Zero, vec2AngleTo } from "./mathutils.js";
+import SceneNode2D from "./scenenode2d.js";
 import Alga from "./alga.js";
 import { tween, delay, quadEaseIn, quadEaseOut } from "./tween.js";
-import { lerp, chain } from "./utils.js";
+import { lerp, chain } from "./mathutils.js";
 
 const { vec2 } = glMatrix;
 
@@ -25,11 +18,11 @@ export default class Forager {
 
 	constructor(id) {
 		this.name = `Forager${id}`;
-		this.node = createNode({
+		this.node = new SceneNode2D({
 			name: this.name,
 			click: () => this.alga.spreadMuck(),
 		});
-		this.art = createNode({
+		this.art = new SceneNode2D({
 			art: `
 				<g>
 					<g fill="transparent">
@@ -115,8 +108,8 @@ export default class Forager {
 		this.alga.moveToTop();
 		const otherAlga = Alga.getRandomNeighbor(this.alga);
 		const angleToAlga = vec2AngleTo(
-			getGlobalPosition(this.alga.node),
-			getGlobalPosition(otherAlga.node)
+			this.alga.node.globalPosition,
+			otherAlga.node.globalPosition
 		);
 		this.#waitToJump();
 	}
@@ -126,7 +119,7 @@ export default class Forager {
 	}
 
 	#jump() {
-		const startAngle = getGlobalRotation(this.node);
+		const startAngle = this.node.globalRotation;
 		this.node.transform.rotation = startAngle;
 
 		let nextAlga = Alga.getRandomNeighbor(
@@ -148,17 +141,17 @@ export default class Forager {
 			oldAlga.occupant = null;
 			this.alga.occupant = this;
 			let angleToAlga = vec2AngleTo(
-				getGlobalPosition(oldAlga.node),
-				getGlobalPosition(this.alga.node)
+				oldAlga.node.globalPosition,
+				this.alga.node.globalPosition
 			);
 			if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;
 			if (angleToAlga - startAngle < -Math.PI) angleToAlga += Math.PI * 2;
 
-			const globalPosition = getGlobalPosition(this.node);
+			const globalPosition = this.node.globalPosition;
 			oldAlga.node.removeChild(this.node);
 			this.alga.node.addChild(this.node);
 			this.alga.moveToTop();
-			setGlobalPosition(this.node, globalPosition);
+			this.node.globalPosition = globalPosition;
 			const oldPosition = this.node.transform.position;
 
 			this.#turnTween?.stop();
@@ -187,8 +180,8 @@ export default class Forager {
 			const otherAlga = Alga.getRandomNeighbor(this.alga);
 
 			let angleToAlga = vec2AngleTo(
-				getGlobalPosition(this.alga.node),
-				getGlobalPosition(otherAlga.node)
+				this.alga.node.globalPosition,
+				otherAlga.node.globalPosition
 			);
 			if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;
 			if (angleToAlga - startAngle < -Math.PI) angleToAlga += Math.PI * 2;

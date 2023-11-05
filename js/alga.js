@@ -1,13 +1,6 @@
-import {
-	createNode,
-	vec2Zero,
-	lerp,
-	chain,
-	hexColor,
-	getGlobalPosition,
-	setGlobalPosition,
-} from "./utils.js";
 import Globals from "./globals.js";
+import SceneNode2D from "./scenenode2d.js";
+import { vec2Zero, lerp, chain, hexColor } from "./mathutils.js";
 import { tween, delay, quadEaseOut } from "./tween.js";
 
 const { vec2, vec4 } = glMatrix;
@@ -41,19 +34,19 @@ export default class Alga {
 
 	constructor(row, column, position) {
 		this.name = `Alga${row}_${column}`;
-		this.node = createNode({ name: this.name });
+		this.node = new SceneNode2D({ name: this.name });
 
 		this.restingPosition = vec2.clone(position);
 		this.goalPosition = vec2.clone(position);
 		this.node.transform.position = position;
 
-		this.muck = createNode({
+		this.muck = new SceneNode2D({
 			tags: ["muck"],
 			art: `<circle r="59" fill="currentColor"></circle>`,
 		});
 		this.node.addChild(this.muck);
 
-		this.fruit = createNode({
+		this.fruit = new SceneNode2D({
 			tags: ["fruit"],
 			art: `<circle r="22.5" fill="currentColor"></circle>`,
 		});
@@ -188,13 +181,13 @@ export default class Alga {
 			(neighbor) => !neighbor.mucky
 		);
 		if (cleanNeighbor != null) {
-			cleanNeighbor.#receiveMuckFrom(getGlobalPosition(this.node));
+			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
 		}
 	}
 
 	#receiveMuckFrom(origin) {
 		this.mucky = true;
-		setGlobalPosition(this.muck, origin);
+		this.muck.globalPosition = origin;
 		this.#animateMuck();
 		this.#animateFruit();
 		Globals.muckChanged.dispatchEvent(
