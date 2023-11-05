@@ -190,8 +190,6 @@ const resetFeeders = () => {
 	}
 }
 
-Globals.muckChanged.addEventListener("muckChanged", ({detail}) => detectEndgame(detail));
-
 const detectEndgame = (alga) => {
 	if (resetting) return;
 
@@ -354,9 +352,7 @@ const update = (now) => {
 	requestAnimationFrame(update);
 };
 
-/*
-Globals.MuckChanged += DetectEndgame;
-*/
+Globals.muckChanged.addEventListener("muckChanged", ({detail}) => detectEndgame(detail));
 
 spawnAlgae();
 spawnForagers();
