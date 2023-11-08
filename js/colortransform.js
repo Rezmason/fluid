@@ -1,18 +1,18 @@
-const { vec4 } = glMatrix;
+import { vec4 } from "./mathutils.js";
 
 export default class ColorTransform {
-	#color = vec4.fromValues(0, 0, 0, 1);
+	#color = vec4.new(0, 0, 0, 1);
 	stale = true;
 	cssColor = "black";
 
 	constructor() {}
 
 	get color() {
-		return vec4.clone(this.#color);
+		return this.#color.clone();
 	}
 
 	set color(v) {
-		vec4.copy(this.#color, v);
+		this.#color = v;
 		this.stale = true;
 	}
 

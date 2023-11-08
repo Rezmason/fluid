@@ -1,37 +1,23 @@
 import Globals from "./globals.js";
 import SceneNode2D from "./scenenode2d.js";
-import {
-	vec2Zero,
-	vec2One,
-	vec2Clamp,
-	vec2FromAngle,
-	lerp,
-	chain,
-} from "./mathutils.js";
+import { vec2, lerp } from "./mathutils.js";
 import { sfx } from "./audio.js";
 
-const { vec2 } = glMatrix;
-
-const bobDirection = vec2FromAngle(Math.PI * 0.16);
+const bobDirection = vec2.fromAngle(Math.PI * 0.16);
 
 const maxFeederSeeds = 40;
 const maxFeederSize = 3;
 const minSeedDist = 100;
 const minDist = 80;
-const margin = chain(
-	vec2.clone(vec2One),
-	[vec2.scale, null, 125],
-	[vec2.sub, Globals.gameSize, null],
-	[vec2.scale, null, 0.5]
-);
-const invMargin = chain(vec2.clone(margin), [vec2.scale, null, -1]);
+const margin = vec2.one.mul(125).sub(Globals.gameSize).div(-2);
+const invMargin = margin.mul(-1);
 
 class Feeder {
 	name;
 	age;
 	numSeeds;
 	throbStartTime;
-	velocity = vec2.create();
+	velocity = vec2.new();
 	groupID;
 
 	elements = [];
@@ -62,9 +48,9 @@ class Feeder {
 		this.#children.length = 0;
 		this.elements.length = 0;
 		this.elements.push(this);
-		this.art.transform.position = vec2Zero;
+		this.art.transform.position = vec2.zero;
 		this.parent = null;
-		this.velocity = vec2.clone(vec2Zero);
+		this.velocity = vec2.zero;
 		this.age = 0;
 		this.numSeeds = 0;
 		this.throbStartTime = 0;
@@ -75,7 +61,7 @@ class Feeder {
 		if (this.size < maxFeederSize || this.numSeeds <= 0) return false;
 		const minSeedDistSquared = minSeedDist * minSeedDist;
 		if (
-			vec2.sqrDist(this.node.globalPosition, alga.node.globalPosition) >
+			this.node.globalPosition.sqrDist(alga.node.globalPosition) >
 			minSeedDistSquared
 		) {
 			return false;
@@ -110,12 +96,8 @@ class Feeder {
 			const feeder = this.elements[i];
 			feeder.age = 0;
 			feeder.node.globalPosition = artPositions[i];
-			chain(
-				feeder.velocity,
-				[vec2.sub, artPositions[i], oldPosition],
-				[vec2.scale, null, 5]
-			);
-			feeder.art.transform.position = vec2Zero;
+			feeder.velocity = artPositions[i].sub(oldPosition).mul(5);
+			feeder.art.transform.position = vec2.zero;
 		}
 
 		this.elements.length = 0;
@@ -134,8 +116,7 @@ class Feeder {
 
 		for (const feeder of this.elements) {
 			if (
-				vec2.sqrDist(feeder.art.globalPosition, otherGlobalPosition) >
-				minDistSquared
+				feeder.art.globalPosition.sqrDist(otherGlobalPosition) > minDistSquared
 			) {
 				return false;
 			}
@@ -145,13 +126,11 @@ class Feeder {
 		this.elements.push(other);
 		other.parent = this;
 
-		chain(
-			this.velocity,
-			[vec2.scale, null, this.size - 1],
-			[vec2.add, null, other.velocity],
-			[vec2.scale, null, 1 / this.size]
-		);
-		other.velocity = vec2.clone(vec2Zero);
+		this.velocity = this.velocity
+			.mul(this.size - 1)
+			.add(other.velocity)
+			.div(this.size);
+		other.velocity = vec2.zero;
 		other.age = 0;
 
 		if (this.size == maxFeederSize) {
@@ -159,23 +138,21 @@ class Feeder {
 			this.throbStartTime = performance.now();
 		}
 
-		const averageGlobalPosition = vec2.clone(vec2Zero);
+		let averageGlobalPosition = vec2.zero;
 		const artPositions = [];
 		for (const feeder of this.elements) {
 			const feederArtGlobalPosition = feeder.art.globalPosition;
-			vec2.add(
-				averageGlobalPosition,
-				averageGlobalPosition,
+			averageGlobalPosition = averageGlobalPosition.add(
 				feederArtGlobalPosition
 			);
 			artPositions.push(feederArtGlobalPosition);
 		}
-		vec2.scale(averageGlobalPosition, averageGlobalPosition, 1 / this.size);
+		averageGlobalPosition = averageGlobalPosition.div(this.size);
 
 		this.node.globalPosition = averageGlobalPosition;
 		other.node.parent.removeChild(other.node);
 		this.node.addChild(other.node);
-		other.node.transform.position = vec2Zero;
+		other.node.transform.position = vec2.zero;
 		other.node.transform.rotation = 0;
 
 		for (let i = 0; i < this.size; i++) {
@@ -193,51 +170,38 @@ class Feeder {
 		this.age += delta;
 
 		const oldPosition = this.node.transform.position;
+		let position = oldPosition;
 
-		const pushForce = vec2.clone(vec2Zero);
+		let pushForce = vec2.zero;
 		if (Globals.isMousePressed) {
 			// TODO: we can probably eliminate a minus sign somewhere in here
-			const localPushPosition = chain(vec2.create(), [
-				vec2.sub,
-				Globals.mousePosition,
-				this.node.transform.position,
-			]);
-			const force = 850 / vec2.sqrLen(localPushPosition);
+			const localPushPosition = Globals.mousePosition.sub(
+				this.node.transform.position
+			);
+			const force = 850 / localPushPosition.sqrLen();
 			if (force > 0.05) {
-				vec2.scale(pushForce, localPushPosition, -force);
+				pushForce = localPushPosition.mul(-force);
 			}
 		}
 
 		const mag = 10;
-		vec2.add(
-			this.velocity,
-			this.velocity,
-			chain(pushForce, [vec2.scale, null, mag * delta])
-		);
-		const position = this.node.transform.position;
+		this.velocity = this.velocity.add(pushForce.mul(mag * delta));
 		const bobVelocity =
 			Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
 		// const bobVelocity = 0;
-		const displacement = chain(
-			vec2.clone(bobDirection),
-			[vec2.scale, null, bobVelocity],
-			[vec2.add, null, this.velocity],
-			[vec2.scale, null, mag * delta]
-		);
-		vec2.add(position, position, displacement);
-		// vec2.add(position, position, vec2FromAngle(Math.random() * Math.PI * 2, 0.1));
+		const displacement = bobDirection
+			.mul(bobVelocity)
+			.add(this.velocity)
+			.mul(mag * delta);
+		position = position.add(displacement);
+		// position = position.add(vec2FromAngle(Math.random() * Math.PI * 2, 0.1));
 
-		vec2.lerp(this.velocity, this.velocity, vec2Zero, 0.01);
+		this.velocity = this.velocity.lerp(vec2.zero, 0.01);
 
 		// Avoid the edges
 		{
-			const goalPosition = chain(vec2.clone(position), [
-				vec2Clamp,
-				null,
-				invMargin,
-				margin,
-			]);
-			vec2.lerp(position, position, goalPosition, 0.12);
+			const goalPosition = position.clamp(invMargin, margin);
+			position = position.lerp(goalPosition, 0.12);
 		}
 
 		this.node.transform.position = position;
@@ -250,44 +214,25 @@ class Feeder {
 		if (this.size == 2) {
 			for (const feeder of this.elements) {
 				const art = feeder.art;
-				const artPosition = art.transform.position;
-				if (vec2.length(artPosition) > 0) {
-					const goalPosition = chain(vec2.create(), [
-						vec2.scale,
-						artPosition,
-						minDist / 2 / vec2.length(artPosition),
-					]);
-					vec2.lerp(artPosition, artPosition, goalPosition, 0.2);
+				let artPosition = art.transform.position;
+				if (artPosition.len() > 0) {
+					const goalPosition = artPosition.mul(minDist / 2 / artPosition.len());
+					artPosition = artPosition.lerp(goalPosition, 0.2);
 					art.transform.position = artPosition;
 				}
 			}
 		} else if (this.size == 3) {
-			const averagePosition = chain(
-				this.elements[0].art.transform.position,
-				[vec2.add, null, this.elements[1].art.transform.position],
-				[vec2.add, null, this.elements[2].art.transform.position],
-				[vec2.scale, null, 1 / 3]
-			);
+			const averagePosition = this.elements[0].art.transform.position
+				.add(this.elements[1].art.transform.position)
+				.add(this.elements[2].art.transform.position)
+				.div(3);
 			for (const feeder of this.elements) {
 				const art = feeder.art;
-				const artPosition = art.transform.position;
-				if (vec2.length(artPosition) > 0) {
-					const goalPosition = chain(vec2.create(), [
-						vec2.sub,
-						artPosition,
-						averagePosition,
-					]);
-					vec2.scale(
-						goalPosition,
-						goalPosition,
-						minDist / 2 / vec2.length(goalPosition)
-					);
-					art.transform.position = chain(artPosition, [
-						vec2.lerp,
-						null,
-						goalPosition,
-						0.2,
-					]);
+				let artPosition = art.transform.position;
+				if (artPosition.len() > 0) {
+					let goalPosition = artPosition.sub(averagePosition);
+					goalPosition = goalPosition.mul(minDist / 2 / goalPosition.len());
+					art.transform.position = artPosition.lerp(goalPosition, 0.2);
 				}
 			}
 		}

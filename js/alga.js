@@ -1,20 +1,18 @@
 import Globals from "./globals.js";
 import SceneNode2D from "./scenenode2d.js";
-import { vec2Zero, lerp, chain, hexColor } from "./mathutils.js";
+import { vec2, vec4, lerp } from "./mathutils.js";
 import { tween, delay, quadEaseOut } from "./tween.js";
 import { sfx } from "./audio.js";
 
-const { vec2, vec4 } = glMatrix;
-
 const fruitColors = {
-	ripe: hexColor("#f79965ff"),
-	unripe: hexColor("#f4e9cbff"),
-	muckyUnripe: hexColor("#ffffffff"),
+	ripe: vec4.hexColor("#f79965ff"),
+	unripe: vec4.hexColor("#f4e9cbff"),
+	muckyUnripe: vec4.hexColor("#ffffffff"),
 };
 
 const muckColors = {
-	mucky: hexColor("#c0c0c0ff"),
-	clean: hexColor("#c0c0c000"),
+	mucky: vec4.hexColor("#c0c0c0ff"),
+	clean: vec4.hexColor("#c0c0c000"),
 };
 
 export default class Alga {
@@ -37,8 +35,8 @@ export default class Alga {
 		this.name = `Alga${row}_${column}`;
 		this.node = new SceneNode2D({ name: this.name });
 
-		this.restingPosition = vec2.clone(position);
-		this.goalPosition = vec2.clone(position);
+		this.restingPosition = position.clone();
+		this.goalPosition = position.clone();
 		this.node.transform.position = position;
 
 		this.muck = new SceneNode2D({
@@ -77,11 +75,11 @@ export default class Alga {
 		}
 
 		this.muck.visible = false;
-		this.muck.transform.position = vec2Zero;
+		this.muck.transform.position = vec2.zero;
 		this.muck.transform.scale = 0;
 		this.muck.colorTransform.color = muckColors.clean;
 
-		this.fruit.transform.position = vec2Zero;
+		this.fruit.transform.position = vec2.zero;
 		this.fruit.transform.scale = 0.4;
 
 		this.fruit.colorTransform.color = fruitColors.unripe;
@@ -90,7 +88,7 @@ export default class Alga {
 	#animateMuck() {
 		this.#muckTween?.stop();
 		const oldPosition = this.muck.transform.position;
-		const newPosition = vec2Zero;
+		const newPosition = vec2.zero;
 		const oldScale = this.muck.transform.scale;
 		const newScale = this.mucky ? 1 : 0;
 		const oldColor = this.muck.colorTransform.color;
@@ -98,19 +96,9 @@ export default class Alga {
 		this.#muckTween = tween(
 			(at) => {
 				this.muck.visible = true;
-				this.muck.transform.position = chain(vec4.create(), [
-					vec2.lerp,
-					oldPosition,
-					newPosition,
-					at,
-				]);
+				this.muck.transform.position = oldPosition.lerp(newPosition, at);
 				this.muck.transform.scale = lerp(oldScale, newScale, at);
-				this.muck.colorTransform.color = chain(vec4.create(), [
-					vec4.lerp,
-					oldColor,
-					newColor,
-					at,
-				]);
+				this.muck.colorTransform.color = oldColor.lerp(newColor, at);
 				if (at >= 1) this.muck.visible = this.mucky;
 			},
 			0.5,
@@ -134,12 +122,7 @@ export default class Alga {
 		this.#fruitTween = tween(
 			(at) => {
 				this.fruit.transform.scale = lerp(oldScale, newScale, at);
-				this.fruit.colorTransform.color = chain(vec4.create(), [
-					vec4.lerp,
-					oldColor,
-					newColor,
-					at,
-				]);
+				this.fruit.colorTransform.color = oldColor.lerp(newColor, at);
 			},
 			0.5,
 			quadEaseOut

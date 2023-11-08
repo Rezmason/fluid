@@ -1,4 +1,4 @@
-import { chain } from "./mathutils.js";
+import { vec2, vec4 } from "./mathutils.js";
 import render2D from "./render2d.js";
 import SceneNode2D from "./scenenode2d.js";
 import Globals from "./globals.js";
@@ -11,8 +11,6 @@ import Forager from "./forager.js";
 import { lerp } from "./mathutils.js";
 import { delay } from "./tween.js";
 import { sfx } from "./audio.js";
-
-const { vec2, vec4 } = glMatrix;
 
 let numMuckyAlgae = 0;
 let gameCanEnd = false;
@@ -27,7 +25,7 @@ const feedersNode = new SceneNode2D({ name: "feeders" });
 
 let lastMouseMove = null;
 let beginMouseDragTime = 0;
-const lastDragSoundPosition = vec2.create();
+let lastDragSoundPosition = vec2.new();
 
 rootNode.addChild(algaeNode);
 rootNode.addChild(feedersNode);
@@ -38,19 +36,13 @@ const scene = game.querySelector("#scene");
 const updateAlgaeGoalPositions = () => {
 	for (const alga of algae) {
 		if (alga.mucky || !Globals.isMousePressed) {
-			vec2.copy(alga.goalPosition, alga.restingPosition);
+			alga.goalPosition = alga.restingPosition;
 		} else {
-			const localPushPosition = chain(vec2.create(), [
-				vec2.sub,
-				Globals.mousePosition,
-				alga.restingPosition,
-			]);
-			let offset = -vec2.length(localPushPosition) / 50;
+			const localPushPosition = Globals.mousePosition.sub(alga.restingPosition);
+			let offset = -localPushPosition.len() / 50;
 			offset *= Math.pow(3, offset);
-			vec2.add(
-				alga.goalPosition,
-				alga.restingPosition,
-				chain(localPushPosition, [vec2.scale, null, offset])
+			alga.goalPosition = alga.restingPosition.add(
+				localPushPosition.mul(offset)
 			);
 		}
 	}
@@ -77,7 +69,7 @@ const beginDrag = () => {
 	updateAlgaeGoalPositions();
 	beginMouseDragTime = performance.now();
 	sfx("mouse_down");
-	vec2.copy(lastDragSoundPosition, Globals.mousePosition);
+	lastDragSoundPosition = Globals.mousePosition.clone();
 };
 
 const endDrag = () => {
@@ -94,36 +86,32 @@ const updateMouse = () => {
 	if (lastMouseMove == null) return;
 	const { x, y } = lastMouseMove;
 	lastMouseMove = null;
-	transformMousePosition(Globals.mousePosition, x, y);
+	Globals.mousePosition = transformMousePosition(x, y);
 
 	if (
 		Globals.isMousePressed &&
-		vec2.sqrDist(Globals.mousePosition, lastDragSoundPosition) > 768
+		Globals.mousePosition.sqrDist(lastDragSoundPosition) > 768
 	) {
-		vec2.copy(lastDragSoundPosition, Globals.mousePosition);
+		lastDragSoundPosition = Globals.mousePosition.clone();
 		sfx("mouse_drag");
 	}
 	updateAlgaeGoalPositions();
 };
 
-const transformMousePosition = (dest, x, y) => {
-	chain(
-		dest,
-		[vec2.set, x, y],
-		[vec2.sub, null, gamePosition],
-		[vec2.div, null, gameSize],
-		[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
-		[vec2.mul, null, Globals.gameSize]
-	);
-};
+const transformMousePosition = (x, y) => vec2
+	.new(x, y)
+	.sub(gamePosition)
+	.div(gameSize)
+	.sub(0.5)
+	.mul(Globals.gameSize);
 
-const gamePosition = vec2.create();
-const gameSize = vec2.create();
+let gamePosition = vec2.new();
+let gameSize = vec2.new();
 
 const resize = () => {
 	const rect = game.getBoundingClientRect();
-	vec2.set(gamePosition, rect.x, rect.y);
-	vec2.set(gameSize, rect.width, rect.height);
+	gamePosition = vec2.new(rect.x, rect.y);
+	gameSize = vec2.new(rect.width, rect.height);
 };
 window.addEventListener("resize", resize);
 resize();
@@ -132,12 +120,9 @@ const spawnAlgae = () => {
 	const grid = [];
 	const numRows = 9,
 		numColumns = 10;
-	const spacing = vec2.fromValues(110, 90);
+	const spacing = vec2.new(110, 90);
 	for (let i = 0; i < numRows; i++) {
-		const rowOffset = chain(
-			vec2.fromValues(1 - (numColumns - (i % 2)), 1 - numRows),
-			[vec2.scale, null, 0.5]
-		);
+		const rowOffset = vec2.new(1 - (numColumns - (i % 2)), 1 - numRows).div(2);
 		const row = [];
 		for (let j = 0; j < numColumns; j++) {
 			if (i % 2 == 1 && j == numColumns - 1) {
@@ -147,11 +132,7 @@ const spawnAlgae = () => {
 			const alga = new Alga(
 				grid.length,
 				row.length,
-				chain(
-					vec2.fromValues(j, i),
-					[vec2.add, null, rowOffset],
-					[vec2.mul, null, spacing]
-				)
+				vec2.new(j, i).add(rowOffset).mul(spacing)
 			);
 			row.push(alga);
 			algae.push(alga);
@@ -216,16 +197,11 @@ const resetFeeders = () => {
 	for (const feeder of feeders) {
 		feeder.reset();
 		feedersNode.addChild(feeder.node);
-		feeder.node.globalPosition = chain(
-			vec2.fromValues(Math.random(), Math.random()),
-			[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
-			[vec2.mul, null, Globals.gameSize]
-		);
-		chain(
-			feeder.velocity,
-			[vec2.set, Math.random() - 0.5, Math.random() - 0.5],
-			[vec2.scale, null, 200]
-		);
+		feeder.node.globalPosition = vec2
+			.new(Math.random(), Math.random())
+			.sub(0.5)
+			.mul(Globals.gameSize);
+		feeder.velocity = vec2.new(Math.random(), Math.random()).sub(0.5).mul(200);
 	}
 };
 
@@ -269,7 +245,7 @@ const reset = () => {
 
 const metaballStates = Array(10)
 	.fill()
-	.map((_) => vec4.create());
+	.map((_) => vec4.new());
 const groupOpacities = Array(3).fill(1);
 
 const getUniqueGroupID = () => {
@@ -304,10 +280,8 @@ const updateMetaballs = (time) => {
 		}
 		let i = 0;
 		for (const element of feeder.elements) {
-			const metaball = metaballStates[n];
 			const position = element.art.globalPosition;
-			vec4.set(
-				metaball,
+			metaballStates[n] = vec4.new(
 				position[0],
 				position[1],
 				15 +
@@ -326,11 +300,9 @@ const updateMetaballs = (time) => {
 
 const testMetaballs = (time) => {
 	for (let i = 0; i < 10; i++) {
-		const metaball = metaballStates[i];
 		const pairing = Math.floor(i / 2);
 		let groupID = pairing % 3;
-		vec4.set(
-			metaball,
+		metaballStates[i] = vec4.new(
 			(pairing * 0.2 - 0.4) * Globals.gameSize[0],
 			Math.sin(time * 0.003 + i) * 0.25 * Globals.gameSize[1],
 			15,
@@ -387,12 +359,10 @@ const update = (now) => {
 	// testMetaballs(time);
 
 	for (const alga of algae) {
-		alga.node.transform.position = chain(alga.node.transform.position, [
-			vec2.lerp,
-			null,
+		alga.node.transform.position = alga.node.transform.position.lerp(
 			alga.goalPosition,
-			0.1,
-		]);
+			0.1
+		);
 
 		if (alga.ripe || alga.occupant != null) continue;
 

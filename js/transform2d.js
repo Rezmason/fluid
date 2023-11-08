@@ -1,10 +1,11 @@
-const { vec2, mat2d } = glMatrix;
+import { vec2 } from "./mathutils.js";
+const { mat2d } = glMatrix;
 
 const tw = (n, p) => Math.floor(n * p) / p;
 
 export default class Transform2D {
 	matrix = mat2d.create();
-	#position = vec2.create();
+	#position = vec2.new();
 	#rotation = 0;
 	#scale = 1;
 	stale = true;
@@ -14,7 +15,7 @@ export default class Transform2D {
 	constructor() {}
 
 	get position() {
-		return vec2.clone(this.#position);
+		return this.#position.clone();
 	}
 
 	set position(v) {

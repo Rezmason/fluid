@@ -1,6 +1,8 @@
-Replace chain with something nicer
-	What does tensorflow use?
-		Does it generate a function?
+Inspect performance
+	How well does the vec lib perform?
+		Any bottlenecks?
+	Do breathing tweens leak memory?
+Cache local-to-global matrix
 Decompilation insights
 	Forager agitation
 		"checkAgitation"
@@ -13,8 +15,6 @@ Make sure game DOM is truly self contained
 	itch.io just puts it in an iframe, that's probably the way to go
 Feeders that can't combine should probably repel one another a bit
 	Otherwise they wind up overlapping
-Inspect performance further
-	Do breathing tweens leak memory?
 smin for metaball sums
 Portrait orientation should swap width and height
 pan audio based on global position

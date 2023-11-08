@@ -1,8 +1,8 @@
-const { vec2 } = glMatrix;
+import { vec2 } from "./mathutils.js";
 
 export default {
 	game: document.querySelector("game"),
-	gameSize: vec2.fromValues(1024, 768),
+	gameSize: vec2.new(1024, 768),
 	isMousePressed: false,
 	mousePosition: [0, 0],
 	muckChanged: new EventTarget(),

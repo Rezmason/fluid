@@ -1,11 +1,8 @@
-import { vec2Zero, vec2AngleTo } from "./mathutils.js";
 import SceneNode2D from "./scenenode2d.js";
 import Alga from "./alga.js";
 import { tween, delay, quadEaseIn, quadEaseOut } from "./tween.js";
-import { lerp, chain } from "./mathutils.js";
+import { vec2, lerp } from "./mathutils.js";
 import { sfx } from "./audio.js";
-
-const { vec2 } = glMatrix;
 
 export default class Forager {
 	name;
@@ -111,8 +108,7 @@ export default class Forager {
 		this.alga.node.addChild(this.node);
 		this.alga.moveToTop();
 		const otherAlga = Alga.getRandomNeighbor(this.alga);
-		const angleToAlga = vec2AngleTo(
-			this.alga.node.globalPosition,
+		const angleToAlga = this.alga.node.globalPosition.angleTo(
 			otherAlga.node.globalPosition
 		);
 		this.#waitToJump();
@@ -144,8 +140,7 @@ export default class Forager {
 			this.alga = nextAlga;
 			oldAlga.occupant = null;
 			this.alga.occupant = this;
-			let angleToAlga = vec2AngleTo(
-				oldAlga.node.globalPosition,
+			let angleToAlga = oldAlga.node.globalPosition.angleTo(
 				this.alga.node.globalPosition
 			);
 			if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;
@@ -165,12 +160,7 @@ export default class Forager {
 			this.#jumpTween?.stop();
 			this.#jumpTween = tween(
 				(at) => {
-					this.node.transform.position = chain(vec2.create(), [
-						vec2.lerp,
-						oldPosition,
-						vec2Zero,
-						at,
-					]);
+					this.node.transform.position = oldPosition.lerp(vec2.zero, at);
 					if (at >= 1) {
 						if (this.alga.ripe && this.alga.occupant === this) this.alga.eat();
 						this.#waitToJump();
@@ -184,8 +174,7 @@ export default class Forager {
 			const oldAngle = this.node.transform.rotation;
 			const otherAlga = Alga.getRandomNeighbor(this.alga);
 
-			let angleToAlga = vec2AngleTo(
-				this.alga.node.globalPosition,
+			let angleToAlga = this.alga.node.globalPosition.angleTo(
 				otherAlga.node.globalPosition
 			);
 			if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;

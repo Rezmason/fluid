@@ -1,9 +1,9 @@
 import SceneNode from "./scenenode.js";
 import Transform2D from "./transform2d.js";
 import ColorTransform from "./colortransform.js";
-import { chain } from "./mathutils.js";
+import { vec2 } from "./mathutils.js";
 
-const { vec2, mat2d, vec4 } = glMatrix;
+const { mat2d } = glMatrix;
 
 export default class SceneNode2D extends SceneNode {
 	visible = true;
@@ -13,7 +13,7 @@ export default class SceneNode2D extends SceneNode {
 
 	get globalPosition() {
 		const matrix = this.#localToGlobalMatrix;
-		return vec2.fromValues(matrix[4], matrix[5]);
+		return vec2.new(matrix[4], matrix[5]);
 	}
 
 	set globalPosition(v) {
@@ -22,9 +22,10 @@ export default class SceneNode2D extends SceneNode {
 			return;
 		}
 
-		const g2l = chain(this.parent.#localToGlobalMatrix, [mat2d.invert, null]);
+		const g2l = this.parent.#localToGlobalMatrix;
+		mat2d.invert(g2l, g2l);
 
-		this.transform.position = vec2.fromValues(
+		this.transform.position = vec2.new(
 			v[0] * g2l[0] + v[1] * g2l[2] + g2l[4],
 			v[0] * g2l[1] + v[1] * g2l[3] + g2l[5]
 		);
