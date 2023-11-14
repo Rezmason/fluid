@@ -42,8 +42,8 @@ const gen = (n) => {
 		mul: op(() => this * other),
 		div: op(() => this / other),
 
-		min: op(() => Math.min(this, other)),
-		max: op(() => Math.max(this, other)),
+		min: op(() => this < other ? this : other),
+		max: op(() => this > other ? this : other),
 		clamp: function (min, max) {
 			return this.min(max).max(min);
 		},

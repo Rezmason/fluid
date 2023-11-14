@@ -215,8 +215,10 @@ class Feeder {
 			for (const feeder of this.elements) {
 				const art = feeder.art;
 				let artPosition = art.transform.position;
-				if (artPosition.len() > 0) {
-					const goalPosition = artPosition.mul(minDist / 2 / artPosition.len());
+				const sqrLen = artPosition.sqrLen();
+				if (sqrLen > 0) {
+					let goalPosition = artPosition;
+					goalPosition = goalPosition.mul(minDist / 2 / goalPosition.len());
 					artPosition = artPosition.lerp(goalPosition, 0.2);
 					art.transform.position = artPosition;
 				}
@@ -229,7 +231,8 @@ class Feeder {
 			for (const feeder of this.elements) {
 				const art = feeder.art;
 				let artPosition = art.transform.position;
-				if (artPosition.len() > 0) {
+				const sqrLen = artPosition.sqrLen();
+				if (sqrLen > 0) {
 					let goalPosition = artPosition.sub(averagePosition);
 					goalPosition = goalPosition.mul(minDist / 2 / goalPosition.len());
 					art.transform.position = artPosition.lerp(goalPosition, 0.2);
