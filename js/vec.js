@@ -17,19 +17,19 @@ const gen = (n) => {
 		return new Function("v", s);
 	};
 
-	const sym = Symbol("vec-lib");
-
 	const lib = Object.assign(Array(n).fill(0), {
-		sym,
 		new: (...args) => Object.create(lib).set(...args),
 		toString: function () {
 			return `vec${n}: ${this[0]}, ${this[1]}`;
 		},
 		set: function (...args) {
-			if (args.length > 0) {
-				let src = args;
-				if (Array.isArray(args[0]) || args[0].sym === sym) src = args[0];
-				Object.assign(this, src);
+			if (args.length === 0) return this;
+			let src = args;
+			if (args.length === 1 && args[0][Symbol.iterator] != null) {
+				src = args[0];
+			}
+			for (let i = 0; i < n; i++) {
+				this[i] = src[i];
 			}
 			return this;
 		},
