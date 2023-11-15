@@ -29,12 +29,12 @@ const render2D = (node, scene) => {
 		style.setProperty("visibility", node.visible ? "visible" : "hidden");
 	}
 
-	if (node.transform.stale) {
+	if (node.transform.cssTransform == null) {
 		node.transform.render();
 		style.transform = node.transform.cssTransform;
 	}
 
-	if (node.colorTransform.stale) {
+	if (node.colorTransform.cssColor == null) {
 		node.colorTransform.render();
 		style.color = node.colorTransform.cssColor;
 	}

@@ -1,7 +1,5 @@
 Inspect performance
 
-	recompose is probably called too often
-		Also, no internal function should get and then set position on a transform
 	localToGlobalMatrix could be cached
 
 	How well does the vec lib perform?

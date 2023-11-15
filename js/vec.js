@@ -37,13 +37,22 @@ const gen = (n) => {
 			return lib.new(this);
 		},
 
+		equals: (() =>
+			new Function(
+				"v",
+				Array(n)
+					.fill()
+					.map((_, i) => `if (this[${i}] !== v[${i}]) return false;`)
+					.join(" ") + "return true;"
+			))(),
+
 		add: op(() => this + other),
 		sub: op(() => this - other),
 		mul: op(() => this * other),
 		div: op(() => this / other),
 
-		min: op(() => this < other ? this : other),
-		max: op(() => this > other ? this : other),
+		min: op(() => (this < other ? this : other)),
+		max: op(() => (this > other ? this : other)),
 		clamp: function (min, max) {
 			return this.min(max).max(min);
 		},
