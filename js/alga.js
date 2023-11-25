@@ -2,6 +2,7 @@ import Globals from "./globals.js";
 import SceneNode2D from "./scenenode2d.js";
 import { vec2Zero, lerp, chain, hexColor } from "./mathutils.js";
 import { tween, delay, quadEaseOut } from "./tween.js";
+import { sfx } from "./audio.js";
 
 const { vec2, vec4 } = glMatrix;
 
@@ -160,6 +161,7 @@ export default class Alga {
 			this.#animateMuck();
 			this.#animateFruit();
 			if (wasMucky) {
+				sfx("clean_muck");
 				Globals.muckChanged.dispatchEvent(
 					new CustomEvent("muckChanged", { detail: this })
 				);
@@ -175,13 +177,14 @@ export default class Alga {
 		}, Math.random() * 4 + 1);
 	}
 
-	spreadMuck() {
+	spreadMuck(fromFrog = false) {
 		const cleanNeighbor = Alga.getRandomNeighbor(
 			this,
 			(neighbor) => !neighbor.mucky
 		);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
+			sfx(fromFrog ? "squirt_muck" : "muck_spawn");
 		}
 	}
 

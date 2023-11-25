@@ -8,6 +8,7 @@ import {
 	lerp,
 	chain,
 } from "./mathutils.js";
+import { sfx } from "./audio.js";
 
 const { vec2 } = glMatrix;
 
@@ -85,6 +86,7 @@ class Feeder {
 		if (this.numSeeds <= 0) {
 			this.#burst();
 		}
+		sfx("cleaner_color");
 		return true;
 	}
 
@@ -120,6 +122,8 @@ class Feeder {
 		this.elements.push(this);
 
 		this.numSeeds = 0;
+
+		sfx("split_cleaner");
 	}
 
 	tryToCombine(other) {
@@ -177,6 +181,8 @@ class Feeder {
 		for (let i = 0; i < this.size; i++) {
 			this.elements[i].art.globalPosition = artPositions[i];
 		}
+
+		sfx(this.size == maxFeederSize ? "merge_cleaner" : "merge_cleaner_parts");
 
 		return true;
 	}

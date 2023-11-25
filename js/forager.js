@@ -3,6 +3,7 @@ import SceneNode2D from "./scenenode2d.js";
 import Alga from "./alga.js";
 import { tween, delay, quadEaseIn, quadEaseOut } from "./tween.js";
 import { lerp, chain } from "./mathutils.js";
+import { sfx } from "./audio.js";
 
 const { vec2 } = glMatrix;
 
@@ -20,7 +21,10 @@ export default class Forager {
 		this.name = `Forager${id}`;
 		this.node = new SceneNode2D({
 			name: this.name,
-			click: () => this.alga.spreadMuck(),
+			click: () => {
+				sfx("touch_frog");
+				this.alga.spreadMuck(true); // TODO: only if sufficiently agitated?
+			},
 		});
 		this.art = new SceneNode2D({
 			art: `
@@ -175,6 +179,7 @@ export default class Forager {
 				0.3,
 				quadEaseOut
 			);
+			sfx("frog_jump");
 		} else {
 			const oldAngle = this.node.transform.rotation;
 			const otherAlga = Alga.getRandomNeighbor(this.alga);

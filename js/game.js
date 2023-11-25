@@ -10,7 +10,6 @@ import Forager from "./forager.js";
 
 import { lerp } from "./mathutils.js";
 import { delay } from "./tween.js";
-
 import { sfx } from "./audio.js";
 
 const { vec2, vec4 } = glMatrix;
@@ -25,6 +24,10 @@ const feeders = [];
 const rootNode = new SceneNode2D({ name: "root" });
 const algaeNode = new SceneNode2D({ name: "algae" });
 const feedersNode = new SceneNode2D({ name: "feeders" });
+
+let lastMouseMove = null;
+let beginMouseDragTime = 0;
+const lastDragSoundPosition = vec2.create();
 
 rootNode.addChild(algaeNode);
 rootNode.addChild(feedersNode);
@@ -55,19 +58,30 @@ const updateAlgaeGoalPositions = () => {
 
 game.addEventListener("mousedown", ({ button }) => {
 	if (button === 0) {
-		Globals.isMousePressed = true;
-		updateAlgaeGoalPositions();
+		beginDrag();
 	}
 });
 game.addEventListener("mouseup", ({ button }) => {
 	if (button === 0) {
-		Globals.isMousePressed = false;
-		updateAlgaeGoalPositions();
+		endDrag();
 	}
 });
-game.addEventListener("mouseleave", () => (Globals.isMousePressed = false));
+game.addEventListener("mouseleave", () => endDrag());
 
-let lastMouseMove = null;
+const beginDrag = () => {
+	Globals.isMousePressed = true;
+	updateAlgaeGoalPositions();
+	beginMouseDragTime = performance.now();
+	sfx("mouseDown");
+	vec2.copy(lastDragSoundPosition, Globals.mousePosition);
+};
+
+const endDrag = () => {
+	Globals.isMousePressed = false;
+	updateAlgaeGoalPositions();
+	sfx(performance.now() - beginMouseDragTime < 200 ? "mousetap" : "mouseUp");
+};
+
 game.addEventListener("mousemove", (event) => {
 	lastMouseMove = event;
 });
@@ -76,17 +90,27 @@ const updateMouse = () => {
 	if (lastMouseMove == null) return;
 	const { x, y } = lastMouseMove;
 	lastMouseMove = null;
+	transformMousePosition(Globals.mousePosition, x, y);
 
+	if (
+		Globals.isMousePressed &&
+		vec2.sqrDist(Globals.mousePosition, lastDragSoundPosition) > 768
+	) {
+		vec2.copy(lastDragSoundPosition, Globals.mousePosition);
+		sfx("mousedrag");
+	}
+	updateAlgaeGoalPositions();
+};
+
+const transformMousePosition = (dest, x, y) => {
 	chain(
-		Globals.mousePosition,
+		dest,
 		[vec2.set, x, y],
 		[vec2.sub, null, gamePosition],
 		[vec2.div, null, gameSize],
 		[vec2.sub, null, vec2.fromValues(0.5, 0.5)],
 		[vec2.mul, null, Globals.gameSize]
 	);
-
-	updateAlgaeGoalPositions();
 };
 
 const gamePosition = vec2.create();
@@ -213,8 +237,10 @@ const detectEndgame = (alga) => {
 	if (gameCanEnd) {
 		if (numMuckyAlgae === 0) {
 			reset();
+			sfx("win");
 		} else if (numMuckyAlgae / algae.length > 0.6) {
 			reset();
+			sfx("lose");
 		}
 	} else if (!resetting && numMuckyAlgae >= 3) {
 		gameCanEnd = true;

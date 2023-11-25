@@ -1,7 +1,18 @@
 Replace chain with something nicer
 	What does tensorflow use?
 		Does it generate a function?
-music
+audio
+	Create audio system with web audio API
+		Look at existing synthesizer implementations
+	Tune audio instruments to match music box
+	Implement random and playlist instrument state
+	pan audio based on global position
+Decompilation insights
+	Forager agitation
+		"checkAgitation"
+	Check timings and conditions of things
+	Look around for other goodies
+		Also, what about the other cast members?
 Make sure game DOM is truly self contained
 	Metaball canvas got bumped by adding an absolute positioned element below the game tag
 Inspect performance further

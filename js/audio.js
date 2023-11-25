@@ -1,11 +1,13 @@
 let instruments;
 let samples;
 
-const json = JSON.parse(await (await fetch("../assets/audio/audio.json")).text());
+const json = JSON.parse(
+	await (await fetch("../assets/audio/audio.json")).text()
+);
 
 const playNote = (variant) => {
 	console.log(variant);
-}
+};
 
 const test = async () => {
 	const variants = [];
@@ -17,25 +19,29 @@ const test = async () => {
 				notes = note.choices;
 			} else if (note.range != null) {
 				const [min, max] = note.range;
-				notes = Array(max - min).fill().map((_, i) => i + min);
+				notes = Array(max - min)
+					.fill()
+					.map((_, i) => i + min);
 			} else if (note.sequence != null) {
 				notes = note.sequence;
 			}
 			for (const note of notes) {
-				variants.push({...instrument, id, note});
+				variants.push({ ...instrument, id, note });
 			}
 		} else {
-			variants.push({...instrument, id});
+			variants.push({ ...instrument, id });
 		}
 	}
 
 	const loadingAudio = {};
 
-	const instrumentList = document.querySelector("instruments")
+	const instrumentList = document.querySelector("instruments");
 
 	for (const variant of variants) {
 		if (variant.sample != null) {
-			loadingAudio[variant.sample] ??= new Audio("../assets/audio/" + json.samples[variant.sample]);
+			loadingAudio[variant.sample] ??= new Audio(
+				"../assets/audio/" + json.samples[variant.sample]
+			);
 		}
 
 		const variantTag = document.createElement("p");
@@ -43,12 +49,10 @@ const test = async () => {
 		variantTag.addEventListener("click", () => playNote(variant));
 		instrumentList.appendChild(variantTag);
 	}
-}
+};
 
 test();
 
-const sfx = (id) => instruments[id]?.play();
+const sfx = (instrumentID) => console.log(instrumentID);
 
-export {
-	sfx
-};
+export { sfx };
