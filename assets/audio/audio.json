@@ -1,0 +1,125 @@
+{
+	"samples": {
+		"drag": "drag.mp3",
+		"loop1": "loop1.mp3",
+		"loop2": "loop2.mp3",
+		"loop5": "loop5.mp3",
+		"loop6": "loop6_2.mp3",
+		"loop6_2": "loop6_2.mp3",
+		"loop7": "loop7.mp3",
+		"loop8": "loop8.mp3",
+		"loopb": "loopb.mp3",
+		"loopc": "loopc.mp3",
+		"loopf": "loopf.mp3",
+		"lose": "lose.mp3",
+		"moon_jelly": "moon_jelly.mp3",
+		"muck": "muck.mp3",
+		"piano_long": "piano_long.mp3",
+		"piano_short": "piano_short.mp3",
+		"split": "split.mp3",
+		"squirt": "squirt.mp3",
+		"win": "wine_glass_4.mp3"
+	},
+	"instruments": {
+		"clean_muck":
+		{
+				"sample": "loopc",
+				"durationMilliseconds": 1000,
+				"velocity": 127,
+				"note": 77
+		},
+		"cleaner_color":
+		{
+				"sample": "moon_jelly",
+				"durationMilliseconds": 1000,
+				"velocity": 110,
+				"note": { "choices": [ 48, 60, 64, 67, 69 ] }
+		},
+		"frog_jump":
+		{
+				"sample": "loopb",
+				"durationMilliseconds": 1000,
+				"velocity": 90,
+				"note": { "range": [ 36, 72 ] }
+		},
+		"lose":
+		{
+				"sample": "piano_long",
+				"durationMilliseconds": 3500,
+				"velocity": 127,
+				"note": 0
+		},
+		"merge_cleaner":
+		{
+				"sample": "loop2",
+				"durationMilliseconds": 1000,
+				"velocity": 110,
+				"note": { "range": [ 36, 72 ] }
+		},
+		"merge_cleaner_parts":
+		{
+				"sample": "loop2",
+				"durationMilliseconds": 1000,
+				"velocity": 110,
+				"note": { "range": [ 36, 72 ] }
+		},
+		"mousedown":
+		{
+				"sample": "loopc",
+				"durationMilliseconds": 100,
+				"velocity": 50,
+				"note": 12
+		},
+		"mousedrag":
+		{
+				"sample": "loop7",
+				"durationMilliseconds": 1000,
+				"velocity": 127,
+				"note": { "range": [ 36, 72 ] }
+		},
+		"mousetap":
+		{},
+		"mouseup":
+		{
+				"sample": "loop5",
+				"durationMilliseconds": 1000,
+				"velocity": 30,
+				"note": { "range": [ 36, 72 ] }
+		},
+		"muck_spawn":
+		{
+				"sample": "piano_short",
+				"durationMilliseconds": 1000,
+				"velocity": 127,
+				"note": 0
+		},
+		"split_cleaner":
+		{
+				"sample": "loop5",
+				"durationMilliseconds": 3000,
+				"velocity": 127,
+				"note": 48
+		},
+		"squirt_muck":
+		{
+				"sample": "squirt",
+				"durationMilliseconds": 2000,
+				"velocity": 100,
+				"note": 72
+		},
+		"touchfrog":
+		{
+				"sample": "loop6_2",
+				"durationMilliseconds": 1000,
+				"velocity": 100,
+				"note": { "sequence": [ 60, 62, 64, 65, 67, 69, 71, 72, 48, 50, 52, 53, 55, 57, 59 ] }
+		},
+		"win":
+		{
+				"sample": "win",
+				"durationMilliseconds": 9000,
+				"velocity": 100,
+				"note": 10
+		}
+	}
+}

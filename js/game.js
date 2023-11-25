@@ -11,6 +11,8 @@ import Forager from "./forager.js";
 import { lerp } from "./mathutils.js";
 import { delay } from "./tween.js";
 
+import { sfx } from "./audio.js";
+
 const { vec2, vec4 } = glMatrix;
 
 let numMuckyAlgae = 0;

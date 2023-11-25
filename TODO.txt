@@ -2,6 +2,8 @@ Replace chain with something nicer
 	What does tensorflow use?
 		Does it generate a function?
 music
+Make sure game DOM is truly self contained
+	Metaball canvas got bumped by adding an absolute positioned element below the game tag
 Inspect performance further
 	Do breathing tweens leak memory?
 smin for metaball sums
