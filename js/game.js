@@ -66,7 +66,11 @@ game.addEventListener("mouseup", ({ button }) => {
 		endDrag();
 	}
 });
-game.addEventListener("mouseleave", () => endDrag());
+game.addEventListener("mouseleave", () => {
+	if (Globals.isMousePressed) {
+		endDrag();
+	}
+});
 
 const beginDrag = () => {
 	Globals.isMousePressed = true;
