@@ -5,7 +5,6 @@ audio
 	Create audio system with web audio API
 		Look at existing synthesizer implementations
 	Tune audio instruments to match music box
-	Implement random and playlist instrument state
 	pan audio based on global position
 Decompilation insights
 	Forager agitation
@@ -15,6 +14,8 @@ Decompilation insights
 		Also, what about the other cast members?
 Make sure game DOM is truly self contained
 	Metaball canvas got bumped by adding an absolute positioned element below the game tag
+Feeders that can't combine should probably repel one another a bit
+	Otherwise they wind up overlapping
 Inspect performance further
 	Do breathing tweens leak memory?
 smin for metaball sums

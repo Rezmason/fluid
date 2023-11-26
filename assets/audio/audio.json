@@ -26,100 +26,106 @@
 				"sample": "loopc",
 				"durationMilliseconds": 1000,
 				"velocity": 127,
-				"note": 77
+				"notes": [ 77 ]
 		},
 		"cleaner_color":
 		{
 				"sample": "moon_jelly",
 				"durationMilliseconds": 1000,
 				"velocity": 110,
-				"note": { "choices": [ 48, 60, 64, 67, 69 ] }
+				"notes": [ 48, 60, 64, 67, 69 ]
 		},
 		"frog_jump":
 		{
 				"sample": "loopb",
 				"durationMilliseconds": 1000,
 				"velocity": 90,
-				"note": { "range": [ 36, 72 ] }
+				"notes": [ 36, 72 ],
+				"type": "range"
 		},
 		"lose":
 		{
 				"sample": "piano_long",
 				"durationMilliseconds": 3500,
 				"velocity": 127,
-				"note": 0
+				"notes": [ 0 ]
 		},
 		"merge_cleaner":
 		{
 				"sample": "loop2",
 				"durationMilliseconds": 1000,
 				"velocity": 110,
-				"note": { "range": [ 36, 72 ] }
+				"notes": [ 36, 72 ],
+				"type": "range"
 		},
 		"merge_cleaner_parts":
 		{
 				"sample": "loop2",
 				"durationMilliseconds": 1000,
 				"velocity": 110,
-				"note": { "range": [ 36, 72 ] }
+				"notes": [ 36, 72 ],
+				"type": "range"
 		},
-		"mousedown":
+		"mouse_down":
 		{
 				"sample": "loopc",
 				"durationMilliseconds": 100,
 				"velocity": 50,
-				"note": 12
+				"notes": [ 12 ]
 		},
-		"mousedrag":
+		"mouse_drag":
 		{
 				"sample": "loop7",
 				"durationMilliseconds": 1000,
 				"velocity": 127,
-				"note": { "range": [ 36, 72 ] }
+				"notes": [ 36, 72 ],
+				"type": "range"
 		},
-		"mousetap":
+		"mouse_tap":
 		{},
-		"mouseup":
+		"mouse_up":
 		{
 				"sample": "loop5",
 				"durationMilliseconds": 1000,
 				"velocity": 30,
-				"note": { "range": [ 36, 72 ] }
+				"notes": [ 36, 72 ],
+				"type": "range"
 		},
 		"muck_spawn":
 		{
 				"sample": "piano_short",
 				"durationMilliseconds": 1000,
 				"velocity": 127,
-				"note": 0
+				"notes": [ 0 ]
 		},
 		"split_cleaner":
 		{
 				"sample": "loop5",
 				"durationMilliseconds": 3000,
 				"velocity": 127,
-				"note": 48
+				"notes": [ 48 ]
 		},
 		"squirt_muck":
 		{
 				"sample": "squirt",
 				"durationMilliseconds": 2000,
 				"velocity": 100,
-				"note": 72
+				"notes": [ 72 ]
 		},
-		"touchfrog":
+		"touch_frog":
 		{
 				"sample": "loop6_2",
 				"durationMilliseconds": 1000,
 				"velocity": 100,
-				"note": { "sequence": [ 60, 62, 64, 65, 67, 69, 71, 72, 48, 50, 52, 53, 55, 57, 59 ] }
+				"notes": [ 60, 62, 64, 65, 67, 69, 71, 72, 48, 50, 52, 53, 55, 57, 59 ],
+				"type": "sequence"
 		},
 		"win":
 		{
 				"sample": "win",
 				"durationMilliseconds": 9000,
 				"velocity": 100,
-				"note": 10
+				"notes": [ 10 ]
 		}
 	}
 }

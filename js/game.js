@@ -72,14 +72,14 @@ const beginDrag = () => {
 	Globals.isMousePressed = true;
 	updateAlgaeGoalPositions();
 	beginMouseDragTime = performance.now();
-	sfx("mouseDown");
+	sfx("mouse_down");
 	vec2.copy(lastDragSoundPosition, Globals.mousePosition);
 };
 
 const endDrag = () => {
 	Globals.isMousePressed = false;
 	updateAlgaeGoalPositions();
-	sfx(performance.now() - beginMouseDragTime < 200 ? "mousetap" : "mouseUp");
+	sfx(performance.now() - beginMouseDragTime < 200 ? "mouse_tap" : "mouse_up");
 };
 
 game.addEventListener("mousemove", (event) => {
@@ -97,7 +97,7 @@ const updateMouse = () => {
 		vec2.sqrDist(Globals.mousePosition, lastDragSoundPosition) > 768
 	) {
 		vec2.copy(lastDragSoundPosition, Globals.mousePosition);
-		sfx("mousedrag");
+		sfx("mouse_drag");
 	}
 	updateAlgaeGoalPositions();
 };
