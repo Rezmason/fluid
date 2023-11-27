@@ -5,6 +5,7 @@ audio
 	Create audio system with web audio API
 		Look at existing synthesizer implementations
 	Tune audio instruments to match music box
+	debounce?
 	pan audio based on global position
 Decompilation insights
 	Forager agitation

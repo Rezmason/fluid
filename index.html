@@ -79,10 +79,73 @@
 					top: 0;
 					right: 0;
 					*/
-					background: blue;
-					padding: 1em;
-					height: 50vh;
+					background: #222;
+					border: solid #222;
+					border-width: 2em 0 2em 5em;
+					border-radius: 0.5em;
+					height: 80vh;
 					overflow-y: scroll;
+					display: flex;
+					flex-direction: column;
+					align-items: start;
+					justify-content: stretch;
+					flex-shrink: 0;
+					gap: 0;
+					margin: 1em;
+				}
+
+				instruments p {
+					flex-shrink: 0;
+					flex-grow: 1;
+					display: flex;
+					align-items: center;
+					justify-content: end;
+					background: white;
+					color: black;
+					width: 2in;
+					height: 2rem;
+					border: 0.2rem solid #aaa;
+					font-size: 0.8rem;
+					font-family: monospace;
+					font-weight: bold;
+					margin: -0.1rem 0 -0.1rem 0;
+					padding: 0;
+					padding-right: 1em;
+					cursor: pointer;
+					user-select: none;
+					--pressed-background: lightgray;
+					--pressed-color: black;
+					--hover-color: gray;
+
+					white-space: nowrap;
+					text-overflow: clip;
+				}
+
+				instruments p:nth-child(12n + 2),
+				instruments p:nth-child(12n + 4),
+				instruments p:nth-child(12n + 6),
+				instruments p:nth-child(12n + 9),
+				instruments p:nth-child(12n + 11) {
+					width: 1.25in;
+					background: #444;
+					font-size: 0.5rem;
+					border: 0.3rem solid black;
+					--pressed-background: black;
+					--pressed-color: white;
+					--hover-color: white;
+					color: lightgray;
+					z-index: 2;
+					height: 1rem;
+					margin: -0.75rem 0 -0.75rem 0;
+				}
+
+				instruments p:hover {
+					color: var(--hover-color);
+				}
+
+				instruments p:active {
+					background: var(--pressed-background);
+					color: var(--pressed-color);
 				}
 			</style>
 			<svg id="scene" viewBox="-512 -384 1024 768"></svg>

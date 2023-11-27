@@ -62,16 +62,17 @@ const instruments = Object.fromEntries(
 );
 const samples = {};
 for (const instrument of Object.values(instruments)) {
-	if (instrument.sample != null) {
-		samples[instrument.sample] ??= new Audio(
+	if (instrument.sample != null && samples[instrument.sample] == null) {
+		const audio = new Audio(
 			"../assets/audio/" + json.samples[instrument.sample]
 		);
+		samples[instrument.sample] = { audio };
 	}
 }
 
 await Promise.all(
 	Object.values(samples).map(
-		(audio) => new Promise((resolve) => (audio.oncanplaythrough = resolve))
+		({ audio }) => new Promise((resolve) => (audio.oncanplaythrough = resolve))
 	)
 );
 
@@ -94,16 +95,21 @@ const test = async () => {
 		}
 	}
 
-	console.log(variants);
+	variants.reverse();
 
 	const instrumentList = document.querySelector("instruments");
 
 	for (const variant of variants) {
 		const variantTag = document.createElement("p");
 		variantTag.innerText = `${variant.id} : ${variant.note}`;
-		variantTag.addEventListener("click", () =>
+		variantTag.addEventListener("mousedown", () =>
 			instruments[variant.id].pluck(variant.note)
 		);
+		variantTag.addEventListener("mouseover", ({ buttons }) => {
+			if (buttons === 1) {
+				instruments[variant.id].pluck(variant.note);
+			}
+		});
 		instrumentList.appendChild(variantTag);
 	}
 };
