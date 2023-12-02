@@ -12,48 +12,81 @@
 		"loopc": "loopc.mp3",
 		"loopf": "loopf.mp3",
 		"lose": "lose.mp3",
-		"moon_jelly": "moon_jelly.mp3",
 		"muck": "muck.mp3",
-		"piano_long": "piano_long.mp3",
-		"piano_short": "piano_short.mp3",
 		"split": "split.mp3",
 		"squirt": "squirt.mp3",
-		"win": "wine_glass_4.mp3"
+		"win": "wine_glass_4.mp3",
+
+		"mouse_down": "mouse_down.mp3",
+		"piano_loop": "piano_loop.mp3",
+		"moon_jelly_loop": "moon_jelly_loop.mp3"
 	},
 	"instruments": {
 		"clean_muck":
 		{
 				"sample": "loopc",
-				"durationMilliseconds": 1000,
-				"velocity": 127,
+				"root": 112,
+				"duration": 1000,
+				"velocity": 50,
 				"notes": [ 77 ]
 		},
 		"cleaner_color":
 		{
-				"sample": "moon_jelly",
-				"durationMilliseconds": 1000,
+				"sample": "moon_jelly_loop",
+				"loop": {
+					"start": 71,
+					"end": 95.138
+				},
+				"vibrato": {
+					"frequency": 8.7,
+					"amplitude": 250,
+					"baseDetune": -200
+				},
+				"envelope": [
+					{ "time":  0, "volume": 1.62 },
+					{ "time": 12, "volume": 1.24 },
+					{ "time": 15, "volume": 1.08 }
+				],
+				"panModulation": {
+					"frequency": 6.96,
+					"amplitude": 0.98
+				},
+				"root": 98.5,
+				"duration": 1000,
 				"velocity": 110,
 				"notes": [ 48, 60, 64, 67, 69 ]
 		},
 		"frog_jump":
 		{
 				"sample": "loopb",
-				"durationMilliseconds": 1000,
+				"root": 96,
+				"duration": 1000,
 				"velocity": 90,
 				"notes": [ 36, 72 ],
 				"type": "range"
 		},
 		"lose":
 		{
-				"sample": "piano_long",
-				"durationMilliseconds": 3500,
-				"velocity": 127,
+				"sample": "piano_loop",
+				"loop": {
+					"start": 214,
+					"end": 359.6
+				},
+				"envelope": [
+					{ "time":  0, "volume": 1.62 },
+					{ "time": 12, "volume": 1.24 },
+					{ "time": 15, "volume": 1.08 }
+				],
+				"root": 72,
+				"duration": 3500,
+				"velocity": 64,
 				"notes": [ 0 ]
 		},
 		"merge_cleaner":
 		{
 				"sample": "loop2",
-				"durationMilliseconds": 1000,
+				"root": 96.5,
+				"duration": 1000,
 				"velocity": 110,
 				"notes": [ 36, 72 ],
 				"type": "range"
@@ -61,23 +94,26 @@
 		"merge_cleaner_parts":
 		{
 				"sample": "loop2",
-				"durationMilliseconds": 1000,
+				"root": 96.5,
+				"duration": 1000,
 				"velocity": 110,
 				"notes": [ 36, 72 ],
 				"type": "range"
 		},
 		"mouse_down":
 		{
-				"sample": "loopc",
-				"durationMilliseconds": 100,
-				"velocity": 50,
+				"sample": "mouse_down",
+				"root": 48,
+				"duration": 1000,
+				"velocity": 127,
 				"notes": [ 12 ]
 		},
 		"mouse_drag":
 		{
-				"sample": "loop7",
-				"durationMilliseconds": 1000,
-				"velocity": 127,
+				"sample": "drag",
+				"root": 96.5,
+				"duration": 1000,
+				"velocity": 64,
 				"notes": [ 36, 72 ],
 				"type": "range"
 		},
@@ -86,36 +122,50 @@
 		"mouse_up":
 		{
 				"sample": "loop5",
-				"durationMilliseconds": 1000,
-				"velocity": 30,
+				"root": 97,
+				"duration": 1000,
+				"velocity": 25,
 				"notes": [ 36, 72 ],
 				"type": "range"
 		},
 		"muck_spawn":
 		{
-				"sample": "piano_short",
-				"durationMilliseconds": 1000,
-				"velocity": 127,
+				"sample": "piano_loop",
+				"loop": {
+					"start": 214,
+					"end": 359.6
+				},
+				"envelope": [
+					{ "time":  0, "volume": 1.62 },
+					{ "time": 12, "volume": 1.24 },
+					{ "time": 15, "volume": 1.08 }
+				],
+				"root": 72,
+				"duration": 1000,
+				"velocity": 64,
 				"notes": [ 0 ]
 		},
 		"split_cleaner":
 		{
 				"sample": "loop5",
-				"durationMilliseconds": 3000,
+				"root": 96.5,
+				"duration": 3000,
 				"velocity": 127,
 				"notes": [ 48 ]
 		},
 		"squirt_muck":
 		{
 				"sample": "squirt",
-				"durationMilliseconds": 2000,
-				"velocity": 100,
+				"root": 96.5,
+				"duration": 2000,
+				"velocity": 70,
 				"notes": [ 72 ]
 		},
 		"touch_frog":
 		{
 				"sample": "loop6_2",
-				"durationMilliseconds": 1000,
+				"root": 96.5,
+				"duration": 1000,
 				"velocity": 100,
 				"notes": [ 60, 62, 64, 65, 67, 69, 71, 72, 48, 50, 52, 53, 55, 57, 59 ],
 				"type": "sequence"
@@ -123,8 +173,14 @@
 		"win":
 		{
 				"sample": "win",
-				"durationMilliseconds": 9000,
-				"velocity": 100,
+				"root": 50.5,
+				"envelope": [
+					{ "time":  0, "volume": 1.62 },
+					{ "time": 12, "volume": 1.24 },
+					{ "time": 15, "volume": 1.08 }
+				],
+				"duration": 9000,
+				"velocity": 60,
 				"notes": [ 10 ]
 		}
 	}

@@ -1,12 +1,31 @@
+// All times are in milliseconds.
+
+const AudioContext = [window.AudioContext, window.webkitAudioContext].find(
+	(contextClass) => contextClass != null
+);
+
+const audioContext = new AudioContext();
+
+const mtof = (note) => 440 * Math.pow(2, (note - 69) / 12);
+
 class Instrument {
 	id;
+
 	#type;
 	#sample;
+	#root;
 	#velocity;
-	#durationMilliseconds;
+	#duration;
+
 	#notes;
+	#loop;
+	#vibrato;
+	#envelope;
+	#panModulation;
+
 	#bag;
 	#index;
+	#audioNode;
 
 	constructor(id, data) {
 		this.id = id;
@@ -15,28 +34,51 @@ class Instrument {
 		}
 	}
 
-	#init({ type, sample, durationMilliseconds, velocity, notes }) {
-		this.#sample = sample;
-		this.#durationMilliseconds = durationMilliseconds;
-		this.#velocity = velocity;
+	#init(data) {
+		const { type, sample, root, duration, velocity } = data;
 		this.#type = type;
+		this.#sample = sample;
+		this.#root = root ?? 60;
+		this.#duration = duration;
+		this.#velocity = velocity;
+
 		if (this.#type === "range") {
-			const [min, max] = notes;
+			const [min, max] = data.notes;
 			this.#notes = Array(max - min)
 				.fill()
 				.map((_, i) => i + min);
 		} else {
-			this.#notes = notes;
+			this.#notes = data.notes;
 		}
+
+		if (data.loop != null) {
+			let { start, end } = data.loop;
+			start = Math.min(duration, Math.max(0, start ?? 0));
+			end = Math.min(duration, Math.max(start, end ?? 0));
+			this.#loop = { start, end };
+		}
+
+		const { vibrato, envelope, panModulation } = data;
+		this.#vibrato = vibrato;
+		this.#envelope = envelope;
+		this.#panModulation = panModulation;
 
 		this.#bag = [];
 		this.#index = 0;
 	}
 
-	pluck(note) {
+	pluck(note, offset = 0) {
 		if (this.#sample == null) {
 			return;
 		}
+		const { buffer } = samples[this.#sample];
+		if (buffer == null) {
+			return;
+		}
+
+		const source = audioContext.createBufferSource();
+		source.buffer = buffer;
+
 		if (note == null || !this.#notes.includes(note)) {
 			if (this.#type === "sequence") {
 				note = this.#notes[this.#index];
@@ -49,7 +91,91 @@ class Instrument {
 				note = this.#bag.splice(index, 1)[0];
 			}
 		}
-		console.log(this.id, note);
+
+		const playbackRate = mtof(note - this.#root - offset);
+		source.playbackRate.value = playbackRate;
+
+		if (this.#loop != null) {
+			const { start, end } = this.#loop;
+			source.loop = true;
+			source.loopEnd = end * 0.001;
+			setTimeout(
+				() => (source.loopStart = start * 0.001),
+				source.loopStart * playbackRate
+			);
+		}
+
+		// sample/playbackRate --> filter --> gain envelope --> pan & volume --> destination
+
+		const chain = [source];
+		const runningNodes = [];
+
+		if (this.#vibrato != null) {
+			const { frequency, amplitude, baseDetune } = this.#vibrato;
+			const vibratoFreq = audioContext.createOscillator();
+			vibratoFreq.type = "square";
+			vibratoFreq.frequency.value = frequency;
+			const vibratoAmp = audioContext.createGain();
+			source.detune.value = baseDetune;
+			vibratoAmp.gain.value = amplitude;
+			vibratoFreq.connect(vibratoAmp);
+			vibratoAmp.connect(source.detune);
+			vibratoFreq.start();
+			runningNodes.push(vibratoFreq);
+		}
+
+		const envelopeGain = audioContext.createGain();
+		const vol = this.#velocity / 127;
+		envelopeGain.gain.value = vol;
+		if (this.#envelope != null) {
+			for (const { volume, time } of this.#envelope) {
+				if (time === 0) {
+					envelopeGain.gain.value = vol * volume;
+				} else {
+					envelopeGain.gain.linearRampToValueAtTime(
+						vol * volume,
+						audioContext.currentTime + time / 1000
+					);
+				}
+			}
+			envelopeGain.gain.linearRampToValueAtTime(
+				0,
+				audioContext.currentTime + this.#duration / 1000
+			);
+		}
+		chain.push(envelopeGain);
+
+		if (this.#panModulation != null) {
+			const { frequency, amplitude } = this.#panModulation;
+			const panner = audioContext.createStereoPanner();
+			const panFreq = audioContext.createOscillator();
+			panFreq.frequency.value = frequency;
+			const panAmp = audioContext.createGain();
+			panAmp.gain.value = amplitude;
+			panFreq.connect(panAmp);
+			panAmp.connect(panner.pan);
+			panFreq.start();
+			runningNodes.push(panFreq);
+			chain.push(panner);
+		}
+
+		chain.push(audioContext.destination);
+
+		for (let i = 1; i < chain.length; i++) {
+			chain[i - 1].connect(chain[i]);
+		}
+
+		runningNodes.push(source);
+		source.start();
+
+		setTimeout(() => {
+			for (const node of runningNodes) {
+				node.stop();
+			}
+			for (let i = 1; i < chain.length; i++) {
+				chain[i - 1].disconnect(chain[i]);
+			}
+		}, this.#duration);
 	}
 }
 
@@ -60,21 +186,26 @@ const json = JSON.parse(
 const instruments = Object.fromEntries(
 	Object.entries(json.instruments).map((e) => [e[0], new Instrument(...e)])
 );
+
+const loadSample = (filename) => {
+	const result = {
+		buffer: null,
+		ready: fetch("../assets/audio/" + filename)
+			.then((r) => r.arrayBuffer())
+			.then((buffer) => audioContext.decodeAudioData(buffer))
+			.then((buffer) => (result.buffer = buffer)),
+	};
+	return result;
+};
+
 const samples = {};
-for (const instrument of Object.values(instruments)) {
+for (const instrument of Object.values(json.instruments)) {
 	if (instrument.sample != null && samples[instrument.sample] == null) {
-		const audio = new Audio(
-			"../assets/audio/" + json.samples[instrument.sample]
-		);
-		samples[instrument.sample] = { audio };
+		samples[instrument.sample] = loadSample(json.samples[instrument.sample]);
 	}
 }
 
-await Promise.all(
-	Object.values(samples).map(
-		({ audio }) => new Promise((resolve) => (audio.oncanplaythrough = resolve))
-	)
-);
+await Promise.all(Object.values(samples).map(({ ready }) => ready));
 
 const test = async () => {
 	const variants = [];
@@ -92,25 +223,59 @@ const test = async () => {
 
 		for (const note of notes) {
 			variants.push({ instrument, id, note });
+			// break;
 		}
 	}
 
 	variants.reverse();
 
-	const instrumentList = document.querySelector("instruments");
+	const piano = document.querySelector("instruments");
+
+	const tfm = "rotate(120deg)";
+	piano.style.transform = tfm;
+
+	let dragging = false;
+	let startX, startY;
+	let pianoStartX = 0,
+		pianoStartY = 0;
+	let pianoX = 0,
+		pianoY = 0;
+
+	piano.addEventListener("mousedown", ({ target, screenX, screenY }) => {
+		if (target !== piano) return;
+		(startX = screenX), (startY = screenY);
+		(pianoStartX = pianoX), (pianoStartY = pianoY);
+		dragging = true;
+	});
+
+	piano.addEventListener("mouseup", () => {
+		dragging = false;
+	});
+
+	window.addEventListener("mousemove", ({ screenX, screenY }) => {
+		if (!dragging) return;
+		let dx = screenX - startX,
+			dy = screenY - startY;
+		(pianoX = pianoStartX + dx), (pianoY = pianoStartY + dy);
+		piano.style.transform = `translate(${pianoX}px, ${pianoY}px) ${tfm}`;
+	});
 
 	for (const variant of variants) {
 		const variantTag = document.createElement("p");
-		variantTag.innerText = `${variant.id} : ${variant.note}`;
-		variantTag.addEventListener("mousedown", () =>
-			instruments[variant.id].pluck(variant.note)
-		);
+		variantTag.innerHTML = `
+			<input class="note-offset" type="number" style="width: 2rem; margin-right: 1rem; display: none" value="0">
+			${variant.id} : ${variant.note}
+		`;
+		const noteOffset = variantTag.querySelector(".note-offset");
+		variantTag.addEventListener("mousedown", () => {
+			instruments[variant.id].pluck(variant.note, parseInt(noteOffset.value));
+		});
 		variantTag.addEventListener("mouseover", ({ buttons }) => {
 			if (buttons === 1) {
 				instruments[variant.id].pluck(variant.note);
 			}
 		});
-		instrumentList.appendChild(variantTag);
+		piano.appendChild(variantTag);
 	}
 };
 
