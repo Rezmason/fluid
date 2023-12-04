@@ -1,4 +1,5 @@
 piano {
+	pointer-events: auto;
 	position: absolute;
 	bottom: 40%;
 	right: 10%;
