@@ -100,6 +100,7 @@ gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
 
 const metaballData = new Float32Array(10 * 4);
 const metaballGroupData = new Float32Array(3 * 4);
+let sceneScale = 1;
 
 const redraw = () => {
 	gl.clear(gl.COLOR_BUFFER_BIT);
@@ -107,6 +108,7 @@ const redraw = () => {
 	gl.uniform4fv(uMetaballGroups, metaballGroupData);
 	gl.uniform4fv(uMetaballs, metaballData);
 	gl.uniform1f(uFade, fade);
+	gl.uniform1f(uSceneScale, sceneScale);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 };
 
@@ -118,7 +120,7 @@ const resizeObserver = new ResizeObserver(([entry]) => {
 	size[1] /= resolution;
 	[feederMetaballs.width, feederMetaballs.height] = size;
 	gl.viewport(0, 0, ...size);
-	gl.uniform1f(uSceneScale, Globals.gameSize[0] / size[0]);
+	sceneScale = Globals.gameSize[0] / size[0];
 	redraw();
 });
 
