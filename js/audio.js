@@ -180,7 +180,7 @@ class Instrument {
 }
 
 const json = JSON.parse(
-	await (await fetch("../assets/audio/audio.json")).text()
+	await (await fetch("assets/audio/audio.json")).text()
 );
 
 const instruments = Object.fromEntries(
@@ -190,7 +190,7 @@ const instruments = Object.fromEntries(
 const loadSample = (filename) => {
 	const result = {
 		buffer: null,
-		ready: fetch("../assets/audio/" + filename)
+		ready: fetch("assets/audio/" + filename)
 			.then((r) => r.arrayBuffer())
 			.then((buffer) => audioContext.decodeAudioData(buffer))
 			.then((buffer) => (result.buffer = buffer)),
