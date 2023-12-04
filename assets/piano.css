@@ -1,0 +1,81 @@
+piano {
+	position: absolute;
+	bottom: 40%;
+	right: 10%;
+
+	--unit: 0.7vmax;
+
+	background: #b00;
+	border: solid #b00;
+	border-width: calc(7.5 * var(--unit)) 0 calc(7.5 * var(--unit)) calc(20 * var(--unit));
+	border-radius: calc(2.5 * var(--unit));
+	cursor: move;
+
+	max-height: calc(65 * var(--unit));
+	width: calc(25 * var(--unit));
+	overflow: hidden;
+	overflow-y: scroll;
+
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	justify-content: stretch;
+	gap: 0;
+}
+
+key {
+	background: white;
+	color: black;
+	font-size: calc(1.5 * var(--unit));
+	font-family: monospace;
+	font-weight: bold;
+
+	width: calc(100% - calc(4 * var(--unit)));
+	padding-left: calc(2.5 * var(--unit));
+	height: calc(5 * var(--unit));
+	border: calc(0.5 * var(--unit)) solid #aaa;
+	margin: calc(-0.25 * var(--unit)) 0 calc(-0.25 * var(--unit)) 0;
+
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+
+	cursor: pointer;
+	user-select: none;
+	--pressed-background: lightgray;
+	--pressed-color: black;
+	--hover-color: gray;
+
+	white-space: nowrap;
+	text-overflow: clip;
+
+	transform: rotate(180deg);
+}
+
+key:nth-child(12n + 2),
+key:nth-child(12n + 4),
+key:nth-child(12n + 6),
+key:nth-child(12n + 9),
+key:nth-child(12n + 11) {
+	width: calc(60% - calc(1 * var(--unit)));
+	padding-left: calc(1 * var(--unit));
+	background: #444;
+	font-size: calc(1 * var(--unit));
+	border-color: black;
+	--pressed-background: black;
+	--pressed-color: white;
+	--hover-color: white;
+	color: lightgray;
+	z-index: 2;
+	height: calc(2.5 * var(--unit));
+	margin: calc(-1.75 * var(--unit)) 0 calc(-1.75 * var(--unit)) 0;
+}
+
+key:hover {
+	color: var(--hover-color);
+}
+
+key:active {
+	background: var(--pressed-background);
+	color: var(--pressed-color);
+}

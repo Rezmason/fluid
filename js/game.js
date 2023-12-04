@@ -415,3 +415,11 @@ spawnFeeders();
 
 update(startTime);
 Metaballs.fadeIn();
+
+const urlParams = new URLSearchParams(window.location.search);
+const demo = urlParams.get("demo");
+switch (demo) {
+	case "piano":
+		import("./piano.js");
+		break;
+}

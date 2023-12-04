@@ -25,6 +25,7 @@
 				align-items: center;
 			}
 		</style>
+		<link rel="stylesheet" type="text/css" href="./assets/piano.css" />
 	</head>
 	<body>
 		<game id="fluid">
@@ -52,7 +53,8 @@
 
 				game#fluid #scene,
 				game#fluid #metaballs,
-				game#fluid #splash {
+				game#fluid #splash,
+				game#fluid #instruments {
 					position: absolute;
 					width: 100%;
 					height: 100%;
@@ -72,90 +74,14 @@
 					user-select: none;
 					pointer-events: none;
 				}
-
-				instruments {
-					position: absolute;
-					bottom: -3in;
-					right: 2in;
-
-					cursor: move;
-
-					background: #800;
-					border: solid #800;
-					border-width: 5em 0 5em 10em;
-					border-radius: 0.5em;
-					height: 80vh;
-					overflow-y: scroll;
-					display: flex;
-					flex-direction: column;
-					align-items: start;
-					justify-content: stretch;
-					flex-shrink: 0;
-					gap: 0;
-					margin: 1em;
-				}
-
-				instruments p {
-					flex-shrink: 0;
-					flex-grow: 1;
-					display: flex;
-					align-items: center;
-					justify-content: end;
-					background: white;
-					color: black;
-					width: 2in;
-					height: 2rem;
-					border: 0.2rem solid #aaa;
-					font-size: 0.8rem;
-					font-family: monospace;
-					font-weight: bold;
-					margin: -0.1rem 0 -0.1rem 0;
-					padding: 0;
-					padding-right: 1em;
-					cursor: pointer;
-					user-select: none;
-					--pressed-background: lightgray;
-					--pressed-color: black;
-					--hover-color: gray;
-
-					white-space: nowrap;
-					text-overflow: clip;
-				}
-
-				instruments p:nth-child(12n + 2),
-				instruments p:nth-child(12n + 4),
-				instruments p:nth-child(12n + 6),
-				instruments p:nth-child(12n + 9),
-				instruments p:nth-child(12n + 11) {
-					width: 1.25in;
-					background: #444;
-					font-size: 0.5rem;
-					border: 0.3rem solid black;
-					--pressed-background: black;
-					--pressed-color: white;
-					--hover-color: white;
-					color: lightgray;
-					z-index: 2;
-					height: 1rem;
-					margin: -0.75rem 0 -0.75rem 0;
-				}
-
-				instruments p:hover {
-					color: var(--hover-color);
-				}
-
-				instruments p:active {
-					background: var(--pressed-background);
-					color: var(--pressed-color);
-				}
 			</style>
 			<svg id="scene" viewBox="-512 -384 1024 768"></svg>
 			<canvas id="metaballs" width="1024" height="768"></canvas>
 			<img id="splash" src="assets/svg/splash.svg" />
+			<div id="instruments"></div>
 			<!-- <script src="lib/gl-matrix.js"></script> -->
 			<script src="lib/gl-matrix-min.js"></script>
 			<script type="module" src="js/game.js"></script>
 		</game>
-		<instruments></instruments>
 	</body>
 </html>

@@ -10,6 +10,7 @@ const mtof = (note) => 440 * Math.pow(2, (note - 69) / 12);
 
 class Instrument {
 	id;
+	notes;
 
 	#type;
 	#sample;
@@ -17,7 +18,6 @@ class Instrument {
 	#velocity;
 	#duration;
 
-	#notes;
 	#loop;
 	#vibrato;
 	#envelope;
@@ -44,11 +44,11 @@ class Instrument {
 
 		if (this.#type === "range") {
 			const [min, max] = data.notes;
-			this.#notes = Array(max - min)
+			this.notes = Array(max - min)
 				.fill()
 				.map((_, i) => i + min);
 		} else {
-			this.#notes = data.notes;
+			this.notes = data.notes;
 		}
 
 		if (data.loop != null) {
@@ -79,13 +79,13 @@ class Instrument {
 		const source = audioContext.createBufferSource();
 		source.buffer = buffer;
 
-		if (note == null || !this.#notes.includes(note)) {
+		if (note == null || !this.notes.includes(note)) {
 			if (this.#type === "sequence") {
-				note = this.#notes[this.#index];
-				this.#index = (this.#index + 1) % this.#notes.length;
+				note = this.notes[this.#index];
+				this.#index = (this.#index + 1) % this.notes.length;
 			} else {
 				if (this.#bag.length === 0) {
-					this.#bag.push(...this.#notes);
+					this.#bag.push(...this.notes);
 				}
 				const index = Math.floor(Math.random() * this.#bag.length);
 				note = this.#bag.splice(index, 1)[0];
@@ -207,80 +207,6 @@ for (const instrument of Object.values(json.instruments)) {
 
 await Promise.all(Object.values(samples).map(({ ready }) => ready));
 
-const test = async () => {
-	const variants = [];
-	for (var [id, instrument] of Object.entries(json.instruments)) {
-		let notes = instrument.notes;
-		if (notes == null) {
-			continue;
-		}
-		if (instrument.type === "range") {
-			const [min, max] = notes;
-			notes = Array(max - min)
-				.fill()
-				.map((_, i) => i + min);
-		}
-
-		for (const note of notes) {
-			variants.push({ instrument, id, note });
-			// break;
-		}
-	}
-
-	variants.reverse();
-
-	const piano = document.querySelector("instruments");
-
-	const tfm = "rotate(120deg)";
-	piano.style.transform = tfm;
-
-	let dragging = false;
-	let startX, startY;
-	let pianoStartX = 0,
-		pianoStartY = 0;
-	let pianoX = 0,
-		pianoY = 0;
-
-	piano.addEventListener("mousedown", ({ target, screenX, screenY }) => {
-		if (target !== piano) return;
-		(startX = screenX), (startY = screenY);
-		(pianoStartX = pianoX), (pianoStartY = pianoY);
-		dragging = true;
-	});
-
-	piano.addEventListener("mouseup", () => {
-		dragging = false;
-	});
-
-	window.addEventListener("mousemove", ({ screenX, screenY }) => {
-		if (!dragging) return;
-		let dx = screenX - startX,
-			dy = screenY - startY;
-		(pianoX = pianoStartX + dx), (pianoY = pianoStartY + dy);
-		piano.style.transform = `translate(${pianoX}px, ${pianoY}px) ${tfm}`;
-	});
-
-	for (const variant of variants) {
-		const variantTag = document.createElement("p");
-		variantTag.innerHTML = `
-			<input class="note-offset" type="number" style="width: 2rem; margin-right: 1rem; display: none" value="0">
-			${variant.id} : ${variant.note}
-		`;
-		const noteOffset = variantTag.querySelector(".note-offset");
-		variantTag.addEventListener("mousedown", () => {
-			instruments[variant.id].pluck(variant.note, parseInt(noteOffset.value));
-		});
-		variantTag.addEventListener("mouseover", ({ buttons }) => {
-			if (buttons === 1) {
-				instruments[variant.id].pluck(variant.note);
-			}
-		});
-		piano.appendChild(variantTag);
-	}
-};
-
-test();
-
 const sfx = (id) => instruments[id].pluck();
 
-export { sfx };
+export { instruments, sfx };
