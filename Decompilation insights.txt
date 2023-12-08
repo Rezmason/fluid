@@ -1,0 +1,37 @@
+colors
+	dots: #f5ebd1
+	food: #ffa770
+	foodflash: #000000
+	eatflash: #ffffff
+	muckfood: #bf7c54
+	frog: #d7aa73
+	blobs: #801700
+	muckdot: #a1a1a1
+	muck: #ffffff
+	fade: #ffffff
+reset takes 2 seconds
+grid is 8 rows high
+	const dx = Globals.gameSize[0] / numRows;
+	const dy = Globals.gameSize[1] / numRows;
+	for (let i = 0; i < numRows; i++) {
+		for (let j = 0; j < numRows; j++) {
+			const x = (i * dx) - (j % 2 * dx / 2) - (dx / 5);
+			const y = (j * dy) - (dy / 2) - (dy / 16);
+			addDot(x, y);
+		}
+	}
+idle timeout in 10 minutes
+	URL option
+feeders should seed on direct contact
+	first check the min distance, then the "lobe distance"
+		maybe lobe distance can be simplified by modding theta by 3
+Forager agitation ("checkAgitation")
+	foragers squirt muck when their agitation is within a certain range
+	foragers jump if they aren't fully agitated, and it hasn't been too soon after squirting muck
+Muck spread ("nextspread")
+	slows when muck count > 5
+game states ("gamestate")
+	start, birth, growth, maturity
+	affects muck spread ("spreadmuck")
+What on earth is happening in the liquid manager
+	gestures create current sources

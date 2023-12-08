@@ -179,9 +179,7 @@ class Instrument {
 	}
 }
 
-const json = JSON.parse(
-	await (await fetch("assets/audio/audio.json")).text()
-);
+const json = JSON.parse(await (await fetch("assets/audio/audio.json")).text());
 
 const instruments = Object.fromEntries(
 	Object.entries(json.instruments).map((e) => [e[0], new Instrument(...e)])

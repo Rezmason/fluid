@@ -98,12 +98,8 @@ const updateMouse = () => {
 	updateAlgaeGoalPositions();
 };
 
-const transformMousePosition = (x, y) => vec2
-	.new(x, y)
-	.sub(gamePosition)
-	.div(gameSize)
-	.sub(0.5)
-	.mul(Globals.gameSize);
+const transformMousePosition = (x, y) =>
+	vec2.new(x, y).sub(gamePosition).div(gameSize).sub(0.5).mul(Globals.gameSize);
 
 let gamePosition = vec2.new();
 let gameSize = vec2.new();
