@@ -14,7 +14,7 @@ const vertShader = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(
 	vertShader,
 	"#version 300 es\n" +
-		"in vec2 pos; void main(void) { gl_Position = vec4(pos, 0.0, 1.0); }"
+		"in vec2 pos; void main(void) { gl_Position = vec4(pos, 0.0, 1.0); }",
 );
 gl.compileShader(vertShader);
 const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -66,7 +66,7 @@ gl.shaderSource(
 		vec4 foreground = vec4(mix(color, white, fade), 1.0);
 		outColor = mix(background, foreground, value);
 	}
-`
+`,
 );
 gl.compileShader(fragShader);
 if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS)) {

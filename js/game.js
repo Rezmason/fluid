@@ -42,7 +42,7 @@ const updateAlgaeGoalPositions = () => {
 			let offset = -localPushPosition.len() / 50;
 			offset *= Math.pow(3, offset);
 			alga.goalPosition = alga.restingPosition.add(
-				localPushPosition.mul(offset)
+				localPushPosition.mul(offset),
 			);
 		}
 	}
@@ -128,7 +128,7 @@ const spawnAlgae = () => {
 			const alga = new Alga(
 				grid.length,
 				row.length,
-				vec2.new(j, i).add(rowOffset).mul(spacing)
+				vec2.new(j, i).add(rowOffset).mul(spacing),
 			);
 			row.push(alga);
 			algae.push(alga);
@@ -282,7 +282,7 @@ const updateMetaballs = (time) => {
 				position[1],
 				15 +
 					throb * (Math.sin((i * Math.PI * 2) / 3 + throbTime * 4) * 0.5 + 0.5),
-				feeder.groupID
+				feeder.groupID,
 			);
 			n++;
 			i++;
@@ -302,7 +302,7 @@ const testMetaballs = (time) => {
 			(pairing * 0.2 - 0.4) * Globals.gameSize[0],
 			Math.sin(time * 0.003 + i) * 0.25 * Globals.gameSize[1],
 			15,
-			groupID
+			groupID,
 		);
 	}
 
@@ -357,7 +357,7 @@ const update = (now) => {
 	for (const alga of algae) {
 		alga.node.transform.position = alga.node.transform.position.lerp(
 			alga.goalPosition,
-			0.1
+			0.1,
 		);
 
 		if (alga.ripe || alga.occupant != null) continue;
@@ -372,7 +372,7 @@ const update = (now) => {
 };
 
 Globals.muckChanged.addEventListener("muckChanged", ({ detail }) =>
-	detectEndgame(detail)
+	detectEndgame(detail),
 );
 
 spawnAlgae();

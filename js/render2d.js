@@ -45,10 +45,10 @@ const render2D = (node, scene) => {
 
 	if (node.reorderedChildren.size > 0) {
 		const reorderedChildrenIndices = Array.from(
-			node.reorderedChildren.values()
+			node.reorderedChildren.values(),
 		).map((child) => [child, node.children.indexOf(child)]);
 		reorderedChildrenIndices.sort(
-			([p, pIndex], [q, qIndex]) => pIndex - qIndex
+			([p, pIndex], [q, qIndex]) => pIndex - qIndex,
 		);
 		for (const [child] of reorderedChildrenIndices) {
 			domElement.removeChild(child.domElement);

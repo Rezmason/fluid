@@ -74,7 +74,7 @@ export default class Forager {
 				if (at >= 1) this.#inhale();
 			},
 			0.6,
-			quadEaseIn
+			quadEaseIn,
 		);
 	}
 
@@ -86,7 +86,7 @@ export default class Forager {
 				if (at >= 1) this.#exhale();
 			},
 			0.6,
-			quadEaseOut
+			quadEaseOut,
 		);
 	}
 
@@ -98,7 +98,7 @@ export default class Forager {
 				if (at >= 1) this.#gasp();
 			},
 			0.6,
-			quadEaseOut
+			quadEaseOut,
 		);
 	}
 
@@ -109,7 +109,7 @@ export default class Forager {
 		this.alga.moveToTop();
 		const otherAlga = Alga.getRandomNeighbor(this.alga);
 		const angleToAlga = this.alga.node.globalPosition.angleTo(
-			otherAlga.node.globalPosition
+			otherAlga.node.globalPosition,
 		);
 		this.#waitToJump();
 	}
@@ -124,13 +124,13 @@ export default class Forager {
 
 		let nextAlga = Alga.getRandomNeighbor(
 			this.alga,
-			(neighbor) => !neighbor.occupied && neighbor.ripe && neighbor.mucky
+			(neighbor) => !neighbor.occupied && neighbor.ripe && neighbor.mucky,
 		);
 
 		if (nextAlga == null) {
 			nextAlga = Alga.getRandomNeighbor(
 				this.alga,
-				(neighbor) => !neighbor.occupied && neighbor.ripe
+				(neighbor) => !neighbor.occupied && neighbor.ripe,
 			);
 		}
 
@@ -141,7 +141,7 @@ export default class Forager {
 			oldAlga.occupant = null;
 			this.alga.occupant = this;
 			let angleToAlga = oldAlga.node.globalPosition.angleTo(
-				this.alga.node.globalPosition
+				this.alga.node.globalPosition,
 			);
 			if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;
 			if (angleToAlga - startAngle < -Math.PI) angleToAlga += Math.PI * 2;
@@ -167,7 +167,7 @@ export default class Forager {
 					}
 				},
 				0.3,
-				quadEaseOut
+				quadEaseOut,
 			);
 			sfx("frog_jump");
 		} else {
@@ -175,7 +175,7 @@ export default class Forager {
 			const otherAlga = Alga.getRandomNeighbor(this.alga);
 
 			let angleToAlga = this.alga.node.globalPosition.angleTo(
-				otherAlga.node.globalPosition
+				otherAlga.node.globalPosition,
 			);
 			if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;
 			if (angleToAlga - startAngle < -Math.PI) angleToAlga += Math.PI * 2;
@@ -187,7 +187,7 @@ export default class Forager {
 					if (at >= 1) this.#waitToJump();
 				},
 				0.3,
-				quadEaseOut
+				quadEaseOut,
 			);
 		}
 	}

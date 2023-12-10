@@ -143,7 +143,7 @@ class Feeder {
 		for (const feeder of this.elements) {
 			const feederArtGlobalPosition = feeder.art.globalPosition;
 			averageGlobalPosition = averageGlobalPosition.add(
-				feederArtGlobalPosition
+				feederArtGlobalPosition,
 			);
 			artPositions.push(feederArtGlobalPosition);
 		}
@@ -176,7 +176,7 @@ class Feeder {
 		if (Globals.isMousePressed) {
 			// TODO: we can probably eliminate a minus sign somewhere in here
 			const localPushPosition = Globals.mousePosition.sub(
-				this.node.transform.position
+				this.node.transform.position,
 			);
 			const force = 850 / localPushPosition.sqrLen();
 			if (force > 0.05) {

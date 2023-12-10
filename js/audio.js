@@ -1,7 +1,7 @@
 // All times are in milliseconds.
 
 const AudioContext = [window.AudioContext, window.webkitAudioContext].find(
-	(contextClass) => contextClass != null
+	(contextClass) => contextClass != null,
 );
 
 const audioContext = new AudioContext();
@@ -101,7 +101,7 @@ class Instrument {
 			source.loopEnd = end * 0.001;
 			setTimeout(
 				() => (source.loopStart = start * 0.001),
-				source.loopStart * playbackRate
+				source.loopStart * playbackRate,
 			);
 		}
 
@@ -134,13 +134,13 @@ class Instrument {
 				} else {
 					envelopeGain.gain.linearRampToValueAtTime(
 						vol * volume,
-						audioContext.currentTime + time / 1000
+						audioContext.currentTime + time / 1000,
 					);
 				}
 			}
 			envelopeGain.gain.linearRampToValueAtTime(
 				0,
-				audioContext.currentTime + this.#duration / 1000
+				audioContext.currentTime + this.#duration / 1000,
 			);
 		}
 		chain.push(envelopeGain);
@@ -182,7 +182,7 @@ class Instrument {
 const json = JSON.parse(await (await fetch("assets/audio/audio.json")).text());
 
 const instruments = Object.fromEntries(
-	Object.entries(json.instruments).map((e) => [e[0], new Instrument(...e)])
+	Object.entries(json.instruments).map((e) => [e[0], new Instrument(...e)]),
 );
 
 const loadSample = (filename) => {

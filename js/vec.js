@@ -43,7 +43,7 @@ const gen = (n) => {
 				Array(n)
 					.fill()
 					.map((_, i) => `if (this[${i}] !== v[${i}]) return false;`)
-					.join(" ") + "return true;"
+					.join(" ") + "return true;",
 			))(),
 
 		add: op(() => this + other),
@@ -64,7 +64,7 @@ const gen = (n) => {
 						.fill()
 						.map((_, i) => `sum += this[${i}] * this[${i}];`)
 						.join(" ") +
-					"return sum;"
+					"return sum;",
 			))(),
 		len: function () {
 			return Math.sqrt(this.sqrLen());

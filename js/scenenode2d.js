@@ -27,7 +27,7 @@ export default class SceneNode2D extends SceneNode {
 		const pm = this.parent.invGlobalMatrix;
 		this.transform.position = vec2.new(
 			v[0] * pm[0] + v[1] * pm[2] + pm[4],
-			v[0] * pm[1] + v[1] * pm[3] + pm[5]
+			v[0] * pm[1] + v[1] * pm[3] + pm[5],
 		);
 	}
 

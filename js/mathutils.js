@@ -18,7 +18,7 @@ Object.assign(vec2, {
 Object.assign(vec4, {
 	hexColor: (hex) =>
 		vec4.new(
-			...hex.match(/[\da-fA-F]{2}/g).map((n) => (parseInt(n, 16) * 100) / 0xff)
+			...hex.match(/[\da-fA-F]{2}/g).map((n) => (parseInt(n, 16) * 100) / 0xff),
 		),
 });
 

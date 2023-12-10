@@ -102,7 +102,7 @@ export default class Alga {
 				if (at >= 1) this.muck.visible = this.mucky;
 			},
 			0.5,
-			quadEaseOut
+			quadEaseOut,
 		);
 	}
 
@@ -125,7 +125,7 @@ export default class Alga {
 				this.fruit.colorTransform.color = oldColor.lerp(newColor, at);
 			},
 			0.5,
-			quadEaseOut
+			quadEaseOut,
 		);
 	}
 
@@ -146,24 +146,27 @@ export default class Alga {
 			if (wasMucky) {
 				sfx("clean_muck");
 				Globals.muckChanged.dispatchEvent(
-					new CustomEvent("muckChanged", { detail: this })
+					new CustomEvent("muckChanged", { detail: this }),
 				);
 			}
 		}
 	}
 
 	#waitToSpreadMuck() {
-		delay(() => {
-			if (!this.mucky) return;
-			if (Math.random() < 0.2) this.spreadMuck();
-			this.#waitToSpreadMuck();
-		}, Math.random() * 4 + 1);
+		delay(
+			() => {
+				if (!this.mucky) return;
+				if (Math.random() < 0.2) this.spreadMuck();
+				this.#waitToSpreadMuck();
+			},
+			Math.random() * 4 + 1,
+		);
 	}
 
 	spreadMuck(fromFrog = false) {
 		const cleanNeighbor = Alga.getRandomNeighbor(
 			this,
-			(neighbor) => !neighbor.mucky
+			(neighbor) => !neighbor.mucky,
 		);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
@@ -177,7 +180,7 @@ export default class Alga {
 		this.#animateMuck();
 		this.#animateFruit();
 		Globals.muckChanged.dispatchEvent(
-			new CustomEvent("muckChanged", { detail: this })
+			new CustomEvent("muckChanged", { detail: this }),
 		);
 		this.#waitToSpreadMuck();
 	}
