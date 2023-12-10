@@ -1,11 +1,10 @@
+global matrix recomposition
+	Only do this when absolutely necessary
+
 Inspect performance
-
-	localToGlobalMatrix could be cached
-
 	How well does the vec lib perform?
 		Any bottlenecks?
 	Do breathing tweens leak memory?
-Cache local-to-global matrix
 Apply changes from decompilation insights
 Make sure game DOM is truly self contained
 	Metaball canvas got bumped by adding an absolute positioned element below the game tag
