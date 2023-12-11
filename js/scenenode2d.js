@@ -1,14 +1,17 @@
 import SceneNode from "./scenenode.js";
 import Transform2D from "./transform2d.js";
 import ColorTransform from "./colortransform.js";
-import { vec2 } from "./mathutils.js";
-
-const { mat2d } = glMatrix;
+import {
+	vec2,
+	createMatrix,
+	invertMatrix,
+	premultiplyMatrix,
+} from "./mathutils.js";
 
 export default class SceneNode2D extends SceneNode {
 	#stale = false;
-	#globalMatrix = mat2d.create();
-	#invGlobalMatrix = mat2d.create();
+	#globalMatrix = createMatrix();
+	#invGlobalMatrix = createMatrix();
 	#globalRotation = 0;
 	visible = true;
 	transform = new Transform2D(() => this.#markStale());
@@ -62,12 +65,13 @@ export default class SceneNode2D extends SceneNode {
 	#recomposeGlobalMatrix() {
 		this.#globalRotation = this.transform.rotation;
 		const matrix = this.#globalMatrix;
-		mat2d.copy(matrix, this.transform.matrix);
+		matrix.set(this.transform.matrix);
 		if (this.parent != null) {
 			this.#globalRotation += this.parent.globalRotation;
-			mat2d.multiply(matrix, this.parent.globalMatrix, matrix);
+			premultiplyMatrix(this.parent.globalMatrix, matrix);
 		}
-		mat2d.invert(this.#invGlobalMatrix, matrix);
+		this.#invGlobalMatrix.set(matrix);
+		invertMatrix(this.#invGlobalMatrix);
 		this.#stale = false;
 	}
 

@@ -1,10 +1,9 @@
-import { vec2 } from "./mathutils.js";
-const { mat2d } = glMatrix;
+import { vec2, createMatrix } from "./mathutils.js";
 
 const tw = (n, p) => Math.floor(n * p) / p;
 
 export default class Transform2D {
-	#matrix = mat2d.create();
+	#matrix = createMatrix();
 	#position = vec2.new();
 	#rotation = 0;
 	#scale = 1;

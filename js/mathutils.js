@@ -22,4 +22,40 @@ Object.assign(vec4, {
 		),
 });
 
-export { lerp, vec2, vec4 };
+const identityMatrix = Float32Array.from([1, 0, 0, 1, 0, 0]);
+
+const createMatrix = () => Float32Array.from(identityMatrix);
+
+const invertMatrix = (matrix) => {
+	const [a, b, c, d, tx, ty] = matrix;
+	let determinant = a * d - b * c;
+
+	if (determinant == 0) {
+		return;
+	}
+
+	determinant = 1.0 / determinant;
+	matrix.set([
+		+d * determinant,
+		-b * determinant,
+		-c * determinant,
+		+a * determinant,
+		(c * ty - d * tx) * determinant,
+		(b * tx - a * ty) * determinant,
+	]);
+};
+
+const premultiplyMatrix = (p, q) => {
+	const [pa, pb, pc, pd, pe, pf] = p;
+	const [qa, qb, qc, qd, qe, qf] = q;
+	q.set([
+		pa * qa + pc * qb,
+		pb * qa + pd * qb,
+		pa * qc + pc * qd,
+		pb * qc + pd * qd,
+		pa * qe + pc * qf + pe,
+		pb * qe + pd * qf + pf,
+	]);
+};
+
+export { lerp, vec2, vec4, createMatrix, invertMatrix, premultiplyMatrix };
