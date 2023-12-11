@@ -1,6 +1,6 @@
-global matrix recomposition
-	Only do this when absolutely necessary
-
+Pool vecs
+	vec lifecycle
+		Vecs created by vec operations form chains that can be collectively pooled afterwards
 Inspect performance
 	How well does the vec lib perform?
 		Any bottlenecks?

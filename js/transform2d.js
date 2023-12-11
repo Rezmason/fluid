@@ -9,9 +9,12 @@ export default class Transform2D {
 	#rotation = 0;
 	#scale = 1;
 	#staleMatrix = true;
+	#staleCbk;
 	cssTransform = null;
 
-	constructor() {}
+	constructor(staleCbk = null) {
+		this.#staleCbk = staleCbk;
+	}
 
 	get position() {
 		return this.#position.clone();
@@ -56,6 +59,7 @@ export default class Transform2D {
 	markStaleMatrix() {
 		this.#staleMatrix = true;
 		this.cssTransform = null;
+		this.#staleCbk?.();
 	}
 
 	#recomposeMatrix() {

@@ -6,11 +6,12 @@ import { vec2 } from "./mathutils.js";
 const { mat2d } = glMatrix;
 
 export default class SceneNode2D extends SceneNode {
+	#stale = false;
 	#globalMatrix = mat2d.create();
 	#invGlobalMatrix = mat2d.create();
 	#globalRotation = 0;
 	visible = true;
-	transform = new Transform2D();
+	transform = new Transform2D(() => this.#markStale());
 	colorTransform = new ColorTransform();
 	domElement = null;
 
@@ -32,17 +33,23 @@ export default class SceneNode2D extends SceneNode {
 	}
 
 	get globalMatrix() {
-		this.#recomposeGlobalMatrix();
+		if (this.#stale) {
+			this.#recomposeGlobalMatrix();
+		}
 		return this.#globalMatrix;
 	}
 
 	get invGlobalMatrix() {
-		this.#recomposeGlobalMatrix();
+		if (this.#stale) {
+			this.#recomposeGlobalMatrix();
+		}
 		return this.#invGlobalMatrix;
 	}
 
 	get globalRotation() {
-		this.#recomposeGlobalMatrix();
+		if (this.#stale) {
+			this.#recomposeGlobalMatrix();
+		}
 		return this.#globalRotation;
 	}
 
@@ -61,5 +68,20 @@ export default class SceneNode2D extends SceneNode {
 			mat2d.multiply(matrix, this.parent.globalMatrix, matrix);
 		}
 		mat2d.invert(this.#invGlobalMatrix, matrix);
+		this.#stale = false;
+	}
+
+	#markStale() {
+		if (this.#stale) {
+			return;
+		}
+		this.#stale = true;
+		for (const child of this.children) {
+			child.#markStale();
+		}
+	}
+
+	#handleReparent() {
+		this.#markStale();
 	}
 }
