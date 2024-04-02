@@ -1,6 +1,8 @@
 const activeTweens = new Set();
+let animationFrame;
 
 const tick = () => {
+	animationFrame = null;
 	const now = Date.now() / 1000;
 	for (const tween of activeTweens) {
 		const at = (now - tween.start) / tween.seconds;
@@ -21,7 +23,7 @@ const tick = () => {
 };
 
 const startTick = () => {
-	requestAnimationFrame(tick);
+	animationFrame ??= requestAnimationFrame(tick);
 };
 
 const tween = (f, seconds, ease = null) => {

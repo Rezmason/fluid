@@ -1,21 +1,29 @@
-import vecLib from "./vec.js";
+import { createAPI, retaining } from "./vec.js";
 
 const lerp = (p, q, percent) => (1 - percent) * p + percent * q;
 
-const vec2 = vecLib(2);
-const vec4 = vecLib(4);
+const vec2 = createAPI(2);
+const vec4 = createAPI(4);
 
-Object.assign(vec2, {
-	zero: vec2.new(),
-	one: vec2.new(1, 1),
-	fromAngle: (angle, magnitude = 1) =>
-		vec2.new(Math.cos(angle), Math.sin(angle)).mul(magnitude),
-	angleTo: function (other) {
-		return Math.atan2(other[1] - this[1], other[0] - this[0]);
-	},
-});
+const collect = () => {
+	vec2.collect();
+	vec4.collect();
+};
 
-Object.assign(vec4, {
+vec2
+	.extend({
+		angleTo: function (other) {
+			return Math.atan2(other[1] - this[1], other[0] - this[0]);
+		},
+	})
+	.extendAPI({
+		zero: () => vec2.new(),
+		one: () => vec2.new(1, 1),
+		fromAngle: (angle, magnitude = 1) =>
+			vec2.new(Math.cos(angle), Math.sin(angle)).mul(magnitude),
+	});
+
+vec4.extendAPI({
 	hexColor: (hex) =>
 		vec4.new(
 			...hex.match(/[\da-fA-F]{2}/g).map((n) => (parseInt(n, 16) * 100) / 0xff),
@@ -58,4 +66,13 @@ const premultiplyMatrix = (p, q) => {
 	]);
 };
 
-export { lerp, vec2, vec4, createMatrix, invertMatrix, premultiplyMatrix };
+export {
+	lerp,
+	vec2,
+	vec4,
+	retaining,
+	collect,
+	createMatrix,
+	invertMatrix,
+	premultiplyMatrix,
+};

@@ -4,7 +4,7 @@ const tw = (n, p) => Math.floor(n * p) / p;
 
 export default class Transform2D {
 	#matrix = createMatrix();
-	#position = vec2.new();
+	#position = vec2.new().retain();
 	#rotation = 0;
 	#scale = 1;
 	#staleMatrix = true;

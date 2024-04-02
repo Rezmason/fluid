@@ -1,18 +1,18 @@
 import Globals from "./globals.js";
 import SceneNode2D from "./scenenode2d.js";
-import { vec2, vec4, lerp } from "./mathutils.js";
+import { vec2, vec4, lerp, retaining } from "./mathutils.js";
 import { tween, delay, quadEaseOut } from "./tween.js";
 import { sfx } from "./audio.js";
 
 const fruitColors = {
-	ripe: vec4.hexColor("#f79965ff"),
-	unripe: vec4.hexColor("#f4e9cbff"),
-	muckyUnripe: vec4.hexColor("#ffffffff"),
+	ripe: vec4.hexColor("#f79965ff").retain(),
+	unripe: vec4.hexColor("#f4e9cbff").retain(),
+	muckyUnripe: vec4.hexColor("#ffffffff").retain(),
 };
 
 const muckColors = {
-	mucky: vec4.hexColor("#c0c0c0ff"),
-	clean: vec4.hexColor("#c0c0c000"),
+	mucky: vec4.hexColor("#c0c0c0ff").retain(),
+	clean: vec4.hexColor("#c0c0c000").retain(),
 };
 
 export default class Alga {
@@ -20,9 +20,9 @@ export default class Alga {
 	neighbors = [];
 	ripe = false;
 	mucky = false;
-	restingPosition;
-	goalPosition;
 	occupant = null;
+	#restingPosition;
+	#goalPosition;
 
 	node;
 	art;
@@ -35,8 +35,8 @@ export default class Alga {
 		this.name = `Alga${row}_${column}`;
 		this.node = new SceneNode2D({ name: this.name });
 
-		this.restingPosition = position.clone();
-		this.goalPosition = position.clone();
+		this.#restingPosition = position.clone().retain();
+		this.#goalPosition = position.clone().retain();
 		this.node.transform.position = position;
 
 		this.muck = new SceneNode2D({
@@ -54,6 +54,18 @@ export default class Alga {
 
 	get occupied() {
 		return this.occupant != null;
+	}
+
+	get restingPosition() {
+		return this.#restingPosition.clone();
+	}
+
+	get goalPosition() {
+		return this.#goalPosition.clone();
+	}
+
+	set goalPosition(v) {
+		this.#goalPosition.set(v);
 	}
 
 	reset() {
@@ -75,11 +87,11 @@ export default class Alga {
 		}
 
 		this.muck.visible = false;
-		this.muck.transform.position = vec2.zero;
+		this.muck.transform.position = vec2.zero();
 		this.muck.transform.scale = 0;
 		this.muck.colorTransform.color = muckColors.clean;
 
-		this.fruit.transform.position = vec2.zero;
+		this.fruit.transform.position = vec2.zero();
 		this.fruit.transform.scale = 0.4;
 
 		this.fruit.colorTransform.color = fruitColors.unripe;
@@ -88,22 +100,27 @@ export default class Alga {
 	#animateMuck() {
 		this.#muckTween?.stop();
 		const oldPosition = this.muck.transform.position;
-		const newPosition = vec2.zero;
+		const newPosition = vec2.zero();
 		const oldScale = this.muck.transform.scale;
 		const newScale = this.mucky ? 1 : 0;
 		const oldColor = this.muck.colorTransform.color;
 		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
-		this.#muckTween = tween(
-			(at) => {
-				this.muck.visible = true;
-				this.muck.transform.position = oldPosition.lerp(newPosition, at);
-				this.muck.transform.scale = lerp(oldScale, newScale, at);
-				this.muck.colorTransform.color = oldColor.lerp(newColor, at);
-				if (at >= 1) this.muck.visible = this.mucky;
-			},
-			0.5,
-			quadEaseOut,
-		);
+		retaining([oldPosition, oldColor, newPosition], (resolve) => {
+			this.#muckTween = tween(
+				(at) => {
+					this.muck.visible = true;
+					this.muck.transform.position = oldPosition.lerp(newPosition, at);
+					this.muck.transform.scale = lerp(oldScale, newScale, at);
+					this.muck.colorTransform.color = oldColor.lerp(newColor, at);
+					if (at >= 1) {
+						this.muck.visible = this.mucky;
+						resolve();
+					}
+				},
+				0.5,
+				quadEaseOut,
+			);
+		});
 	}
 
 	#animateFruit() {
@@ -119,14 +136,19 @@ export default class Alga {
 		} else {
 			newColor = fruitColors.unripe;
 		}
-		this.#fruitTween = tween(
-			(at) => {
-				this.fruit.transform.scale = lerp(oldScale, newScale, at);
-				this.fruit.colorTransform.color = oldColor.lerp(newColor, at);
-			},
-			0.5,
-			quadEaseOut,
-		);
+		retaining([oldColor], (resolve) => {
+			this.#fruitTween = tween(
+				(at) => {
+					this.fruit.transform.scale = lerp(oldScale, newScale, at);
+					this.fruit.colorTransform.color = oldColor.lerp(newColor, at);
+					if (at >= 1) {
+						resolve();
+					}
+				},
+				0.5,
+				quadEaseOut,
+			);
+		});
 	}
 
 	ripen() {

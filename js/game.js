@@ -1,4 +1,4 @@
-import { vec2, vec4 } from "./mathutils.js";
+import { vec2, vec4, collect } from "./mathutils.js";
 import render2D from "./render2d.js";
 import SceneNode2D from "./scenenode2d.js";
 import Globals from "./globals.js";
@@ -25,7 +25,7 @@ const feedersNode = new SceneNode2D({ name: "feeders" });
 
 let lastMouseMove = null;
 let beginMouseDragTime = 0;
-let lastDragSoundPosition = vec2.new();
+let lastDragSoundPosition = vec2.new().retain();
 
 rootNode.addChild(algaeNode);
 rootNode.addChild(feedersNode);
@@ -69,7 +69,7 @@ const beginDrag = () => {
 	updateAlgaeGoalPositions();
 	beginMouseDragTime = performance.now();
 	sfx("mouse_down");
-	lastDragSoundPosition = Globals.mousePosition.clone();
+	lastDragSoundPosition.set(Globals.mousePosition);
 };
 
 const endDrag = () => {
@@ -92,7 +92,7 @@ const updateMouse = () => {
 		Globals.isMousePressed &&
 		Globals.mousePosition.sqrDist(lastDragSoundPosition) > 768
 	) {
-		lastDragSoundPosition = Globals.mousePosition.clone();
+		lastDragSoundPosition.set(Globals.mousePosition);
 		sfx("mouse_drag");
 	}
 	updateAlgaeGoalPositions();
@@ -101,13 +101,13 @@ const updateMouse = () => {
 const transformMousePosition = (x, y) =>
 	vec2.new(x, y).sub(gamePosition).div(gameSize).sub(0.5).mul(Globals.gameSize);
 
-let gamePosition = vec2.new();
-let gameSize = vec2.new();
+let gamePosition = vec2.new().retain();
+let gameSize = vec2.new().retain();
 
 const resize = () => {
 	const rect = game.getBoundingClientRect();
-	gamePosition = vec2.new(rect.x, rect.y);
-	gameSize = vec2.new(rect.width, rect.height);
+	gamePosition.set(rect.x, rect.y);
+	gameSize.set(rect.width, rect.height);
 };
 window.addEventListener("resize", resize);
 resize();
@@ -241,7 +241,7 @@ const reset = () => {
 
 const metaballStates = Array(10)
 	.fill()
-	.map((_) => vec4.new());
+	.map((_) => vec4.new().retain());
 const groupOpacities = Array(3).fill(1);
 
 const getUniqueGroupID = () => {
@@ -277,7 +277,7 @@ const updateMetaballs = (time) => {
 		let i = 0;
 		for (const element of feeder.elements) {
 			const position = element.art.globalPosition;
-			metaballStates[n] = vec4.new(
+			metaballStates[n].set(
 				position[0],
 				position[1],
 				15 +
@@ -298,7 +298,7 @@ const testMetaballs = (time) => {
 	for (let i = 0; i < 10; i++) {
 		const pairing = Math.floor(i / 2);
 		let groupID = pairing % 3;
-		metaballStates[i] = vec4.new(
+		metaballStates[i].set(
 			(pairing * 0.2 - 0.4) * Globals.gameSize[0],
 			Math.sin(time * 0.003 + i) * 0.25 * Globals.gameSize[1],
 			15,
@@ -368,6 +368,7 @@ const update = (now) => {
 	}
 	Metaballs.update(metaballStates, groupOpacities);
 	Metaballs.redraw();
+	collect();
 	requestAnimationFrame(update);
 };
 

@@ -1,10 +1,3 @@
-Pool vecs
-	vec lifecycle
-		Vecs created by vec operations form chains that can be collectively pooled afterwards
-Inspect performance
-	How well does the vec lib perform?
-		Any bottlenecks?
-	Do breathing tweens leak memory?
 Apply changes from decompilation insights
 Make sure game DOM is truly self contained
 	Metaball canvas got bumped by adding an absolute positioned element below the game tag
@@ -15,4 +8,6 @@ Feeders that can't combine should probably repel one another a bit
 	This includes all feeders at the beginning of the game
 smin for metaball sums
 Portrait orientation should swap width and height
-pan audio based on global position
+Audio
+	pan based on global position
+	debounce and/or quiet

@@ -1,7 +1,7 @@
 import { vec4 } from "./mathutils.js";
 
 export default class ColorTransform {
-	#color = vec4.new(0, 0, 0, 1);
+	#color = vec4.new(0, 0, 0, 1).retain();
 	cssColor = null;
 
 	constructor() {}

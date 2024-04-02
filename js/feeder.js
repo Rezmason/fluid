@@ -3,25 +3,25 @@ import SceneNode2D from "./scenenode2d.js";
 import { vec2, lerp } from "./mathutils.js";
 import { sfx } from "./audio.js";
 
-const bobDirection = vec2.fromAngle(Math.PI * 0.16);
+const bobDirection = vec2.fromAngle(Math.PI * 0.16).retain();
 
 const maxFeederSeeds = 40;
 const maxFeederSize = 3;
 const minSeedDist = 100;
 const minDist = 80;
-const margin = vec2.one.mul(125).sub(Globals.gameSize).div(-2);
-const invMargin = margin.mul(-1);
+const margin = vec2.one().mul(125).sub(Globals.gameSize).div(-2).retain();
+const invMargin = margin.mul(-1).retain();
 
 class Feeder {
 	name;
 	age;
 	numSeeds;
 	throbStartTime;
-	velocity = vec2.new();
 	groupID;
 
 	elements = [];
 	parent;
+	#velocity = vec2.new().retain();
 	#children = [];
 
 	node;
@@ -40,6 +40,14 @@ class Feeder {
 		return this.elements.length;
 	}
 
+	get velocity() {
+		return this.#velocity.clone();
+	}
+
+	set velocity(v) {
+		this.#velocity.set(v);
+	}
+
 	reset() {
 		for (const child of this.#children) {
 			this.node.removeChild(child.node);
@@ -48,9 +56,9 @@ class Feeder {
 		this.#children.length = 0;
 		this.elements.length = 0;
 		this.elements.push(this);
-		this.art.transform.position = vec2.zero;
+		this.art.transform.position = vec2.zero();
 		this.parent = null;
-		this.velocity = vec2.zero;
+		this.velocity = vec2.zero();
 		this.age = 0;
 		this.numSeeds = 0;
 		this.throbStartTime = 0;
@@ -97,7 +105,7 @@ class Feeder {
 			feeder.age = 0;
 			feeder.node.globalPosition = artPositions[i];
 			feeder.velocity = artPositions[i].sub(oldPosition).mul(5);
-			feeder.art.transform.position = vec2.zero;
+			feeder.art.transform.position = vec2.zero();
 		}
 
 		this.elements.length = 0;
@@ -130,7 +138,7 @@ class Feeder {
 			.mul(this.size - 1)
 			.add(other.velocity)
 			.div(this.size);
-		other.velocity = vec2.zero;
+		other.velocity = vec2.zero();
 		other.age = 0;
 
 		if (this.size == maxFeederSize) {
@@ -138,7 +146,7 @@ class Feeder {
 			this.throbStartTime = performance.now();
 		}
 
-		let averageGlobalPosition = vec2.zero;
+		let averageGlobalPosition = vec2.zero();
 		const artPositions = [];
 		for (const feeder of this.elements) {
 			const feederArtGlobalPosition = feeder.art.globalPosition;
@@ -152,7 +160,7 @@ class Feeder {
 		this.node.globalPosition = averageGlobalPosition;
 		other.node.parent.removeChild(other.node);
 		this.node.addChild(other.node);
-		other.node.transform.position = vec2.zero;
+		other.node.transform.position = vec2.zero();
 		other.node.transform.rotation = 0;
 
 		for (let i = 0; i < this.size; i++) {
@@ -172,7 +180,7 @@ class Feeder {
 		const oldPosition = this.node.transform.position;
 		let position = oldPosition;
 
-		let pushForce = vec2.zero;
+		let pushForce = vec2.zero();
 		if (Globals.isMousePressed) {
 			// TODO: we can probably eliminate a minus sign somewhere in here
 			const localPushPosition = Globals.mousePosition.sub(
@@ -196,7 +204,7 @@ class Feeder {
 		position = position.add(displacement);
 		// position = position.add(vec2FromAngle(Math.random() * Math.PI * 2, 0.1));
 
-		this.velocity = this.velocity.lerp(vec2.zero, 0.01);
+		this.velocity = this.velocity.lerp(vec2.zero(), 0.01);
 
 		// Avoid the edges
 		{

@@ -1,7 +1,7 @@
 import SceneNode2D from "./scenenode2d.js";
 import Alga from "./alga.js";
 import { tween, delay, quadEaseIn, quadEaseOut } from "./tween.js";
-import { vec2, lerp } from "./mathutils.js";
+import { vec2, lerp, retaining } from "./mathutils.js";
 import { sfx } from "./audio.js";
 
 export default class Forager {
@@ -158,17 +158,21 @@ export default class Forager {
 				this.node.transform.rotation = lerp(oldAngle, angleToAlga, at);
 			}, 0.1);
 			this.#jumpTween?.stop();
-			this.#jumpTween = tween(
-				(at) => {
-					this.node.transform.position = oldPosition.lerp(vec2.zero, at);
-					if (at >= 1) {
-						if (this.alga.ripe && this.alga.occupant === this) this.alga.eat();
-						this.#waitToJump();
-					}
-				},
-				0.3,
-				quadEaseOut,
-			);
+			retaining([oldPosition], (resolve) => {
+				this.#jumpTween = tween(
+					(at) => {
+						this.node.transform.position = oldPosition.lerp(vec2.zero(), at);
+						if (at >= 1) {
+							if (this.alga.ripe && this.alga.occupant === this)
+								this.alga.eat();
+							this.#waitToJump();
+							resolve();
+						}
+					},
+					0.3,
+					quadEaseOut,
+				);
+			});
 			sfx("frog_jump");
 		} else {
 			const oldAngle = this.node.transform.rotation;
