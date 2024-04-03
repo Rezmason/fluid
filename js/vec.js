@@ -1,24 +1,41 @@
-const createAPI = (n, debug = false) => {
-	const pool = [];
+const retaining = async (vecs, func) => {
+	for (const vec of vecs) {
+		vec.retain();
+	}
+	await new Promise(func);
+	for (const vec of vecs) {
+		vec.release();
+	}
+};
+
+const createType = (n, debug = false) => {
 	const heap = new Set();
+	const pool = new Set();
+	const poolStack = [];
 
 	const api = {
 		collect: () => {
 			for (const vec of heap) {
-				pool.push(vec);
+				pool.add(vec);
+				poolStack.push(vec);
 				vec.fill(0);
-				vec.initialized = false;
 			}
 			heap.clear();
 		},
 		new: (...args) => {
-			const vec = pool.pop() ?? Object.create(api.lib);
-			vec.initialized = true;
+			const vec = poolStack.pop() ?? new Vec(n);
+			pool.delete(vec);
 			heap.add(vec);
 			return vec.set(...args);
 		},
+		zero: () => api.new(),
+		one: () => {
+			const vec = api.new();
+			vec.fill(1);
+			return vec;
+		},
 		extend: (o) => {
-			Object.assign(api.lib, o);
+			Object.assign(Vec.prototype, o);
 			return api;
 		},
 		extendAPI: (o) => {
@@ -27,108 +44,105 @@ const createAPI = (n, debug = false) => {
 		},
 	};
 
-	const op = (f) => {
-		const meat = f
-			.toString()
-			.replace("() => ", "")
-			.replaceAll("this", "this[__i__]")
-			.replaceAll("other", "(v[__i__] ?? v)");
-		return new Function(
-			"v",
-			`
-			this.checkInitialized();
-			const ret = this.api.new();
-			${Array(n)
-				.fill()
-				.map((_, i) => `ret[${i}] = ${meat.replaceAll("__i__", i)};`)
-				.join(" ")}
-			ret.checkForNaN();
-			return ret;
-		`,
-		);
-	};
+	class Vec extends Array {
+		constructor(n) {
+			super(n);
+			this.fill(0);
+		}
 
-	api.lib = Object.assign(Array(n).fill(0), {
-		api,
-		initialized: false,
-		toString: function () {
-			return `vec${n}: ${this[0]}, ${this[1]}`;
-		},
+		toString() {
+			return `Vec(${n}): ${this.join(", ")}`;
+		}
 
-		retain: function () {
+		retain() {
 			heap.delete(this);
 			return this;
-		},
-		release: function () {
+		}
+
+		release() {
 			heap.add(this);
 			return this;
-		},
+		}
 
-		checkInitialized: debug
-			? function () {
-					if (!this.initialized) {
-						throw new Error("Cannot operate on uninitialized vector.");
-					}
-				}
-			: () => {},
-		checkForNaN: debug
-			? function () {
-					if (this.includes(NaN)) {
-						throw new Error("NaN in", this);
-					}
-				}
-			: () => {},
-
-		set: function (...args) {
-			this.checkInitialized();
+		set(...args) {
+			this.checkIsPooled();
 			if (args.length === 0) return this;
 			let src = args;
 			if (args.length === 1 && args[0][Symbol.iterator] != null) {
 				src = args[0];
 			}
-			for (let i = 0; i < n; i++) {
-				this[i] = src[i];
-			}
+			this.splice(0, n, ...src);
 			return this;
-		},
+		}
 
-		clone: function () {
-			this.checkInitialized();
+		clone() {
+			this.checkIsPooled();
 			return api.new(this);
-		},
+		}
+	}
 
-		equals: new Function(
-			"v",
-			`
-				this.checkInitialized();
-				${Array(n)
-					.fill()
-					.map((_, i) => `if (this[${i}] !== v[${i}]) return false;`)
-					.join("\n")}
-				return true;
-			`,
-		),
+	const simdFunction = (expr) => {
+		const func = new Function(
+			"other",
+			"api",
+			'"use strict"; this.checkIsPooled();' +
+				expr
+					.toString()
+					.replaceAll("() => ", "")
+					.replaceAll("this_", "this[__i__]")
+					.replaceAll("other_", "(other[__i__] ?? other)")
+					.replaceAll(/(^.*__i__.*$\n?)+/gm, (match) =>
+						Array(n)
+							.fill()
+							.map((_, i) => match.replaceAll("__i__", i))
+							.join(""),
+					),
+		);
 
-		add: op(() => this + other),
-		sub: op(() => this - other),
-		mul: op(() => this * other),
-		div: op(() => this / other),
+		return function (other) {
+			return func.call(this, other, api);
+		};
+	};
 
-		min: op(() => (this < other ? this : other)),
-		max: op(() => (this > other ? this : other)),
+	const simdOperator = (expr) =>
+		simdFunction(
+			(() => {
+				const ret = api.new();
+				ret[__i__] = expr;
+				ret.checkHasNaN();
+				return ret;
+			})
+				.toString()
+				.replace("expr", expr.toString().replaceAll("() => ", "")),
+		);
+
+	api.extend({
+		checkIsPooled: () => {},
+		checkHasNaN: () => {},
+
+		add: simdOperator(() => this_ + other_),
+		sub: simdOperator(() => this_ - other_),
+		mul: simdOperator(() => this_ * other_),
+		div: simdOperator(() => this_ / other_),
+
+		min: simdOperator(() => (this_ < other_ ? this_ : other_)),
+		max: simdOperator(() => (this_ > other_ ? this_ : other_)),
+
+		equals: simdFunction(() => {
+			if (this_ !== other_) return false;
+			return true;
+		}),
+
+		sqrLen: simdFunction(() => {
+			let sum = 0;
+			sum += this_ * this_;
+			return sum;
+		}),
+
 		clamp: function (min, max) {
 			return this.min(max).max(min);
 		},
 
-		sqrLen: new Function(`
-				this.checkInitialized();
-				let sum = 0;
-				${Array(n)
-					.fill()
-					.map((_, i) => `sum += this[${i}] * this[${i}];`)
-					.join("\n")}
-				return sum;
-			`),
 		len: function () {
 			return Math.sqrt(this.sqrLen());
 		},
@@ -136,7 +150,8 @@ const createAPI = (n, debug = false) => {
 		sqrDist: function (other) {
 			return this.sub(other).sqrLen();
 		},
-		dist: function () {
+
+		dist: function (other) {
 			return Math.sqrt(this.sqrDist(other));
 		},
 
@@ -146,17 +161,24 @@ const createAPI = (n, debug = false) => {
 			return this.mul(1 - amount).add(other.mul(amount));
 		},
 	});
+
+	if (debug) {
+		api.extend({
+			checkIsPooled: function () {
+				if (pool.has(this)) {
+					throw new Error("Cannot operate on a pooled vector.");
+				}
+			},
+
+			checkHasNaN: function () {
+				if (this.includes(NaN)) {
+					throw new Error("NaN within", this);
+				}
+			},
+		});
+	}
+
 	return api;
 };
 
-const retaining = async (vecs, f) => {
-	for (const vec of vecs) {
-		vec.retain();
-	}
-	await new Promise(f);
-	for (const vec of vecs) {
-		vec.release();
-	}
-};
-
-export { createAPI, retaining };
+export { createType, retaining };

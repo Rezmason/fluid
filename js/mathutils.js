@@ -1,34 +1,29 @@
-import { createAPI, retaining } from "./vec.js";
+import { createType, retaining } from "./vec.js";
 
 const lerp = (p, q, percent) => (1 - percent) * p + percent * q;
 
-const vec2 = createAPI(2);
-const vec4 = createAPI(4);
-
-const collect = () => {
-	vec2.collect();
-	vec4.collect();
-};
-
-vec2
+const vec2 = createType(2)
 	.extend({
 		angleTo: function (other) {
 			return Math.atan2(other[1] - this[1], other[0] - this[0]);
 		},
 	})
 	.extendAPI({
-		zero: () => vec2.new(),
-		one: () => vec2.new(1, 1),
 		fromAngle: (angle, magnitude = 1) =>
 			vec2.new(Math.cos(angle), Math.sin(angle)).mul(magnitude),
 	});
 
-vec4.extendAPI({
+const vec4 = createType(4).extendAPI({
 	hexColor: (hex) =>
 		vec4.new(
 			...hex.match(/[\da-fA-F]{2}/g).map((n) => (parseInt(n, 16) * 100) / 0xff),
 		),
 });
+
+const collect = () => {
+	vec2.collect();
+	vec4.collect();
+};
 
 const identityMatrix = Float32Array.from([1, 0, 0, 1, 0, 0]);
 
