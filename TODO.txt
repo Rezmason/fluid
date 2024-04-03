@@ -1,4 +1,4 @@
-Apply changes from decompilation insights
+Apply changes from decompilation insights TXT
 Make sure game DOM is truly self contained
 	Metaball canvas got bumped by adding an absolute positioned element below the game tag
 	The whole thing is actually pretty fragile
@@ -11,3 +11,8 @@ Portrait orientation should swap width and height
 Audio
 	pan based on global position
 	debounce and/or quiet
+
+
+
+Generalization
+	Move general stuff into lib folder for reuse in other projects
