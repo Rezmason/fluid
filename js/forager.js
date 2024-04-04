@@ -31,7 +31,7 @@ export default class Forager {
 						<circle r="15"><circle>
 					</g>
 					<path
-						fill="#d4a672"
+						fill="#d7aa73"
 						d="
 							M -38.1,+00.0
 							C -38.1,+16.0 -32.0,+35.4 -25.0,+35.4

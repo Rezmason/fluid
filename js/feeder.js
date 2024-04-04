@@ -31,7 +31,7 @@ class Feeder {
 		this.name = `Feeder${id}`;
 		this.node = new SceneNode2D({ name: this.name });
 		this.art = new SceneNode2D({
-			// art: `<circle r="28.5" fill="#7a1700"></circle>`
+			// art: `<circle r="28.5" fill="#801700"></circle>`
 		});
 		this.node.addChild(this.art);
 	}

@@ -5,9 +5,9 @@ import { tween, delay, quadEaseOut } from "./tween.js";
 import { sfx } from "./audio.js";
 
 const fruitColors = {
-	ripe: vec4.hexColor("#f79965ff").retain(),
-	unripe: vec4.hexColor("#f4e9cbff").retain(),
-	muckyUnripe: vec4.hexColor("#ffffffff").retain(),
+	ripe: vec4.hexColor("#ffa770ff").retain(),
+	unripe: vec4.hexColor("#f5ebd1ff").retain(),
+	muckyUnripe: vec4.hexColor("#a1a1a1ff").retain(),
 };
 
 const muckColors = {

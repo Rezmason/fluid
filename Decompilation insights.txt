@@ -1,14 +1,3 @@
-colors
-	dots: #f5ebd1
-	food: #ffa770
-	foodflash: #000000
-	eatflash: #ffffff
-	muckfood: #bf7c54
-	frog: #d7aa73
-	blobs: #801700
-	muckdot: #a1a1a1
-	muck: #ffffff
-	fade: #ffffff
 reset takes 2 seconds
 grid is 8 rows high
 	const dx = Globals.gameSize[0] / numRows;

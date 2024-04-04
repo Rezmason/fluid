@@ -29,7 +29,7 @@ gl.shaderSource(
 	#define width 1024.0
 	#define height 768.0
 	#define white vec3(1.0)
-	#define color vec3(0.478431, 0.0901961, 0)
+	#define color vec3(0.5, 0.09, 0)
 	uniform float fade;
 	uniform float sceneScale;
 	uniform vec4[10] metaballs;

@@ -4,12 +4,12 @@
 	<style type="text/css">
 		.st0{fill:#FFFFFF;}
 		.st1{display:none;}
-		.st2{display:inline;fill:#7B1900;}
-		.st3{display:inline;fill:#7A1700;}
-		.st4{fill:#D4A672;}
+		.st2{display:inline;fill:#801700;}
+		.st3{display:inline;fill:#801700;}
+		.st4{fill:#D7AA73;}
 		.st5{fill:none;stroke:#191919;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;}
 		.st6{fill:#191919;}
-		.st7{fill:#7A1700;}
+		.st7{fill:#801700;}
 	</style>
 	<path class="st0" d="M123.6-146.7c0-5-2.5-7.4-7.4-7.4h-233.4c-5,0-7.4,2.5-7.4,7.4v289.9c0,5,2.5,7.4,7.4,7.4h233.4
 		c4.9,0,7.4-2.5,7.4-7.4V-146.7z"/>
