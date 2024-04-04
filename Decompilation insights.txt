@@ -1,7 +1,3 @@
-feeders should seed on direct contact
-	first check the min distance, then the "lobe distance"
-		maybe lobe distance can be simplified by modding theta by 3
-
 Forager agitation ("checkAgitation")
 	foragers have a muck squirt cooldown
 	after the cooldown, on click,

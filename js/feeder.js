@@ -7,8 +7,9 @@ const bobDirection = vec2.fromAngle(Math.PI * 0.16).retain();
 
 const maxFeederSeeds = 40;
 const maxFeederSize = 3;
-const minSeedDist = 100;
-const minDist = 80;
+const minSeedDist = 85;
+const minSeedArtDist = 45;
+const minCombineDist = 80;
 const margin = vec2.one().mul(200).sub(Globals.gameSize).div(-2).retain();
 const invMargin = margin.mul(-1).retain();
 
@@ -68,11 +69,23 @@ class Feeder {
 	tryToSeed(alga) {
 		if (this.size < maxFeederSize || this.numSeeds <= 0) return false;
 		const minSeedDistSquared = minSeedDist * minSeedDist;
-		if (
-			this.node.globalPosition.sqrDist(alga.node.globalPosition) >
-			minSeedDistSquared
-		) {
+		const minSeedArtDistSquared = minSeedArtDist * minSeedArtDist;
+		const algaPosition = alga.node.globalPosition;
+		const sqrDistFromCenter = this.node.globalPosition.sqrDist(algaPosition);
+		if (sqrDistFromCenter > minSeedDistSquared) {
 			return false;
+		} else if (sqrDistFromCenter > minSeedArtDistSquared) {
+			let tooFarFromShape = true;
+			for (const feeder of this.elements) {
+				const sqrDistFromArt = feeder.art.globalPosition.sqrDist(algaPosition);
+				if (sqrDistFromArt < minSeedArtDistSquared) {
+					tooFarFromShape = false;
+					break;
+				}
+			}
+			if (tooFarFromShape) {
+				return false;
+			}
 		}
 
 		alga.ripen();
@@ -119,12 +132,12 @@ class Feeder {
 	tryToCombine(other) {
 		if (this.size >= maxFeederSize) return false;
 
-		const minDistSquared = minDist * minDist;
+		const minCombineDistSquared = minCombineDist * minCombineDist;
 		const otherGlobalPosition = other.art.globalPosition;
 
 		for (const feeder of this.elements) {
 			if (
-				feeder.art.globalPosition.sqrDist(otherGlobalPosition) > minDistSquared
+				feeder.art.globalPosition.sqrDist(otherGlobalPosition) > minCombineDistSquared
 			) {
 				return false;
 			}
@@ -226,7 +239,7 @@ class Feeder {
 				const sqrLen = artPosition.sqrLen();
 				if (sqrLen > 0) {
 					let goalPosition = artPosition;
-					goalPosition = goalPosition.mul(minDist / 2 / goalPosition.len());
+					goalPosition = goalPosition.mul(minCombineDist / 2 / goalPosition.len());
 					artPosition = artPosition.lerp(goalPosition, 0.2);
 					art.transform.position = artPosition;
 				}
@@ -242,7 +255,7 @@ class Feeder {
 				const sqrLen = artPosition.sqrLen();
 				if (sqrLen > 0) {
 					let goalPosition = artPosition.sub(averagePosition);
-					goalPosition = goalPosition.mul(minDist / 2 / goalPosition.len());
+					goalPosition = goalPosition.mul(minCombineDist / 2 / goalPosition.len());
 					art.transform.position = artPosition.lerp(goalPosition, 0.2);
 				}
 			}

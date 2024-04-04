@@ -55,11 +55,11 @@ gl.shaderSource(
 		for (int i = 0; i < 3; i++) {
 			vec4 metaballGroup = metaballGroups[i];
 			float outsideEdge = sums[i] - threshold;
-			float insideEdge = sums[i] - threshold - 0.0085;
-			float insideOpacity = pow(metaballGroup[0], 0.5);
+			float insideEdge = sums[i] - threshold - 0.01;
+			float opacity = pow(metaballGroup[0], 0.5);
 			value = max(value,
 				smoothstep(-smoothing, +smoothing, outsideEdge) *
-				mix(1.0, insideOpacity, smoothstep(-smoothing, +smoothing, insideEdge))
+				mix(opacity, 1.0, smoothstep(-smoothing, +smoothing, insideEdge))
 			);
 		}
 		vec4 background = vec4(fade);
