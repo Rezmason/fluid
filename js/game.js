@@ -126,17 +126,16 @@ resize();
 
 const spawnAlgae = () => {
 	const grid = [];
-	const numRows = 9,
-		numColumns = 10;
-	const spacing = vec2.new(110, 90);
+	const numRows = 8,
+		numColumns = 8;
+	const spacing = Globals.gameSize.sub(100).div(vec2.new(numColumns, numRows));
+
 	for (let i = 0; i < numRows; i++) {
-		const rowOffset = vec2.new(1 - (numColumns - (i % 2)), 1 - numRows).div(2);
+		const rowOffset = vec2
+			.new(1 - (numColumns - (i % 2) + 0.5), 1 - numRows)
+			.div(2);
 		const row = [];
 		for (let j = 0; j < numColumns; j++) {
-			if (i % 2 == 1 && j == numColumns - 1) {
-				row.push(null);
-				continue;
-			}
 			const alga = new Alga(
 				grid.length,
 				row.length,

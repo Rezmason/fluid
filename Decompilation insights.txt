@@ -1,13 +1,3 @@
-grid is 8 rows high
-	const dx = Globals.gameSize[0] / numRows;
-	const dy = Globals.gameSize[1] / numRows;
-	for (let i = 0; i < numRows; i++) {
-		for (let j = 0; j < numRows; j++) {
-			const x = (i * dx) - (j % 2 * dx / 2) - (dx / 5);
-			const y = (j * dy) - (dy / 2) - (dy / 16);
-			addDot(x, y);
-		}
-	}
 feeders should seed on direct contact
 	first check the min distance, then the "lobe distance"
 		maybe lobe distance can be simplified by modding theta by 3
