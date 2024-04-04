@@ -7,7 +7,9 @@ import { sfx } from "./audio.js";
 const fruitColors = {
 	ripe: vec4.hexColor("#ffa770ff").retain(),
 	unripe: vec4.hexColor("#f5ebd1ff").retain(),
+	unripeOccupied: vec4.hexColor("#f5f5f5ff").retain(),
 	muckyUnripe: vec4.hexColor("#a1a1a1ff").retain(),
+	muckyRipe: vec4.hexColor("#bf7c54ff").retain(),
 };
 
 const muckColors = {
@@ -20,7 +22,7 @@ export default class Alga {
 	neighbors = [];
 	ripe = false;
 	mucky = false;
-	occupant = null;
+	#occupant = null;
 	#restingPosition;
 	#goalPosition;
 
@@ -54,6 +56,18 @@ export default class Alga {
 
 	get occupied() {
 		return this.occupant != null;
+	}
+
+	get occupant() {
+		return this.#occupant;
+	}
+
+	set occupant(forager) {
+		if (this.#occupant === forager) {
+			return;
+		}
+		this.#occupant = forager;
+		this.#animateFruit();
 	}
 
 	get restingPosition() {
@@ -130,11 +144,11 @@ export default class Alga {
 		const oldColor = this.fruit.colorTransform.color;
 		let newColor;
 		if (this.ripe) {
-			newColor = fruitColors.ripe;
-		} else if (this.mucky) {
-			newColor = fruitColors.muckyUnripe;
+			newColor = this.mucky ? fruitColors.muckyRipe : fruitColors.ripe;
+		} else if (this.occupied) {
+			newColor = fruitColors.unripeOccupied;
 		} else {
-			newColor = fruitColors.unripe;
+			newColor = this.mucky ? fruitColors.muckyUnripe : fruitColors.unripe;
 		}
 		retaining([oldColor], (resolve) => {
 			this.#fruitTween = tween(
@@ -188,7 +202,7 @@ export default class Alga {
 	spreadMuck(fromFrog = false) {
 		const cleanNeighbor = Alga.getRandomNeighbor(
 			this,
-			(neighbor) => !neighbor.mucky,
+			(neighbor) => !neighbor.mucky && !neighbor.occupied,
 		);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
