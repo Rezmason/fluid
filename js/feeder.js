@@ -22,6 +22,7 @@ class Feeder {
 
 	elements = [];
 	parent;
+	#repulsionForce = vec2.new().retain();
 	#velocity = vec2.new().retain();
 	#children = [];
 
@@ -60,6 +61,7 @@ class Feeder {
 		this.art.transform.position = vec2.zero();
 		this.parent = null;
 		this.velocity = vec2.zero();
+		this.#repulsionForce.set(0, 0);
 		this.age = 0;
 		this.numSeeds = 0;
 		this.throbStartTime = 0;
@@ -131,13 +133,15 @@ class Feeder {
 
 	tryToCombine(other) {
 		if (this.size >= maxFeederSize) return false;
+		if (this.size < other.size) return other.tryToCombine(this);
 
 		const minCombineDistSquared = minCombineDist * minCombineDist;
 		const otherGlobalPosition = other.art.globalPosition;
 
 		for (const feeder of this.elements) {
 			if (
-				feeder.art.globalPosition.sqrDist(otherGlobalPosition) > minCombineDistSquared
+				feeder.art.globalPosition.sqrDist(otherGlobalPosition) >
+				minCombineDistSquared
 			) {
 				return false;
 			}
@@ -185,6 +189,20 @@ class Feeder {
 		return true;
 	}
 
+	repel(other) {
+		if (this.size > other.size) {
+			other.repel(this);
+			return;
+		}
+
+		const diff = this.node.globalPosition.sub(other.node.globalPosition);
+		const repulsionForceMag = 200_000 / diff.sqrLen();
+		const repulsionForce = diff.div(diff.len()).mul(repulsionForceMag);
+
+		other.#repulsionForce.set(other.#repulsionForce.sub(repulsionForce));
+		this.#repulsionForce.set(this.#repulsionForce.add(repulsionForce));
+	}
+
 	update(time, delta) {
 		if (this.parent != null) return;
 
@@ -199,21 +217,25 @@ class Feeder {
 			const localPushPosition = Globals.mousePosition.sub(
 				this.node.transform.position,
 			);
-			const force = 850 / localPushPosition.sqrLen();
+			const force = 8500 / localPushPosition.sqrLen();
 			if (force > 0.05) {
 				pushForce = localPushPosition.mul(-force);
 			}
 		}
 
-		const mag = 10;
-		this.velocity = this.velocity.add(pushForce.mul(mag * delta));
+		this.velocity = this.velocity
+			.add(pushForce.mul(delta))
+			.add(this.#repulsionForce.mul(delta / this.size));
+
+		this.#repulsionForce.set(0, 0);
+
 		const bobVelocity =
 			Math.sin((position[0] + position[1]) * 0.006 + time * 0.001) * 3;
 		// const bobVelocity = 0;
 		const displacement = bobDirection
 			.mul(bobVelocity)
 			.add(this.velocity)
-			.mul(mag * delta);
+			.mul(10 * delta);
 		position = position.add(displacement);
 		// position = position.add(vec2FromAngle(Math.random() * Math.PI * 2, 0.1));
 
@@ -239,7 +261,9 @@ class Feeder {
 				const sqrLen = artPosition.sqrLen();
 				if (sqrLen > 0) {
 					let goalPosition = artPosition;
-					goalPosition = goalPosition.mul(minCombineDist / 2 / goalPosition.len());
+					goalPosition = goalPosition.mul(
+						minCombineDist / 2 / goalPosition.len(),
+					);
 					artPosition = artPosition.lerp(goalPosition, 0.2);
 					art.transform.position = artPosition;
 				}
@@ -255,7 +279,9 @@ class Feeder {
 				const sqrLen = artPosition.sqrLen();
 				if (sqrLen > 0) {
 					let goalPosition = artPosition.sub(averagePosition);
-					goalPosition = goalPosition.mul(minCombineDist / 2 / goalPosition.len());
+					goalPosition = goalPosition.mul(
+						minCombineDist / 2 / goalPosition.len(),
+					);
 					art.transform.position = artPosition.lerp(goalPosition, 0.2);
 				}
 			}

@@ -208,7 +208,6 @@ const resetFeeders = () => {
 			.new(Math.random(), Math.random())
 			.sub(0.5)
 			.mul(Globals.gameSize);
-		feeder.velocity = vec2.new(Math.random(), Math.random()).sub(0.5).mul(200);
 	}
 };
 
@@ -350,24 +349,35 @@ const update = (now) => {
 	const seedingFeeders = [];
 	const minAge = 3;
 	for (let i = 0; i < feeders.length; i++) {
-		var feeder = feeders[i];
-		if (feeder.parent != null || feeder.age < minAge) continue;
+		const feeder = feeders[i];
+		if (feeder.parent != null) {
+			continue;
+		}
+
 		if (feeder.size >= maxFeederSize) {
 			seedingFeeders.push(feeder);
-		} else {
-			for (let j = i + 1; j < feeders.length; j++) {
-				var other = feeders[j];
-				if (
-					other.parent != null ||
-					other.age < minAge ||
-					feeder.size + other.size > maxFeederSize
-				)
-					continue;
-				if (feeder.size >= other.size) {
-					if (feeder.tryToCombine(other)) break;
-				} else {
-					if (other.tryToCombine(feeder)) break;
-				}
+		}
+
+		const combineCandidates = [];
+		for (let j = i + 1; j < feeders.length; j++) {
+			const other = feeders[j];
+			if (other.parent != null) {
+				continue;
+			}
+
+			const tooEarly = Math.min(feeder.age, other.age) < minAge;
+			const cannotCombine = feeder.size + other.size > maxFeederSize;
+
+			if (tooEarly || cannotCombine) {
+				feeder.repel(other);
+			} else {
+				combineCandidates.push(other);
+			}
+		}
+
+		for (const other of combineCandidates) {
+			if (feeder.tryToCombine(other)) {
+				break;
 			}
 		}
 	}

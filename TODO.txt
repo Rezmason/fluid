@@ -3,9 +3,6 @@ Make sure game DOM is truly self contained
 	Metaball canvas got bumped by adding an absolute positioned element below the game tag
 	The whole thing is actually pretty fragile
 	itch.io just puts it in an iframe, that's probably the way to go
-Feeders that can't combine should probably repel one another a bit
-	Otherwise they wind up overlapping
-	This includes all feeders at the beginning of the game
 smin for metaball sums
 Portrait orientation should swap width and height
 Audio
