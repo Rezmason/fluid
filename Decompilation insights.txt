@@ -1,13 +1,16 @@
 feeders should seed on direct contact
 	first check the min distance, then the "lobe distance"
 		maybe lobe distance can be simplified by modding theta by 3
+
 Forager agitation ("checkAgitation")
-	foragers squirt muck when their agitation is within a certain range
-	foragers jump if they aren't fully agitated, and it hasn't been too soon after squirting muck
+	foragers have a muck squirt cooldown
+	after the cooldown, on click,
+		foragers squirt muck if their agitation is within a certain range
+		foragers jump if their agitation is within a certain range
+	clicked foragers "hyperventilate"
+		elastic scale in and out
 Muck spread ("nextspread")
 	slows when muck count > 5
-game states ("gamestate")
-	start, birth, growth, maturity
-	affects muck spread ("spreadmuck")
-What on earth is happening in the liquid manager
-	gestures create current sources
+	game states ("gamestate")
+		start, birth, growth, maturity
+		affects muck spread ("spreadmuck")

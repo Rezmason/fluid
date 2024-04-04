@@ -9,7 +9,7 @@ const maxFeederSeeds = 40;
 const maxFeederSize = 3;
 const minSeedDist = 100;
 const minDist = 80;
-const margin = vec2.one().mul(125).sub(Globals.gameSize).div(-2).retain();
+const margin = vec2.one().mul(200).sub(Globals.gameSize).div(-2).retain();
 const invMargin = margin.mul(-1).retain();
 
 class Feeder {
