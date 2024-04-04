@@ -43,7 +43,7 @@ export default class Alga {
 
 		this.muck = new SceneNode2D({
 			tags: ["muck"],
-			art: `<circle r="59" fill="currentColor"></circle>`,
+			art: `<circle r="75" fill="currentColor"></circle>`,
 		});
 		this.node.addChild(this.muck);
 
@@ -116,7 +116,7 @@ export default class Alga {
 		const oldPosition = this.muck.transform.position;
 		const newPosition = vec2.zero();
 		const oldScale = this.muck.transform.scale;
-		const newScale = this.mucky ? 1 : 0;
+		const newScale = this.mucky ? 1 : 0.8;
 		const oldColor = this.muck.colorTransform.color;
 		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
 		retaining([oldPosition, oldColor, newPosition], (resolve) => {
@@ -131,7 +131,7 @@ export default class Alga {
 						resolve();
 					}
 				},
-				0.5,
+				0.35,
 				quadEaseOut,
 			);
 		});
