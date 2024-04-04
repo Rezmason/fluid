@@ -1,4 +1,3 @@
-reset takes 2 seconds
 grid is 8 rows high
 	const dx = Globals.gameSize[0] / numRows;
 	const dy = Globals.gameSize[1] / numRows;
@@ -9,8 +8,6 @@ grid is 8 rows high
 			addDot(x, y);
 		}
 	}
-idle timeout in 10 minutes
-	URL option
 feeders should seed on direct contact
 	first check the min distance, then the "lobe distance"
 		maybe lobe distance can be simplified by modding theta by 3

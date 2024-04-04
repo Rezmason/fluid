@@ -128,9 +128,10 @@ resizeObserver.observe(game);
 
 let fade = 1;
 
-const fadeOut = () => tween((at) => (fade = at), 5, quadEaseIn);
+const fadeOut = (duration) => tween((at) => (fade = at), duration, quadEaseIn);
 
-const fadeIn = () => tween((at) => (fade = 1 - at), 5, quadEaseIn);
+const fadeIn = (duration) =>
+	tween((at) => (fade = 1 - at), duration, quadEaseIn);
 
 export default {
 	update: (metaballs, groupOpacities) => {

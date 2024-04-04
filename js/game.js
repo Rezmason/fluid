@@ -23,7 +23,15 @@ const rootNode = new SceneNode2D({ name: "root" });
 const algaeNode = new SceneNode2D({ name: "algae" });
 const feedersNode = new SceneNode2D({ name: "feeders" });
 
+const urlParams = new URLSearchParams(window.location.search);
+
+let idleTime = parseInt(urlParams.get("idleTime"));
+if (isNaN(idleTime)) {
+	idleTime = 0;
+}
+
 let lastMouseMove = null;
+let lastInteractionTime = 0;
 let beginMouseDragTime = 0;
 let lastDragSoundPosition = vec2.new().retain();
 
@@ -67,15 +75,19 @@ game.addEventListener("mouseleave", () => {
 const beginDrag = () => {
 	Globals.isMousePressed = true;
 	updateAlgaeGoalPositions();
-	beginMouseDragTime = performance.now();
+	const now = performance.now();
+	beginMouseDragTime = now;
+	lastInteractionTime = now;
 	sfx("mouse_down");
 	lastDragSoundPosition.set(Globals.mousePosition);
 };
 
 const endDrag = () => {
 	Globals.isMousePressed = false;
+	const now = performance.now();
+	lastInteractionTime = now;
 	updateAlgaeGoalPositions();
-	sfx(performance.now() - beginMouseDragTime < 200 ? "mouse_tap" : "mouse_up");
+	sfx(now - beginMouseDragTime < 200 ? "mouse_tap" : "mouse_up");
 };
 
 game.addEventListener("mousemove", (event) => {
@@ -224,9 +236,10 @@ const detectEndgame = (alga) => {
 };
 
 const reset = () => {
+	const duration = 2;
 	resetting = true;
 	gameCanEnd = false;
-	Metaballs.fadeOut();
+	Metaballs.fadeOut(duration);
 	delay(() => {
 		for (const alga of algae) {
 			alga.reset();
@@ -235,8 +248,9 @@ const reset = () => {
 		resetFeeders();
 		numMuckyAlgae = 0;
 		resetting = false;
-		Metaballs.fadeIn();
-	}, 5);
+		Metaballs.fadeIn(duration);
+		lastInteractionTime = performance.now();
+	}, duration);
 };
 
 const metaballStates = Array(10)
@@ -375,6 +389,17 @@ const update = (now) => {
 	Metaballs.update(metaballStates, groupOpacities);
 	Metaballs.redraw();
 	collect();
+
+	if (
+		idleTime > 0 &&
+		!resetting &&
+		!Globals.isMousePressed &&
+		(now - lastInteractionTime) / 1000 > idleTime
+	) {
+		gameCanEnd = true;
+		reset();
+	}
+
 	requestAnimationFrame(update);
 };
 
@@ -386,10 +411,10 @@ spawnAlgae();
 spawnForagers();
 spawnFeeders();
 
+beginMouseDragTime = startTime;
 update(startTime);
-Metaballs.fadeIn();
+Metaballs.fadeIn(5);
 
-const urlParams = new URLSearchParams(window.location.search);
 const demo = urlParams.get("demo");
 switch (demo) {
 	case "piano":
