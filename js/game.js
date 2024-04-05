@@ -346,6 +346,10 @@ const update = (now) => {
 		feeder.update(time, delta);
 	}
 
+	for (const forager of foragers) {
+		forager.update(time, delta);
+	}
+
 	const seedingFeeders = [];
 	const minAge = 3;
 	for (let i = 0; i < feeders.length; i++) {

@@ -1,13 +1,3 @@
-Forager agitation ("checkAgitation")
-
-	Tapping a forager agitates them
-	If they're too agitated
-		they squirt muck when tapped
-			this resets an 1.1 second cooldown
-		they won't jump until they cool down
-	clicked foragers "hyperventilate"
-		elastic scale in and out
-
 Muck spread ("nextspread")
 	slows when muck count > 5
 	game states ("gamestate")
