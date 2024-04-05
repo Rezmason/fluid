@@ -208,13 +208,12 @@ class Feeder {
 
 		let pushForce = vec2.zero();
 		if (Globals.isMousePressed) {
-			// TODO: we can probably eliminate a minus sign somewhere in here
-			const localPushPosition = Globals.mousePosition.sub(
-				this.node.transform.position,
+			const localPushPosition = this.node.transform.position.sub(
+				Globals.mousePosition,
 			);
 			const force = 4000 / localPushPosition.sqrLen();
-			if (force > 0.05) {
-				pushForce = localPushPosition.mul(-force);
+			if (force > 0.035) {
+				pushForce = localPushPosition.mul(force);
 			}
 		}
 
