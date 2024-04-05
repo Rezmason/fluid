@@ -189,14 +189,9 @@ class Feeder {
 		return true;
 	}
 
-	repel(other) {
-		if (this.size > other.size) {
-			other.repel(this);
-			return;
-		}
-
+	repel(other, force) {
 		const diff = this.node.globalPosition.sub(other.node.globalPosition);
-		const repulsionForceMag = 200_000 / diff.sqrLen();
+		const repulsionForceMag = force / diff.sqrLen();
 		const repulsionForce = diff.div(diff.len()).mul(repulsionForceMag);
 
 		other.#repulsionForce.set(other.#repulsionForce.sub(repulsionForce));

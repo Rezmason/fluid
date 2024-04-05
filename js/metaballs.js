@@ -29,7 +29,8 @@ gl.shaderSource(
 	#define width 1024.0
 	#define height 768.0
 	#define white vec3(1.0)
-	#define color vec3(0.5, 0.09, 0)
+	#define feederColor vec3(0.5, 0.09, 0)
+	#define emptyColor vec3(1.0, 0.4, 0)
 	uniform float fade;
 	uniform float sceneScale;
 	uniform vec4[10] metaballs;
@@ -62,8 +63,10 @@ gl.shaderSource(
 				mix(opacity, 1.0, smoothstep(-smoothing, +smoothing, insideEdge))
 			);
 		}
+
+		vec3 foregroundColor = mix(emptyColor, feederColor, value);
 		vec4 background = vec4(fade);
-		vec4 foreground = vec4(mix(color, white, fade), 1.0);
+		vec4 foreground = vec4(mix(foregroundColor, white, fade), 1.0);
 		outColor = mix(background, foreground, value);
 	}
 `,

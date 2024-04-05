@@ -369,8 +369,9 @@ const update = (now) => {
 			const cannotCombine = feeder.size + other.size > maxFeederSize;
 
 			if (tooEarly || cannotCombine) {
-				feeder.repel(other);
+				feeder.repel(other, 200_000);
 			} else {
+				feeder.repel(other, -5_000);
 				combineCandidates.push(other);
 			}
 		}
