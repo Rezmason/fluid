@@ -1,5 +1,0 @@
-Muck spread ("nextspread")
-	slows when muck count > 5
-	game states ("gamestate")
-		start, birth, growth, maturity
-		affects muck spread ("spreadmuck")

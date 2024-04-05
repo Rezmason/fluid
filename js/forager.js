@@ -293,6 +293,6 @@ export default class Forager {
 			1,
 			Math.max(0, this.#agitation + agitationChange * delta),
 		);
-		this.#breatheSpeed = lerp(0.08, 0.8, 1 - this.#agitation);
+		this.#breatheSpeed = lerp(0.08, 0.8, Math.pow(1 - this.#agitation, 3));
 	}
 }

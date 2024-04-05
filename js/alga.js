@@ -188,15 +188,18 @@ export default class Alga {
 		}
 	}
 
-	#waitToSpreadMuck() {
-		delay(
-			() => {
-				if (!this.mucky) return;
-				if (Math.random() < 0.2) this.spreadMuck();
-				this.#waitToSpreadMuck();
-			},
-			Math.random() * 4 + 1,
-		);
+	#waitToSpreadMuck(duration) {
+		delay(() => {
+			if (!this.mucky) {
+				return;
+			}
+			const odds = Math.pow(Globals.numMuckyAlgae, -0.75);
+			let spread = false;
+			if (Math.random() < odds) {
+				spread = this.spreadMuck();
+			}
+			this.#waitToSpreadMuck(Math.random() * 4 + (spread ? 2 : 1));
+		}, duration);
 	}
 
 	spreadMuck(fromFrog = false) {
@@ -215,7 +218,9 @@ export default class Alga {
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
 			sfx(fromFrog ? "squirt_muck" : "muck_spawn");
+			return true;
 		}
+		return false;
 	}
 
 	#receiveMuckFrom(origin) {
@@ -226,7 +231,7 @@ export default class Alga {
 		Globals.muckChanged.dispatchEvent(
 			new CustomEvent("muckChanged", { detail: this }),
 		);
-		this.#waitToSpreadMuck();
+		this.#waitToSpreadMuck(Math.random() * 2 + 2);
 	}
 
 	moveToTop() {

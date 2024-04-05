@@ -1,4 +1,3 @@
-Apply changes from decompilation insights TXT
 Make sure game DOM is truly self contained
 	Metaball canvas got bumped by adding an absolute positioned element below the game tag
 	The whole thing is actually pretty fragile
