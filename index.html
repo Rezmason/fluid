@@ -24,66 +24,24 @@
 				justify-content: center;
 				align-items: center;
 			}
+
+			iframe#fluid-frame {
+				border: none;
+				width: 100%;
+				height: 100%;
+				will-change: transform;
+				transition: transform 0.25s ease-in-out;
+			}
+
+			@media (orientation: portrait) {
+				iframe#fluid-frame {
+					transform: rotate(90deg);
+				}
+			}
 		</style>
 		<link rel="stylesheet" type="text/css" href="./assets/piano.css" />
 	</head>
 	<body>
-		<game id="fluid">
-			<style type="text/css">
-				game#fluid {
-					position: relative;
-					--aspect-ratio: calc(4 / 3);
-					height: calc(min(100vh, 100vw / var(--aspect-ratio)) - 4em);
-					aspect-ratio: var(--aspect-ratio);
-					border-radius: 1vmin;
-					overflow: hidden;
-					cursor: pointer;
-					user-select: none;
-					-webkit-user-select: none;
-				}
-
-				game#fluid #scene {
-					background: white;
-					overflow: hidden;
-				}
-
-				game#fluid #metaballs {
-					pointer-events: none;
-				}
-
-				game#fluid #scene,
-				game#fluid #metaballs,
-				game#fluid #splash,
-				game#fluid #instruments {
-					position: absolute;
-					width: 100%;
-					height: 100%;
-				}
-
-				game#fluid #instruments {
-					pointer-events: none;
-				}
-
-				@keyframes fade-away {
-					from {
-						opacity: 1;
-					}
-					to {
-						opacity: 0;
-					}
-				}
-
-				game#fluid img#splash {
-					animation: fade-away 2s cubic-bezier(0.11, 0, 0.5, 0) forwards 3s;
-					user-select: none;
-					pointer-events: none;
-				}
-			</style>
-			<svg id="scene" viewBox="-512 -384 1024 768"></svg>
-			<canvas id="metaballs" width="1024" height="768"></canvas>
-			<img id="splash" src="assets/svg/splash.svg" />
-			<div id="instruments"></div>
-			<script type="module" src="js/game.js"></script>
-		</game>
+		<iframe id="fluid-frame" src="./game.html"></iframe>
 	</body>
 </html>
