@@ -200,10 +200,18 @@ export default class Alga {
 	}
 
 	spreadMuck(fromFrog = false) {
-		const cleanNeighbor = Alga.getRandomNeighbor(
-			this,
-			(neighbor) => !neighbor.mucky && !neighbor.occupied,
-		);
+		const cleanNeighbor =
+			Alga.getRandomNeighbor(
+				this,
+				(neighbor) =>
+					(!neighbor.ripe || Globals.numMuckyAlgae > 5) &&
+					!neighbor.mucky &&
+					!neighbor.occupied,
+			) ??
+			Alga.getRandomNeighbor(
+				this,
+				(neighbor) => !neighbor.mucky && !neighbor.occupied,
+			);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
 			sfx(fromFrog ? "squirt_muck" : "muck_spawn");

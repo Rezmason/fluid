@@ -12,7 +12,6 @@ import { lerp } from "./mathutils.js";
 import { delay } from "./tween.js";
 import { sfx } from "./audio.js";
 
-let numMuckyAlgae = 0;
 let gameCanEnd = false;
 let resetting = false;
 
@@ -215,20 +214,20 @@ const detectEndgame = (alga) => {
 	if (resetting) return;
 
 	if (alga.mucky) {
-		numMuckyAlgae++;
+		Globals.numMuckyAlgae++;
 	} else {
-		numMuckyAlgae--;
+		Globals.numMuckyAlgae--;
 	}
 
 	if (gameCanEnd) {
-		if (numMuckyAlgae === 0) {
+		if (Globals.numMuckyAlgae === 0) {
 			reset();
 			sfx("win");
-		} else if (numMuckyAlgae / algae.length > 0.6) {
+		} else if (Globals.numMuckyAlgae / algae.length > 0.6) {
 			reset();
 			sfx("lose");
 		}
-	} else if (!resetting && numMuckyAlgae >= 3) {
+	} else if (!resetting && Globals.numMuckyAlgae >= 3) {
 		gameCanEnd = true;
 	}
 };
@@ -244,7 +243,7 @@ const reset = () => {
 		}
 		resetForagers();
 		resetFeeders();
-		numMuckyAlgae = 0;
+		Globals.numMuckyAlgae = 0;
 		resetting = false;
 		Metaballs.fadeIn(duration);
 		lastInteractionTime = performance.now();

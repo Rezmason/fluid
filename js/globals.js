@@ -4,6 +4,7 @@ class Globals {
 	game = document.querySelector("game");
 	isMousePressed = false;
 	muckChanged = new EventTarget();
+	numMuckyAlgae = 0;
 
 	#gameSize = vec2.new(1024, 768).retain();
 	#mousePosition = vec2.new(0, 0).retain();
