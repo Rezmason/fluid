@@ -212,7 +212,7 @@ class Feeder {
 			const localPushPosition = Globals.mousePosition.sub(
 				this.node.transform.position,
 			);
-			const force = 8500 / localPushPosition.sqrLen();
+			const force = 4000 / localPushPosition.sqrLen();
 			if (force > 0.05) {
 				pushForce = localPushPosition.mul(-force);
 			}
