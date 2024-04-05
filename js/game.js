@@ -275,7 +275,6 @@ const updateMetaballs = (time) => {
 		if (feeder.parent != null) continue;
 		let throb = 0;
 		let throbTime = 0;
-		let metaballSize = 15;
 		if (feeder.size >= 3) {
 			feeder.groupID = f;
 
@@ -288,8 +287,7 @@ const updateMetaballs = (time) => {
 			groupOpacities[feeder.groupID] = opacity;
 
 			f++;
-			metaballSize = 10;
-			throb = 7;
+			throb = 3 + 5 * (1 - feeder.numSeeds / maxFeederSeeds);
 			throbTime = (time - feeder.throbStartTime) / 1000;
 			throbTime += (Math.sin(throbTime * 6) + 1) / 2 + 0.8;
 		} else {
@@ -301,7 +299,7 @@ const updateMetaballs = (time) => {
 			metaballStates[n].set(
 				position[0],
 				position[1],
-				metaballSize +
+				15 +
 					throb * (Math.sin((i * Math.PI * 2) / 3 + throbTime * 4) * 0.5 + 0.5),
 				feeder.groupID,
 			);

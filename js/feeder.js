@@ -10,6 +10,7 @@ const maxFeederSize = 3;
 const minSeedDist = 85;
 const minSeedArtDist = 45;
 const minCombineDist = 80;
+const largeCombinedMinDist = 100;
 const margin = vec2.one().mul(200).sub(Globals.gameSize).div(-2).retain();
 const invMargin = margin.mul(-1).retain();
 
@@ -274,7 +275,7 @@ class Feeder {
 				if (sqrLen > 0) {
 					let goalPosition = artPosition.sub(averagePosition);
 					goalPosition = goalPosition.mul(
-						minCombineDist / 2 / goalPosition.len(),
+						largeCombinedMinDist / 2 / goalPosition.len(),
 					);
 					art.transform.position = artPosition.lerp(goalPosition, 0.2);
 				}
