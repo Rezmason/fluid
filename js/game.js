@@ -334,14 +334,48 @@ const testMetaballs = (time) => {
 };
 
 const startTime = performance.now();
+const maxUpdateDelta = 0.1;
 let lastTime = startTime;
-const update = (now) => {
+const animate = (now) => {
 	const time = now - startTime;
 	const delta = (time - lastTime) / 1000;
-	lastTime = time;
+	const numUpdates = Math.max(1, Math.ceil(delta / maxUpdateDelta));
+	const dividedDelta = delta / numUpdates;
+
+	if (numUpdates > 50) {
+		lastTime = time;
+		requestAnimationFrame(animate);
+		return;
+	}
 
 	updateMouse();
+	for (let i = 0; i < numUpdates; i++) {
+		update(lastTime + i * dividedDelta, dividedDelta);
+	}
+	lastTime = time;
 
+	render2D(rootNode, scene);
+	updateMetaballs(time);
+	// testMetaballs(time);
+
+	Metaballs.update(metaballStates, groupOpacities);
+	Metaballs.redraw();
+	collect();
+
+	if (
+		idleTime > 0 &&
+		!resetting &&
+		!Globals.isMousePressed &&
+		(now - lastInteractionTime) / 1000 > idleTime
+	) {
+		gameCanEnd = true;
+		reset();
+	}
+
+	requestAnimationFrame(animate);
+};
+
+const update = (time, delta) => {
 	for (const feeder of feeders) {
 		feeder.update(time, delta);
 	}
@@ -387,10 +421,6 @@ const update = (now) => {
 		}
 	}
 
-	render2D(rootNode, scene);
-	updateMetaballs(time);
-	// testMetaballs(time);
-
 	for (const alga of algae) {
 		alga.node.transform.position = alga.node.transform.position.lerp(
 			alga.goalPosition,
@@ -403,21 +433,6 @@ const update = (now) => {
 			if (feeder.size == maxFeederSize && feeder.tryToSeed(alga)) break;
 		}
 	}
-	Metaballs.update(metaballStates, groupOpacities);
-	Metaballs.redraw();
-	collect();
-
-	if (
-		idleTime > 0 &&
-		!resetting &&
-		!Globals.isMousePressed &&
-		(now - lastInteractionTime) / 1000 > idleTime
-	) {
-		gameCanEnd = true;
-		reset();
-	}
-
-	requestAnimationFrame(update);
 };
 
 Globals.muckChanged.addEventListener("muckChanged", ({ detail }) =>
@@ -429,7 +444,7 @@ spawnForagers();
 spawnFeeders();
 
 beginMouseDragTime = startTime;
-update(startTime);
+animate(startTime);
 Metaballs.fadeIn(5);
 
 const demo = urlParams.get("demo");
