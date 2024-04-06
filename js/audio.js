@@ -134,20 +134,21 @@ class Instrument {
 		const vol = this.#velocity / 127;
 		envelopeGain.gain.value = vol;
 		if (this.#envelope != null) {
-			for (const { volume, time } of this.#envelope) {
-				if (time === 0) {
+			for (let { volume, time } of this.#envelope) {
+				if (time === "start" || time === 0) {
 					envelopeGain.gain.value = vol * volume;
 				} else {
+					if (time === "end") {
+						time = this.#duration;
+					} else if (time.includes?.("%")) {
+						time = (this.#duration * parseFloat(time.split("%")[0])) / 100;
+					}
 					envelopeGain.gain.linearRampToValueAtTime(
 						vol * volume,
 						audioContext.currentTime + time / 1000,
 					);
 				}
 			}
-			envelopeGain.gain.linearRampToValueAtTime(
-				0,
-				audioContext.currentTime + this.#duration / 1000,
-			);
 		}
 		chain.push(envelopeGain);
 
@@ -165,6 +166,35 @@ class Instrument {
 			chain.push(panner);
 		}
 
+		properties ??= {
+			pan: 0,
+			volume: 1,
+			echo: 0,
+		};
+
+		const { pan, volume, echo } = properties;
+
+		const panner = audioContext.createStereoPanner();
+		panner.pan.value = pan;
+		chain.push(panner);
+		const amp = audioContext.createGain();
+		amp.gain.value = Math.min(1, volume);
+		chain.push(amp);
+
+		const echoOutput = audioContext.createGain();
+		const echoDelay = audioContext.createDelay();
+		const echoFeedback = audioContext.createGain();
+		const echoWetLevel = audioContext.createGain();
+
+		echoDelay.delayTime.value = 0.125 * echo;
+		echoFeedback.gain.value = 0.25;
+		echoWetLevel.gain.value = 0.25;
+
+		amp.connect(echoDelay);
+		echoDelay.connect(echoFeedback).connect(echoDelay);
+		echoDelay.connect(echoWetLevel).connect(echoOutput);
+
+		chain.push(echoOutput);
 		chain.push(audioContext.destination);
 
 		for (let i = 1; i < chain.length; i++) {
@@ -181,7 +211,7 @@ class Instrument {
 			for (let i = 1; i < chain.length; i++) {
 				chain[i - 1].disconnect(chain[i]);
 			}
-		}, this.#duration);
+		}, this.#duration * 2);
 	}
 }
 

@@ -1,6 +1,4 @@
-Audio
-	pan based on global position
-	debounce and/or quiet
+Audio debounce
+metaballs smin
 
-Generalization
-	Move general stuff into lib folder for reuse in other projects
+Move general stuff into lib folder for reuse in other projects

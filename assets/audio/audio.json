@@ -34,8 +34,8 @@
 		{
 				"sample": "moon_jelly_loop",
 				"loop": {
-					"start": 71,
-					"end": 95.138
+					"start": 47,
+					"end": 95.55
 				},
 				"vibrato": {
 					"frequency": 8.7,
@@ -45,7 +45,8 @@
 				"envelope": [
 					{ "time":  0, "volume": 1.62 },
 					{ "time": 12, "volume": 1.24 },
-					{ "time": 15, "volume": 1.08 }
+					{ "time": 15, "volume": 1.08 },
+					{ "time": "end", "volume": 0 }
 				],
 				"panModulation": {
 					"frequency": 6.96,
@@ -75,7 +76,8 @@
 				"envelope": [
 					{ "time":  0, "volume": 1.62 },
 					{ "time": 12, "volume": 1.24 },
-					{ "time": 15, "volume": 1.08 }
+					{ "time": 15, "volume": 1.08 },
+					{ "time": "end", "volume": 0 }
 				],
 				"root": 72,
 				"duration": 3500,
@@ -85,6 +87,10 @@
 		"merge_cleaner":
 		{
 				"sample": "loop2",
+				"envelope": [
+					{ "time": "95%", "volume": 1.0 },
+					{ "time": "end", "volume": 0 }
+				],
 				"root": 96.5,
 				"duration": 1000,
 				"velocity": 110,
@@ -94,6 +100,10 @@
 		"merge_cleaner_parts":
 		{
 				"sample": "loop2",
+				"envelope": [
+					{ "time": "95%", "volume": 1.0 },
+					{ "time": "end", "volume": 0 }
+				],
 				"root": 96.5,
 				"duration": 1000,
 				"velocity": 110,
@@ -111,6 +121,10 @@
 		"mouse_drag":
 		{
 				"sample": "drag",
+				"envelope": [
+					{ "time": "50%", "volume": 1.0 },
+					{ "time": "end", "volume": 0 }
+				],
 				"root": 96.5,
 				"duration": 1000,
 				"velocity": 64,
@@ -122,6 +136,10 @@
 		"mouse_up":
 		{
 				"sample": "loop5",
+				"envelope": [
+					{ "time": "90%", "volume": 1.0 },
+					{ "time": "end", "volume": 0 }
+				],
 				"root": 97,
 				"duration": 1000,
 				"velocity": 25,
@@ -138,7 +156,8 @@
 				"envelope": [
 					{ "time":  0, "volume": 1.62 },
 					{ "time": 12, "volume": 1.24 },
-					{ "time": 15, "volume": 1.08 }
+					{ "time": 15, "volume": 1.08 },
+					{ "time": "end", "volume": 0.0 }
 				],
 				"root": 72,
 				"duration": 1000,
@@ -164,6 +183,10 @@
 		"touch_frog":
 		{
 				"sample": "loop6_2",
+				"envelope": [
+					{ "time": "85%", "volume": 1.0 },
+					{ "time": "end", "volume": 0 }
+				],
 				"root": 96.5,
 				"duration": 1000,
 				"velocity": 100,
@@ -177,7 +200,9 @@
 				"envelope": [
 					{ "time":  0, "volume": 1.62 },
 					{ "time": 12, "volume": 1.24 },
-					{ "time": 15, "volume": 1.08 }
+					{ "time": 15, "volume": 1.08 },
+					{ "time": "90%", "volume": 0.2 },
+					{ "time": "end", "volume": 0 }
 				],
 				"duration": 9000,
 				"velocity": 60,
