@@ -40,6 +40,7 @@
 					cursor: pointer;
 					user-select: none;
 					-webkit-user-select: none;
+					--orientation: landscape;
 				}
 
 				game#fluid #scene {
@@ -81,6 +82,10 @@
 				}
 
 				@media (orientation: portrait) {
+					game#fluid {
+						--orientation: portrait;
+					}
+
 					game#fluid img#splash {
 						transform: rotate(-90deg);
 					}

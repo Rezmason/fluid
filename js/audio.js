@@ -217,7 +217,13 @@ const sfx = (id, sourcePos = null) => {
 		echo = 0;
 	if (sourcePos != null) {
 		const positionFromCenter = sourcePos.div(Globals.gameSize).mul(2);
-		pan = positionFromCenter[0];
+		const isPortraitOrientation =
+			window
+				.getComputedStyle(Globals.game)
+				.getPropertyValue("--orientation") === "portrait";
+		pan = isPortraitOrientation
+			? -positionFromCenter[1]
+			: positionFromCenter[0];
 		const distance = positionFromCenter.len();
 		volume = Math.min(1, 1 / distance);
 		echo = distance;
