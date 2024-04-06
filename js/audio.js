@@ -241,20 +241,18 @@ for (const instrument of Object.values(json.instruments)) {
 
 await Promise.all(Object.values(samples).map(({ ready }) => ready));
 
-const sfx = (id, sourcePos = null) => {
+const sfx = (id, globalSourcePosition = null) => {
 	let pan = 0,
 		volume = 1,
 		echo = 0;
-	if (sourcePos != null) {
-		const positionFromCenter = sourcePos.div(Globals.gameSize).mul(2);
+	if (globalSourcePosition != null) {
+		const sourcePosition = globalSourcePosition.div(Globals.gameSize).mul(2);
 		const isPortraitOrientation =
 			window
 				.getComputedStyle(Globals.game)
 				.getPropertyValue("--orientation") === "portrait";
-		pan = isPortraitOrientation
-			? -positionFromCenter[1]
-			: positionFromCenter[0];
-		const distance = positionFromCenter.len();
+		pan = isPortraitOrientation ? -sourcePosition[1] : sourcePosition[0];
+		const distance = sourcePosition.len();
 		volume = Math.min(1, 1 / distance);
 		echo = distance;
 	}
