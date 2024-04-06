@@ -209,7 +209,7 @@ export default class Forager {
 				quadEaseOut,
 			);
 		});
-		sfx("frog_jump");
+		sfx("frog_jump", this.node.globalPosition);
 	}
 
 	#rotateIdle() {
@@ -249,7 +249,7 @@ export default class Forager {
 			return;
 		}
 
-		sfx("touch_frog");
+		sfx("touch_frog", this.node.globalPosition);
 		this.#agitation = 1;
 		this.#breatheSpeed = lerp(0.08, 0.6, 1 - this.#agitation);
 		this.alga.spreadMuck(true); // TODO: only if sufficiently agitated?

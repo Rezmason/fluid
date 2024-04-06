@@ -77,7 +77,7 @@ const beginDrag = () => {
 	const now = performance.now();
 	beginMouseDragTime = now;
 	lastInteractionTime = now;
-	sfx("mouse_down");
+	sfx("mouse_down", Globals.mousePosition);
 	lastDragSoundPosition.set(Globals.mousePosition);
 };
 
@@ -86,7 +86,10 @@ const endDrag = () => {
 	const now = performance.now();
 	lastInteractionTime = now;
 	updateAlgaeGoalPositions();
-	sfx(now - beginMouseDragTime < 200 ? "mouse_tap" : "mouse_up");
+	sfx(
+		now - beginMouseDragTime < 200 ? "mouse_tap" : "mouse_up",
+		Globals.mousePosition,
+	);
 };
 
 game.addEventListener("mousemove", (event) => {
@@ -104,7 +107,7 @@ const updateMouse = () => {
 		Globals.mousePosition.sqrDist(lastDragSoundPosition) > 768
 	) {
 		lastDragSoundPosition.set(Globals.mousePosition);
-		sfx("mouse_drag");
+		sfx("mouse_drag", Globals.mousePosition);
 	}
 	updateAlgaeGoalPositions();
 };
@@ -222,10 +225,10 @@ const detectEndgame = (alga) => {
 	if (gameCanEnd) {
 		if (Globals.numMuckyAlgae === 0) {
 			reset();
-			sfx("win");
+			sfx("win", alga.node.globalPosition);
 		} else if (Globals.numMuckyAlgae / algae.length > 0.6) {
 			reset();
-			sfx("lose");
+			sfx("lose", alga.node.globalPosition);
 		}
 	} else if (!resetting && Globals.numMuckyAlgae >= 3) {
 		gameCanEnd = true;

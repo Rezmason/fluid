@@ -180,7 +180,7 @@ export default class Alga {
 			this.#animateMuck();
 			this.#animateFruit();
 			if (wasMucky) {
-				sfx("clean_muck");
+				sfx("clean_muck", this.node.globalPosition);
 				Globals.muckChanged.dispatchEvent(
 					new CustomEvent("muckChanged", { detail: this }),
 				);
@@ -217,7 +217,7 @@ export default class Alga {
 			);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
-			sfx(fromFrog ? "squirt_muck" : "muck_spawn");
+			sfx(fromFrog ? "squirt_muck" : "muck_spawn", this.node.globalPosition);
 			return true;
 		}
 		return false;

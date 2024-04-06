@@ -92,11 +92,11 @@ class Feeder {
 		}
 
 		alga.ripen();
+		sfx("cleaner_color", this.node.globalPosition);
 		this.numSeeds--;
 		if (this.numSeeds <= 0) {
 			this.#burst();
 		}
-		sfx("cleaner_color");
 		return true;
 	}
 
@@ -129,7 +129,7 @@ class Feeder {
 
 		this.numSeeds = 0;
 
-		sfx("split_cleaner");
+		sfx("split_cleaner", oldPosition);
 	}
 
 	tryToCombine(other) {
@@ -185,7 +185,10 @@ class Feeder {
 			this.elements[i].art.globalPosition = artPositions[i];
 		}
 
-		sfx(this.size == maxFeederSize ? "merge_cleaner" : "merge_cleaner_parts");
+		sfx(
+			this.size == maxFeederSize ? "merge_cleaner" : "merge_cleaner_parts",
+			this.node.globalPosition,
+		);
 
 		return true;
 	}
