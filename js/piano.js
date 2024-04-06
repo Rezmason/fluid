@@ -51,12 +51,12 @@ for (const variant of variants) {
 	const variantTag = document.createElement("key");
 	variantTag.innerText = `${variant.instrument.id} : ${variant.note}`;
 	variantTag.addEventListener("mousedown", (event) => {
-		variant.instrument.pluck(variant.note);
+		variant.instrument.pluck(null, variant.note);
 		event.stopImmediatePropagation();
 	});
 	variantTag.addEventListener("mouseover", ({ buttons }) => {
 		if (buttons === 1) {
-			variant.instrument.pluck(variant.note);
+			variant.instrument.pluck(null, variant.note);
 		}
 	});
 	piano.appendChild(variantTag);

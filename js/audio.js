@@ -1,5 +1,7 @@
 // All times are in milliseconds.
 
+import Globals from "./globals.js";
+
 const AudioContext = [window.AudioContext, window.webkitAudioContext].find(
 	(contextClass) => contextClass != null,
 );
@@ -67,7 +69,11 @@ class Instrument {
 		this.#index = 0;
 	}
 
-	pluck(note, offset = 0) {
+	pluck(properties, note = null, offset = 0) {
+		if (document.hidden) {
+			return;
+		}
+
 		if (this.#sample == null) {
 			return;
 		}
@@ -205,6 +211,18 @@ for (const instrument of Object.values(json.instruments)) {
 
 await Promise.all(Object.values(samples).map(({ ready }) => ready));
 
-const sfx = (id) => instruments[id].pluck();
+const sfx = (id, sourcePos = null) => {
+	let pan = 0,
+		volume = 1,
+		echo = 0;
+	if (sourcePos != null) {
+		const positionFromCenter = sourcePos.div(Globals.gameSize).mul(2);
+		pan = positionFromCenter[0];
+		const distance = positionFromCenter.len();
+		volume = Math.min(1, 1 / distance);
+		echo = distance;
+	}
+	instruments[id].pluck({ pan, volume: volume * 0.5, echo });
+};
 
 export { instruments, sfx };
