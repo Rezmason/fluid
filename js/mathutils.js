@@ -14,9 +14,11 @@ const vec2 = createType(2)
 	});
 
 const vec4 = createType(4).extendAPI({
-	hexColor: (hex) =>
+	hexColor: (hex, multiplier = 100) =>
 		vec4.new(
-			...hex.match(/[\da-fA-F]{2}/g).map((n) => (parseInt(n, 16) * 100) / 0xff),
+			...hex
+				.match(/[\da-fA-F]{2}/g)
+				.map((n) => (parseInt(n, 16) * multiplier) / 0xff),
 		),
 });
 

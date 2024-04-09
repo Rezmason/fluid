@@ -1,4 +1,22 @@
 Audio debounce
 metaballs smin
+Keep muck from overlapping neighboring algae
+	another metaballs layer?
+		+: might look good, why should feeders have all the fun
+		-: might be too much of a departure from the original look
+		+: the circular discs look a little dated anyway
+		-: might negatively impact performance
+
+	Things that would work without metaballs (choose one):
+		Make every art an SVG tag?
+			+: HTML stacking orders, already exist, maybe wrap them in more usable setup
+				handle z-index internally
+			-: Moves scene math out of SVG view box, etc
+		Differentiate parent and transform basis
+			+: no change to transform logic
+			-: renderer has to "reparent" stuff
+		Just do it manually
+			+: this is how Flash folks would do it
+			-: it wasn't fun then and it's not fun now
 
 Move general stuff into lib folder for reuse in other projects

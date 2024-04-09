@@ -40,6 +40,19 @@ rootNode.addChild(feedersNode);
 const game = Globals.game;
 const scene = game.querySelector("#scene");
 
+const feederMetaballs = new Metaballs(
+	game.querySelector("#feeder-metaballs"),
+	10,
+	3,
+	vec4.hexColor("#801700ff", 1),
+	vec4.hexColor("#ff6800ff", 1),
+);
+const feederMetaballStates = Array(10)
+	.fill()
+	.map((_) => vec4.new().retain());
+const feederMetaballGroupOpacities = Array(3).fill(1);
+const feederOpacities = new Map();
+
 const updateAlgaeGoalPositions = () => {
 	for (const alga of algae) {
 		if (alga.mucky || !Globals.isMousePressed) {
@@ -239,7 +252,7 @@ const reset = () => {
 	const duration = 2;
 	resetting = true;
 	gameCanEnd = false;
-	Metaballs.fadeOut(duration);
+	feederMetaballs.fadeOut(duration);
 	delay(() => {
 		for (const alga of algae) {
 			alga.reset();
@@ -248,31 +261,16 @@ const reset = () => {
 		resetFeeders();
 		Globals.numMuckyAlgae = 0;
 		resetting = false;
-		Metaballs.fadeIn(duration);
+		feederMetaballs.fadeIn(duration);
 		lastInteractionTime = performance.now();
 	}, duration);
 };
 
-const metaballStates = Array(10)
-	.fill()
-	.map((_) => vec4.new().retain());
-const groupOpacities = Array(3).fill(1);
-const feederOpacities = new Map();
-
-const getUniqueGroupID = () => {
-	for (let i = 1; i < 10; i++) {
-		if (!feeders.some((feeder) => feeder.groupID === i)) {
-			return i;
-		}
-	}
-	return 0;
-};
-
-const updateMetaballs = (time) => {
+const updateFeederMetaballs = (time) => {
 	let n = 0;
 	let f = 1;
 
-	groupOpacities[0] = 1;
+	feederMetaballGroupOpacities[0] = 1;
 	for (const feeder of feeders) {
 		if (feeder.parent != null) continue;
 		let throb = 0;
@@ -286,7 +284,7 @@ const updateMetaballs = (time) => {
 			const lastOpacity = feederOpacities.get(feeder) ?? 1;
 			opacity = lerp(lastOpacity, opacity, 0.05);
 			feederOpacities.set(feeder, opacity);
-			groupOpacities[feeder.groupID] = opacity;
+			feederMetaballGroupOpacities[feeder.groupID] = opacity;
 
 			f++;
 			throb = 3 + 5 * (1 - feeder.numSeeds / maxFeederSeeds);
@@ -297,10 +295,8 @@ const updateMetaballs = (time) => {
 		}
 		let i = 0;
 		for (const element of feeder.elements) {
-			const position = element.art.globalPosition;
-			metaballStates[n].set(
-				position[0],
-				position[1],
+			feederMetaballStates[n].set(
+				...element.art.globalPosition,
 				15 +
 					throb * (Math.sin((i * Math.PI * 2) / 3 + throbTime * 4) * 0.5 + 0.5),
 				feeder.groupID,
@@ -311,24 +307,24 @@ const updateMetaballs = (time) => {
 	}
 
 	for (; f < 3; f++) {
-		groupOpacities[f] = 1;
+		feederMetaballGroupOpacities[f] = 1;
 	}
 };
 
-const testMetaballs = (time) => {
+const testFeederMetaballs = (time) => {
 	for (let i = 0; i < 10; i++) {
 		const pairing = Math.floor(i / 2);
 		let groupID = pairing % 3;
-		metaballStates[i].set(
+		feederMetaballStates[i].set(
 			(pairing * 0.2 - 0.4) * Globals.gameSize[0],
 			Math.sin(time * 0.003 + i) * 0.25 * Globals.gameSize[1],
-			15,
+			15 * (i * 0.3 + 1),
 			groupID,
 		);
 	}
 
 	for (let i = 0; i < 3; i++) {
-		groupOpacities[i] =
+		feederMetaballGroupOpacities[i] =
 			Math.cos(time * 0.003 + (Math.PI * 2 * i) / 3) * 0.5 + 0.5;
 	}
 };
@@ -355,11 +351,13 @@ const animate = (now) => {
 	lastTime = time;
 
 	render2D(rootNode, scene);
-	updateMetaballs(time);
-	// testMetaballs(time);
 
-	Metaballs.update(metaballStates, groupOpacities);
-	Metaballs.redraw();
+	updateFeederMetaballs(time);
+	// testFeederMetaballs(time);
+
+	feederMetaballs.update(feederMetaballStates, feederMetaballGroupOpacities);
+	feederMetaballs.redraw();
+
 	collect();
 
 	if (
@@ -445,7 +443,7 @@ spawnFeeders();
 
 beginMouseDragTime = startTime;
 animate(startTime);
-Metaballs.fadeIn(5);
+feederMetaballs.fadeIn(5);
 
 const demo = urlParams.get("demo");
 switch (demo) {

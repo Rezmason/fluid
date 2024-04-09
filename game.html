@@ -36,6 +36,7 @@
 					height: calc(min(100vh, 100vw / var(--aspect-ratio)) - 4em);
 					aspect-ratio: var(--aspect-ratio);
 					border-radius: 1vmin;
+					background: white;
 					overflow: hidden;
 					cursor: pointer;
 					user-select: none;
@@ -44,16 +45,15 @@
 				}
 
 				game#fluid #scene {
-					background: white;
 					overflow: hidden;
 				}
 
-				game#fluid #metaballs {
+				game#fluid .metaballs {
 					pointer-events: none;
 				}
 
 				game#fluid #scene,
-				game#fluid #metaballs,
+				game#fluid .metaballs,
 				game#fluid #splash,
 				game#fluid #instruments {
 					position: absolute;
@@ -92,7 +92,7 @@
 				}
 			</style>
 			<svg id="scene" viewBox="-512 -384 1024 768"></svg>
-			<canvas id="metaballs" width="1024" height="768"></canvas>
+			<canvas id="feeder-metaballs" class="metaballs" width="1024" height="768"></canvas>
 			<img id="splash" src="assets/svg/splash.svg" />
 			<div id="instruments"></div>
 			<script type="module" src="js/game.js"></script>
