@@ -1,7 +1,7 @@
 import Globals from "./globals.js";
 import SceneNode2D from "./scenenode2d.js";
 import { vec2, vec4, lerp, retaining } from "./mathutils.js";
-import { tween, delay, quadEaseOut } from "./tween.js";
+import { tween, delay, quadEaseOut, quadEaseInOut } from "./tween.js";
 import { sfx } from "./audio.js";
 
 const fruitColors = {
@@ -29,6 +29,8 @@ export default class Alga {
 	node;
 	art;
 	muck;
+	muckSize;
+	muckOffset;
 
 	#muckTween;
 	#fruitTween;
@@ -102,8 +104,10 @@ export default class Alga {
 
 		this.muck.visible = false;
 		this.muck.transform.position = vec2.zero();
-		this.muck.transform.scale = 0;
+		this.muck.transform.scale = 0.8;
 		this.muck.colorTransform.color = muckColors.clean;
+		this.muckSize = 0;
+		this.muckOffset = 0;
 
 		this.fruit.transform.position = vec2.zero();
 		this.fruit.transform.scale = 0.4;
@@ -111,12 +115,16 @@ export default class Alga {
 		this.fruit.colorTransform.color = fruitColors.unripe;
 	}
 
-	#animateMuck() {
+	#animateMuck(wasMucky) {
 		this.#muckTween?.stop();
 		const oldPosition = this.muck.transform.position;
 		const newPosition = vec2.zero();
 		const oldScale = this.muck.transform.scale;
 		const newScale = this.mucky ? 1 : 0.8;
+
+		const oldMuckSize = wasMucky ? 1 : this.mucky ? 0.25 : 0;
+		const newMuckSize = this.mucky ? 1 : 0;
+
 		const oldColor = this.muck.colorTransform.color;
 		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
 		retaining([oldPosition, oldColor, newPosition], (resolve) => {
@@ -126,13 +134,14 @@ export default class Alga {
 					this.muck.transform.position = oldPosition.lerp(newPosition, at);
 					this.muck.transform.scale = lerp(oldScale, newScale, at);
 					this.muck.colorTransform.color = oldColor.lerp(newColor, at);
+					this.muckSize = lerp(oldMuckSize, newMuckSize, at);
 					if (at >= 1) {
 						this.muck.visible = this.mucky;
 						resolve();
 					}
 				},
 				0.35,
-				quadEaseOut,
+				quadEaseInOut,
 			);
 		});
 	}
@@ -177,7 +186,7 @@ export default class Alga {
 			this.ripe = false;
 			const wasMucky = this.mucky;
 			this.mucky = false;
-			this.#animateMuck();
+			this.#animateMuck(wasMucky);
 			this.#animateFruit();
 			if (wasMucky) {
 				sfx("clean_muck", this.node.globalPosition);
@@ -202,7 +211,7 @@ export default class Alga {
 		}, duration);
 	}
 
-	spreadMuck(fromFrog = false) {
+	spreadMuck(fromForager = false) {
 		const cleanNeighbor =
 			Alga.getRandomNeighbor(
 				this,
@@ -217,16 +226,19 @@ export default class Alga {
 			);
 		if (cleanNeighbor != null) {
 			cleanNeighbor.#receiveMuckFrom(this.node.globalPosition);
-			sfx(fromFrog ? "squirt_muck" : "muck_spawn", this.node.globalPosition);
+			const muckOffset = fromForager ? Math.random() * 10 : this.muckOffset - 8;
+			cleanNeighbor.muckOffset = muckOffset;
+			sfx(fromForager ? "squirt_muck" : "muck_spawn", this.node.globalPosition);
 			return true;
 		}
 		return false;
 	}
 
 	#receiveMuckFrom(origin) {
+		const wasMucky = this.mucky;
 		this.mucky = true;
 		this.muck.globalPosition = origin;
-		this.#animateMuck();
+		this.#animateMuck(wasMucky);
 		this.#animateFruit();
 		Globals.muckChanged.dispatchEvent(
 			new CustomEvent("muckChanged", { detail: this }),

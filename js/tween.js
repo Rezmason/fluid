@@ -52,4 +52,12 @@ const quadEaseIn = (t) => t * t;
 
 const quadEaseOut = (t) => 1 - (1 - t) * (1 - t);
 
-export { tween, delay, quadEaseIn, quadEaseOut };
+const quadEaseInOut = (t) => {
+	if (t < 0.5) {
+		return quadEaseIn(t * 2) * 0.5;
+	} else {
+		return quadEaseOut(t * 2 - 1) * 0.5 + 0.5;
+	}
+};
+
+export { tween, delay, quadEaseIn, quadEaseOut, quadEaseInOut };

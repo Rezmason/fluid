@@ -53,6 +53,20 @@ const feederMetaballStates = Array(10)
 const feederMetaballGroupOpacities = Array(3).fill(1);
 const feederOpacities = new Map();
 
+const muckMetaballs = new Metaballs(
+	game.querySelector("#muck-metaballs"),
+	64,
+	1,
+	vec4.hexColor("#c0c0c0ff", 1),
+	vec4.hexColor("#c0c0c000", 1),
+	[1, 1, 1],
+);
+const muckMetaballStates = Array(64)
+	.fill()
+	.map((_) => vec4.new().retain());
+const muckMetaballGroupOpacities = Array(1).fill(1);
+const muckOpacities = new Map();
+
 const updateAlgaeGoalPositions = () => {
 	for (const alga of algae) {
 		if (alga.mucky || !Globals.isMousePressed) {
@@ -329,6 +343,24 @@ const testFeederMetaballs = (time) => {
 	}
 };
 
+const updateMuckMetaballs = (time) => {
+	let m = 0;
+	for (let i = 0; i < algae.length; i++) {
+		const alga = algae[i];
+		const pulse = (time * 2) / 1000 + alga.muckOffset;
+		const throb = Math.pow(20, 1 + (Math.sin(pulse) + 1) * 0.1);
+		muckMetaballStates[m].set(
+			...alga.muck.globalPosition,
+			lerp(-5, 10 + throb, alga.muckSize),
+			0,
+		);
+		m++;
+	}
+	for (m; m < muckMetaballStates.length; m++) {
+		muckMetaballStates[m].set(0, 0, 0, 0);
+	}
+};
+
 const startTime = performance.now();
 const maxUpdateDelta = 0.1;
 let lastTime = startTime;
@@ -354,9 +386,12 @@ const animate = (now) => {
 
 	updateFeederMetaballs(time);
 	// testFeederMetaballs(time);
+	updateMuckMetaballs(time);
 
 	feederMetaballs.update(feederMetaballStates, feederMetaballGroupOpacities);
 	feederMetaballs.redraw();
+	muckMetaballs.update(muckMetaballStates, muckMetaballGroupOpacities);
+	muckMetaballs.redraw();
 
 	collect();
 
@@ -444,6 +479,7 @@ spawnFeeders();
 beginMouseDragTime = startTime;
 animate(startTime);
 feederMetaballs.fadeIn(5);
+muckMetaballs.fadeIn(0);
 
 const demo = urlParams.get("demo");
 switch (demo) {
