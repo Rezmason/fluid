@@ -45,7 +45,6 @@ export default class Alga {
 
 		this.muck = new SceneNode2D({
 			tags: ["muck"],
-			art: `<circle r="75" fill="currentColor"></circle>`,
 		});
 		this.node.addChild(this.muck);
 
@@ -104,8 +103,6 @@ export default class Alga {
 
 		this.muck.visible = false;
 		this.muck.transform.position = vec2.zero();
-		this.muck.transform.scale = 0.8;
-		this.muck.colorTransform.color = muckColors.clean;
 		this.muckSize = 0;
 		this.muckOffset = 0;
 
@@ -119,21 +116,14 @@ export default class Alga {
 		this.#muckTween?.stop();
 		const oldPosition = this.muck.transform.position;
 		const newPosition = vec2.zero();
-		const oldScale = this.muck.transform.scale;
-		const newScale = this.mucky ? 1 : 0.8;
-
 		const oldMuckSize = wasMucky ? 1 : this.mucky ? 0.25 : 0;
 		const newMuckSize = this.mucky ? 1 : 0;
 
-		const oldColor = this.muck.colorTransform.color;
-		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
-		retaining([oldPosition, oldColor, newPosition], (resolve) => {
+		retaining([oldPosition, newPosition], (resolve) => {
 			this.#muckTween = tween(
 				(at) => {
 					this.muck.visible = true;
 					this.muck.transform.position = oldPosition.lerp(newPosition, at);
-					this.muck.transform.scale = lerp(oldScale, newScale, at);
-					this.muck.colorTransform.color = oldColor.lerp(newColor, at);
 					this.muckSize = lerp(oldMuckSize, newMuckSize, at);
 					if (at >= 1) {
 						this.muck.visible = this.mucky;
