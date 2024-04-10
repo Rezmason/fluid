@@ -9,6 +9,10 @@ export default class SceneNode {
 	}
 
 	addChild(child, index = null) {
+		if (child.contains(this)) {
+			throw new Error("The new child node contains the parent.");
+		}
+
 		child.#adding = true;
 
 		const oldParent = child.parent;
@@ -58,6 +62,15 @@ export default class SceneNode {
 		this.children.length = 0;
 		this.reorderedChildren.clear();
 		return this;
+	}
+
+	contains(other) {
+		for (let node = other; node != null; node = node.parent) {
+			if (node === this) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	#handleReparent() {}
