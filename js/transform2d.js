@@ -1,13 +1,11 @@
-import { vec2, createMatrix } from "./mathutils.js";
-
-const tw = (n, p) => Math.floor(n * p) / p;
+import { vec2, createMatrix, matrixToCSSTransform } from "./mathutils.js";
 
 export default class Transform2D {
 	#matrix = createMatrix();
 	#position = vec2.new().retain();
 	#rotation = 0;
 	#scale = 1;
-	#staleMatrix = true;
+	#stale = true;
 	#staleCbk;
 	cssTransform = null;
 
@@ -22,7 +20,7 @@ export default class Transform2D {
 	set position(v) {
 		if (!this.#position.equals(v)) {
 			this.#position.set(v);
-			this.markStaleMatrix();
+			this.markStale();
 		}
 	}
 
@@ -33,7 +31,7 @@ export default class Transform2D {
 	set rotation(v) {
 		if (this.#rotation !== v) {
 			this.#rotation = v;
-			this.markStaleMatrix();
+			this.markStale();
 		}
 	}
 
@@ -44,19 +42,19 @@ export default class Transform2D {
 	set scale(v) {
 		if (this.#scale !== v) {
 			this.#scale = v;
-			this.markStaleMatrix();
+			this.markStale();
 		}
 	}
 
 	get matrix() {
-		if (this.#staleMatrix) {
+		if (this.#stale) {
 			this.#recomposeMatrix();
 		}
 		return this.#matrix;
 	}
 
-	markStaleMatrix() {
-		this.#staleMatrix = true;
+	markStale() {
+		this.#stale = true;
 		this.cssTransform = null;
 		this.#staleCbk?.();
 	}
@@ -74,20 +72,10 @@ export default class Transform2D {
 		m[4] = this.#position[0];
 		m[5] = this.#position[1];
 
-		this.#staleMatrix = false;
+		this.#stale = false;
 	}
 
 	render() {
-		const m = this.matrix;
-		const svgTransform = `matrix(${[
-			tw(m[0], 1000),
-			tw(m[1], 1000),
-			tw(m[2], 1000),
-			tw(m[3], 1000),
-			tw(m[4], 200),
-			tw(m[5], 200),
-		].join(",")})`;
-
-		this.cssTransform = "translateZ(0) " + svgTransform;
+		this.cssTransform = matrixToCSSTransform(this.matrix);
 	}
 }

@@ -63,6 +63,17 @@ const premultiplyMatrix = (p, q) => {
 	]);
 };
 
+const roundDown = (n, p) => Math.floor(n * p) / p;
+
+const matrixToCSSTransform = (m) => `matrix(
+	${roundDown(m[0], 1000)},
+	${roundDown(m[1], 1000)},
+	${roundDown(m[2], 1000)},
+	${roundDown(m[3], 1000)},
+	${roundDown(m[4], 200)},
+	${roundDown(m[5], 200)}
+)`;
+
 export {
 	lerp,
 	vec2,
@@ -72,4 +83,5 @@ export {
 	createMatrix,
 	invertMatrix,
 	premultiplyMatrix,
+	matrixToCSSTransform,
 };
