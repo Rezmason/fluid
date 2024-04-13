@@ -31,7 +31,7 @@ export default class SceneNode {
 
 		child.#adding = false;
 		child.parent = this;
-		child.#handleReparent();
+		child.handleReparent();
 		return this;
 	}
 
@@ -47,7 +47,7 @@ export default class SceneNode {
 		child.parent = null;
 		this.children.splice(index, 1);
 		if (!child.#adding) {
-			child.#handleReparent();
+			child.handleReparent();
 		}
 		return this;
 	}
@@ -56,7 +56,7 @@ export default class SceneNode {
 		for (const child of this.children) {
 			child.parent = null;
 			if (!child.#adding) {
-				child.#handleReparent();
+				child.handleReparent();
 			}
 		}
 		this.children.length = 0;
@@ -73,5 +73,5 @@ export default class SceneNode {
 		return false;
 	}
 
-	#handleReparent() {}
+	handleReparent() {}
 }

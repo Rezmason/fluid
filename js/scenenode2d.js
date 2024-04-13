@@ -85,7 +85,7 @@ export default class SceneNode2D extends SceneNode {
 		}
 	}
 
-	#handleReparent() {
+	handleReparent() {
 		this.#markStale();
 	}
 }
