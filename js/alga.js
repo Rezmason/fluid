@@ -44,6 +44,7 @@ export default class Alga {
 		this.muck = new SceneNode2D({
 			tags: ["muck"],
 			art: `<circle r="75" fill="currentColor"></circle>`,
+			z: -3,
 		});
 		this.node.addChild(this.muck);
 
@@ -101,6 +102,7 @@ export default class Alga {
 		}
 
 		this.muck.visible = false;
+		this.muck.z = -3;
 		this.muck.transform.position = vec2.zero();
 		this.muck.transform.scale = 0;
 		this.muck.colorTransform.color = muckColors.clean;
@@ -119,6 +121,7 @@ export default class Alga {
 		const newScale = this.mucky ? 1 : 0.8;
 		const oldColor = this.muck.colorTransform.color;
 		const newColor = this.mucky ? muckColors.mucky : muckColors.clean;
+		this.muck.z = -2;
 		retaining([oldPosition, oldColor, newPosition], (resolve) => {
 			this.#muckTween = tween(
 				(at) => {
@@ -128,6 +131,7 @@ export default class Alga {
 					this.muck.colorTransform.color = oldColor.lerp(newColor, at);
 					if (at >= 1) {
 						this.muck.visible = this.mucky;
+						this.muck.z = this.mucky ? -1 : -3;
 						resolve();
 					}
 				},
@@ -232,10 +236,6 @@ export default class Alga {
 			new CustomEvent("muckChanged", { detail: this }),
 		);
 		this.#waitToSpreadMuck(Math.random() * 2 + 2);
-	}
-
-	moveToTop() {
-		this.node.parent.addChild(this.node);
 	}
 
 	static getRandomNeighbor(alga, pred = null) {

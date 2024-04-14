@@ -24,37 +24,36 @@ export default class Forager {
 		this.name = `Forager${id}`;
 		this.node = new SceneNode2D({
 			name: this.name,
+			z: 1,
 			click: () => {
 				this.#agitate();
 			},
 		});
 		this.art = new SceneNode2D({
 			art: `
-				<g>
-					<g fill="transparent">
-						<rect y="-9" height="18" width="27"></rect>
-						<circle r="15"><circle>
-					</g>
-					<path
-						fill="#d7aa73"
-						d="
-							M -38.1,+00.0
-							C -38.1,+16.0 -32.0,+35.4 -25.0,+35.4
-							C -11.0,+35.4 +26.1,+12.2 +27.1,+09.2
-							C +28.2,+08.0 +22.3,+06.3 +17.3,+07.3
-							C +10.3,+08.7 +07.5,+13.8 +00.5,+13.8
-							C -07.0,+13.8 -13.2,+07.7 -13.2,+00.0
-
-							C  -13.2,-07.7 -07.0,-13.8 +00.5,-13.8
-							C  +07.5,-13.8 +10.3,-08.7 +17.3,-07.3
-							C  +22.3,-06.3 +28.2,-08.0 +27.1,-09.2
-							C  +26.1,-12.2 -11.0,-35.4 -25.0,-35.4
-							C  -32.0,-35.4 -38.1,-16.0 -38.1,+00.0
-
-							Z
-						"
-					/>
+				<g fill="transparent">
+					<rect y="-9" height="18" width="27"></rect>
+					<circle r="15"><circle>
 				</g>
+				<path
+					fill="#d7aa73"
+					d="
+						M -38.1,+00.0
+						C -38.1,+16.0 -32.0,+35.4 -25.0,+35.4
+						C -11.0,+35.4 +26.1,+12.2 +27.1,+09.2
+						C +28.2,+08.0 +22.3,+06.3 +17.3,+07.3
+						C +10.3,+08.7 +07.5,+13.8 +00.5,+13.8
+						C -07.0,+13.8 -13.2,+07.7 -13.2,+00.0
+
+						C  -13.2,-07.7 -07.0,-13.8 +00.5,-13.8
+						C  +07.5,-13.8 +10.3,-08.7 +17.3,-07.3
+						C  +22.3,-06.3 +28.2,-08.0 +27.1,-09.2
+						C  +26.1,-12.2 -11.0,-35.4 -25.0,-35.4
+						C  -32.0,-35.4 -38.1,-16.0 -38.1,+00.0
+
+						Z
+					"
+				/>
 				`,
 		});
 		this.node.addChild(this.art);
@@ -119,7 +118,6 @@ export default class Forager {
 		alga.occupant = this;
 		this.alga = alga;
 		this.alga.node.addChild(this.node);
-		this.alga.moveToTop();
 		const otherAlga = Alga.getRandomNeighbor(this.alga);
 		const angleToAlga = this.alga.node.globalPosition.angleTo(
 			otherAlga.node.globalPosition,
@@ -183,7 +181,6 @@ export default class Forager {
 		const globalPosition = this.node.globalPosition;
 		oldAlga.node.removeChild(this.node);
 		this.alga.node.addChild(this.node);
-		this.alga.moveToTop();
 		this.node.globalPosition = globalPosition;
 		const oldPosition = this.node.transform.position;
 
