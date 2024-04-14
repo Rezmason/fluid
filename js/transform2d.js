@@ -1,4 +1,4 @@
-import { vec2, createMatrix, matrixToCSSTransform } from "./mathutils.js";
+import { vec2, createMatrix } from "./mathutils.js";
 
 export default class Transform2D {
 	#matrix = createMatrix();
@@ -7,7 +7,6 @@ export default class Transform2D {
 	#scale = 1;
 	#stale = true;
 	#staleCbk;
-	cssTransform = null;
 
 	constructor(staleCbk = null) {
 		this.#staleCbk = staleCbk;
@@ -55,7 +54,6 @@ export default class Transform2D {
 
 	markStale() {
 		this.#stale = true;
-		this.cssTransform = null;
 		this.#staleCbk?.();
 	}
 
@@ -73,9 +71,5 @@ export default class Transform2D {
 		m[5] = this.#position[1];
 
 		this.#stale = false;
-	}
-
-	render() {
-		this.cssTransform = matrixToCSSTransform(this.matrix);
 	}
 }

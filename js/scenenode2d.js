@@ -6,17 +6,37 @@ import {
 	createMatrix,
 	invertMatrix,
 	premultiplyMatrix,
+	matrixToCSSTransform,
 } from "./mathutils.js";
 
+const staleMatrix = 1 << 0;
+const staleZ = 1 << 1;
+const staleVisible = 1 << 2;
+
 export default class SceneNode2D extends SceneNode {
-	#stale = false;
+	#stale = 0;
+
 	#globalMatrix = createMatrix();
 	#invGlobalMatrix = createMatrix();
 	#globalRotation = 0;
-	visible = true;
-	transform = new Transform2D(() => this.#markStale());
+	transform = new Transform2D(() => this.#markStale(staleMatrix));
+
+	#globalZ = 0;
+	#z = 0;
+
+	#globalVisible = true;
+	#visible = true;
+
 	colorTransform = new ColorTransform();
 	domElement = null;
+	transformCSS = "";
+
+	constructor(properties) {
+		// superclass constructor cannot access private values,
+		// even when they're encapsulated in public getter/setters
+		super({});
+		Object.assign(this, properties);
+	}
 
 	get globalPosition() {
 		const matrix = this.globalMatrix;
@@ -36,23 +56,17 @@ export default class SceneNode2D extends SceneNode {
 	}
 
 	get globalMatrix() {
-		if (this.#stale) {
-			this.#recomposeGlobalMatrix();
-		}
+		this.#recomposeGlobal(staleMatrix);
 		return this.#globalMatrix;
 	}
 
 	get invGlobalMatrix() {
-		if (this.#stale) {
-			this.#recomposeGlobalMatrix();
-		}
+		this.#recomposeGlobal(staleMatrix);
 		return this.#invGlobalMatrix;
 	}
 
 	get globalRotation() {
-		if (this.#stale) {
-			this.#recomposeGlobalMatrix();
-		}
+		this.#recomposeGlobal(staleMatrix);
 		return this.#globalRotation;
 	}
 
@@ -62,30 +76,90 @@ export default class SceneNode2D extends SceneNode {
 		this.transform.rotation += diff;
 	}
 
-	#recomposeGlobalMatrix() {
-		this.#globalRotation = this.transform.rotation;
-		const matrix = this.#globalMatrix;
-		matrix.set(this.transform.matrix);
-		if (this.parent != null) {
-			this.#globalRotation += this.parent.globalRotation;
-			premultiplyMatrix(this.parent.globalMatrix, matrix);
-		}
-		this.#invGlobalMatrix.set(matrix);
-		invertMatrix(this.#invGlobalMatrix);
-		this.#stale = false;
+	get z() {
+		return this.#z;
 	}
 
-	#markStale() {
-		if (this.#stale) {
+	set z(v) {
+		if (this.z === v) {
 			return;
 		}
-		this.#stale = true;
+		this.#z = v;
+		this.#markStale(staleZ);
+	}
+
+	get globalZ() {
+		this.#recomposeGlobal(staleZ);
+		return this.#globalZ;
+	}
+
+	set globalZ(v) {
+		const globalZ = this.globalZ;
+		const diff = v - globalZ;
+		this.z += diff;
+	}
+
+	get visible() {
+		return this.#visible;
+	}
+
+	set visible(v) {
+		if (this.#visible === v) {
+			return;
+		}
+		this.#visible = v;
+		this.#markStale(staleVisible);
+	}
+
+	get globalVisible() {
+		this.#recomposeGlobal(staleVisible);
+		return this.#globalVisible;
+	}
+
+	renderCSS() {
+		this.#recomposeGlobal(staleMatrix);
+	}
+
+	#recomposeGlobal(bitfields) {
+		if ((this.#stale & ~bitfields) === this.#stale) {
+			return;
+		}
+
+		if (bitfields & staleMatrix) {
+			this.#globalRotation =
+				this.transform.rotation + (this.parent?.globalRotation ?? 0);
+			this.#globalMatrix.set(this.transform.matrix);
+			premultiplyMatrix(this.parent.globalMatrix, this.#globalMatrix);
+			this.#invGlobalMatrix.set(this.#globalMatrix);
+			invertMatrix(this.#invGlobalMatrix);
+			this.transformCSS = matrixToCSSTransform(this.#globalMatrix);
+		}
+
+		if (bitfields & staleZ) {
+			this.#globalZ = this.#z + (this.parent?.globalZ ?? 0);
+		}
+
+		if (bitfields & staleVisible) {
+			this.#globalVisible =
+				this.#visible & (this.parent?.globalVisible ?? true);
+		}
+
+		this.#stale &= ~bitfields;
+	}
+
+	#markStale(bitfields) {
+		if ((this.#stale | bitfields) === this.#stale) {
+			return;
+		}
+
+		this.#stale |= bitfields;
+
 		for (const child of this.children) {
-			child.#markStale();
+			child.#markStale(bitfields);
 		}
 	}
 
 	handleReparent() {
-		this.#markStale();
+		this.#markStale(staleMatrix);
 	}
 }

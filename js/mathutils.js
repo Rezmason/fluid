@@ -51,6 +51,9 @@ const invertMatrix = (matrix) => {
 };
 
 const premultiplyMatrix = (p, q) => {
+	if (p == null) {
+		return;
+	}
 	const [pa, pb, pc, pd, pe, pf] = p;
 	const [qa, qb, qc, qd, qe, qf] = q;
 	q.set([
