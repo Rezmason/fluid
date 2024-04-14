@@ -20,7 +20,9 @@ let pianoY = 0;
 
 piano.addEventListener("mousedown", (event) => {
 	const { target, screenX, screenY } = event;
-	if (target !== piano) return;
+	if (target !== piano) {
+		return;
+	}
 	startX = screenX;
 	startY = screenY;
 	pianoStartX = pianoX;
@@ -39,7 +41,9 @@ piano.addEventListener("mouseup", () => {
 });
 
 window.addEventListener("mousemove", ({ screenX, screenY }) => {
-	if (!dragging) return;
+	if (!dragging) {
+		return;
+	}
 
 	pianoX = pianoStartX + screenX - startX;
 	pianoY = pianoStartY + screenY - startY;

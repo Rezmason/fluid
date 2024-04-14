@@ -79,7 +79,9 @@ export default class Forager {
 		this.#breatheTween = tween(
 			(at) => {
 				this.art.transform.scale = lerp(0.9, 1, at);
-				if (at >= 1) this.#inhale();
+				if (at >= 1) {
+					this.#inhale();
+				}
 			},
 			this.#breatheSpeed,
 			quadEaseIn,
@@ -91,7 +93,9 @@ export default class Forager {
 		this.#breatheTween = tween(
 			(at) => {
 				this.art.transform.scale = lerp(1, 1.1, at);
-				if (at >= 1) this.#exhale();
+				if (at >= 1) {
+					this.#exhale();
+				}
 			},
 			this.#breatheSpeed,
 			quadEaseOut,
@@ -103,7 +107,9 @@ export default class Forager {
 		this.#breatheTween = tween(
 			(at) => {
 				this.art.transform.scale = lerp(1.1, 0.9, at);
-				if (at >= 1) this.#gasp();
+				if (at >= 1) {
+					this.#gasp();
+				}
 			},
 			this.#breatheSpeed,
 			quadEaseOut,
@@ -175,8 +181,12 @@ export default class Forager {
 		let angleToAlga = oldAlga.node.globalPosition.angleTo(
 			this.alga.node.globalPosition,
 		);
-		if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;
-		if (angleToAlga - startAngle < -Math.PI) angleToAlga += Math.PI * 2;
+		if (angleToAlga - startAngle > Math.PI) {
+			angleToAlga -= Math.PI * 2;
+		}
+		if (angleToAlga - startAngle < -Math.PI) {
+			angleToAlga += Math.PI * 2;
+		}
 
 		const globalPosition = this.node.globalPosition;
 		oldAlga.node.removeChild(this.node);
@@ -219,8 +229,12 @@ export default class Forager {
 		let angleToAlga = this.alga.node.globalPosition.angleTo(
 			otherAlga.node.globalPosition,
 		);
-		if (angleToAlga - startAngle > Math.PI) angleToAlga -= Math.PI * 2;
-		if (angleToAlga - startAngle < -Math.PI) angleToAlga += Math.PI * 2;
+		if (angleToAlga - startAngle > Math.PI) {
+			angleToAlga -= Math.PI * 2;
+		}
+		if (angleToAlga - startAngle < -Math.PI) {
+			angleToAlga += Math.PI * 2;
+		}
 
 		this.#turnTween?.stop();
 		this.#turnTween = tween(
@@ -279,8 +293,12 @@ export default class Forager {
 					this.#waitToJump();
 					const oldAngle = this.node.globalRotation;
 					let newAngle = algaPosition.angleTo(Globals.mousePosition);
-					if (newAngle - oldAngle > Math.PI) newAngle -= Math.PI * 2;
-					if (newAngle - oldAngle < -Math.PI) newAngle += Math.PI * 2;
+					if (newAngle - oldAngle > Math.PI) {
+						newAngle -= Math.PI * 2;
+					}
+					if (newAngle - oldAngle < -Math.PI) {
+						newAngle += Math.PI * 2;
+					}
 					this.node.globalRotation = lerp(oldAngle, newAngle, delta * 10);
 				}
 			}

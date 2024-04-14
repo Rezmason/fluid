@@ -18,8 +18,9 @@ const tick = () => {
 		}
 	}
 
-	if (activeTweens.size > 0) startTick();
-	// else console.log("tween tick stopped.");
+	if (activeTweens.size > 0) {
+		startTick();
+	}
 };
 
 const startTick = () => {
@@ -40,7 +41,9 @@ const tween = (f, seconds, ease = null) => {
 	return {
 		stop: (cancel = true) => {
 			activeTweens.delete(tween);
-			if (!cancel) tween?.f(1);
+			if (!cancel) {
+				tween?.f(1);
+			}
 			tween.f = null;
 		},
 	};

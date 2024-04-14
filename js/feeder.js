@@ -71,7 +71,9 @@ class Feeder {
 	}
 
 	tryToSeed(alga) {
-		if (this.size < maxFeederSize || this.numSeeds <= 0) return false;
+		if (this.size < maxFeederSize || this.numSeeds <= 0) {
+			return false;
+		}
 		const minSeedDistSquared = minSeedDist * minSeedDist;
 		const minSeedArtDistSquared = minSeedArtDist * minSeedArtDist;
 		const algaPosition = alga.node.globalPosition;
@@ -134,8 +136,12 @@ class Feeder {
 	}
 
 	tryToCombine(other) {
-		if (this.size >= maxFeederSize) return false;
-		if (this.size < other.size) return other.tryToCombine(this);
+		if (this.size >= maxFeederSize) {
+			return false;
+		}
+		if (this.size < other.size) {
+			return other.tryToCombine(this);
+		}
 
 		const minCombineDistSquared = minCombineDist * minCombineDist;
 		const otherGlobalPosition = other.art.globalPosition;
@@ -204,7 +210,9 @@ class Feeder {
 	}
 
 	update(time, delta) {
-		if (this.parent != null) return;
+		if (this.parent != null) {
+			return;
+		}
 
 		this.age += delta;
 

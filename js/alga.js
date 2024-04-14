@@ -241,7 +241,9 @@ export default class Alga {
 	static getRandomNeighbor(alga, pred = null) {
 		const candidates =
 			pred == null ? alga.neighbors : alga.neighbors.filter(pred);
-		if (candidates.length == 0) return null;
+		if (candidates.length == 0) {
+			return null;
+		}
 		return candidates[Math.floor(Math.random() * candidates.length)];
 	}
 }

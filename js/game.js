@@ -110,7 +110,9 @@ game.addEventListener("mousemove", (event) => {
 });
 
 const updateMouse = () => {
-	if (lastMouseMove == null) return;
+	if (lastMouseMove == null) {
+		return;
+	}
 	const { x, y } = lastMouseMove;
 	lastMouseMove = null;
 	Globals.mousePosition = transformMousePosition(x, y);
@@ -165,7 +167,9 @@ const spawnAlgae = () => {
 	}
 
 	const connectNeighbors = (l1, l2) => {
-		if (l1 == null || l2 == null) return;
+		if (l1 == null || l2 == null) {
+			return;
+		}
 		l1.neighbors.push(l2);
 		l2.neighbors.push(l1);
 	};
@@ -173,7 +177,9 @@ const spawnAlgae = () => {
 	for (let i = 0; i < numRows; i++) {
 		for (let j = 0; j < numColumns; j++) {
 			const alga = grid[i][j];
-			if (alga == null) continue;
+			if (alga == null) {
+				continue;
+			}
 			if (j > 0) {
 				connectNeighbors(alga, grid[i][j - 1]);
 			}
@@ -272,7 +278,9 @@ const updateFeederMetaballs = (time) => {
 
 	feederMetaballGroupOpacities[0] = 1;
 	for (const feeder of feeders) {
-		if (feeder.parent != null) continue;
+		if (feeder.parent != null) {
+			continue;
+		}
 		let throb = 0;
 		let throbTime = 0;
 		if (feeder.size >= 3) {
@@ -425,10 +433,14 @@ const update = (time, delta) => {
 			0.1,
 		);
 
-		if (alga.ripe || alga.occupant != null) continue;
+		if (alga.ripe || alga.occupant != null) {
+			continue;
+		}
 
 		for (const feeder of seedingFeeders) {
-			if (feeder.size == maxFeederSize && feeder.tryToSeed(alga)) break;
+			if (feeder.tryToSeed(alga)) {
+				break;
+			}
 		}
 	}
 };
