@@ -232,44 +232,10 @@ const resetFeeders = () => {
 	}
 };
 
-const detectEndgame = (alga) => {
-	if (resetting) return;
-
-	if (alga.mucky) {
-		Globals.numMuckyAlgae++;
-	} else {
-		Globals.numMuckyAlgae--;
+const resetAlgae = () => {
+	for (const alga of algae) {
+		alga.reset();
 	}
-
-	if (gameCanEnd) {
-		if (Globals.numMuckyAlgae === 0) {
-			reset();
-			sfx("win", alga.node.globalPosition);
-		} else if (Globals.numMuckyAlgae / algae.length > 0.6) {
-			reset();
-			sfx("lose", alga.node.globalPosition);
-		}
-	} else if (!resetting && Globals.numMuckyAlgae >= 3) {
-		gameCanEnd = true;
-	}
-};
-
-const reset = () => {
-	const duration = 2;
-	resetting = true;
-	gameCanEnd = false;
-	feederMetaballs.fadeOut(duration);
-	delay(() => {
-		for (const alga of algae) {
-			alga.reset();
-		}
-		resetForagers();
-		resetFeeders();
-		Globals.numMuckyAlgae = 0;
-		resetting = false;
-		feederMetaballs.fadeIn(duration);
-		lastInteractionTime = performance.now();
-	}, duration);
 };
 
 const updateFeederMetaballs = (time) => {
@@ -337,69 +303,16 @@ const testFeederMetaballs = (time) => {
 	}
 };
 
-const startTime = performance.now();
-const maxUpdateDelta = 0.1;
-let lastTime = startTime;
-const animate = (now) => {
-	const time = now - startTime;
-	const delta = (time - lastTime) / 1000;
-	const numUpdates = Math.max(1, Math.ceil(delta / maxUpdateDelta));
-	const dividedDelta = delta / numUpdates;
-
-	if (numUpdates > 50) {
-		lastTime = time;
-		requestAnimationFrame(animate);
-		return;
-	}
-
-	updateMouse();
-	for (let i = 0; i < numUpdates; i++) {
-		update(lastTime + i * dividedDelta, dividedDelta);
-	}
-	lastTime = time;
-
-	render2D(rootNode, scene);
-
-	updateFeederMetaballs(time);
-	// testFeederMetaballs(time);
-
-	feederMetaballs.update(feederMetaballStates, feederMetaballGroupOpacities);
-	feederMetaballs.redraw();
-
-	collect();
-
-	if (
-		idleTime > 0 &&
-		!resetting &&
-		!Globals.isMousePressed &&
-		(now - lastInteractionTime) / 1000 > idleTime
-	) {
-		gameCanEnd = true;
-		reset();
-	}
-
-	requestAnimationFrame(animate);
-};
-
-const update = (time, delta) => {
+const updateFeeders = (time, delta) => {
 	for (const feeder of feeders) {
 		feeder.update(time, delta);
 	}
 
-	for (const forager of foragers) {
-		forager.update(time, delta);
-	}
-
-	const seedingFeeders = [];
 	const minAge = 3;
 	for (let i = 0; i < feeders.length; i++) {
 		const feeder = feeders[i];
 		if (feeder.parent != null) {
 			continue;
-		}
-
-		if (feeder.size >= maxFeederSize) {
-			seedingFeeders.push(feeder);
 		}
 
 		const combineCandidates = [];
@@ -426,6 +339,18 @@ const update = (time, delta) => {
 			}
 		}
 	}
+};
+
+const updateForagers = (time, delta) => {
+	for (const forager of foragers) {
+		forager.update(time, delta);
+	}
+};
+
+const updateAlgae = () => {
+	const seedingFeeders = feeders.filter(
+		(feeder) => feeder.size >= maxFeederSize,
+	);
 
 	for (const alga of algae) {
 		alga.node.transform.position = alga.node.transform.position.lerp(
@@ -443,6 +368,78 @@ const update = (time, delta) => {
 			}
 		}
 	}
+};
+
+const detectEndgame = (alga) => {
+	if (resetting) {
+		return;
+	}
+
+	if (alga.mucky) {
+		Globals.numMuckyAlgae++;
+	} else {
+		Globals.numMuckyAlgae--;
+	}
+
+	if (gameCanEnd) {
+		if (Globals.numMuckyAlgae === 0) {
+			reset();
+			sfx("win", alga.node.globalPosition);
+		} else if (Globals.numMuckyAlgae / algae.length > 0.6) {
+			reset();
+			sfx("lose", alga.node.globalPosition);
+		}
+	} else if (!resetting && Globals.numMuckyAlgae >= 3) {
+		gameCanEnd = true;
+	}
+};
+
+const reset = () => {
+	const duration = 2;
+	resetting = true;
+	gameCanEnd = false;
+	feederMetaballs.fadeOut(duration);
+	delay(() => {
+		resetForagers();
+		resetFeeders();
+		Globals.numMuckyAlgae = 0;
+		resetting = false;
+		feederMetaballs.fadeIn(duration);
+		lastInteractionTime = performance.now();
+	}, duration);
+};
+
+const startTime = performance.now();
+let lastTime = startTime;
+const animate = (now) => {
+	const time = now - startTime;
+	const delta = Math.max(0, Math.min(50, time - lastTime)) / 1000;
+	lastTime = time;
+
+	updateMouse();
+	updateFeeders(time, delta);
+	updateForagers(time, delta);
+	updateAlgae();
+
+	render2D(rootNode, scene);
+	updateFeederMetaballs(time);
+	// testFeederMetaballs(time);
+	feederMetaballs.update(feederMetaballStates, feederMetaballGroupOpacities);
+	feederMetaballs.redraw();
+
+	collect();
+
+	if (
+		idleTime > 0 &&
+		!resetting &&
+		!Globals.isMousePressed &&
+		(now - lastInteractionTime) / 1000 > idleTime
+	) {
+		gameCanEnd = true;
+		reset();
+	}
+
+	requestAnimationFrame(animate);
 };
 
 Globals.muckChanged.addEventListener("muckChanged", ({ detail }) =>
