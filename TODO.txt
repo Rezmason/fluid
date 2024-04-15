@@ -1,3 +1,3 @@
-Audio debounce
 metaballs smin
+Move most logic from alga/feeder/forager into game-*
 Move general stuff into lib folder for reuse in other projects

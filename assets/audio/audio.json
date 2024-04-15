@@ -26,6 +26,7 @@
 		{
 				"sample": "loopc",
 				"root": 112,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 50,
 				"notes": [ 77 ]
@@ -53,6 +54,7 @@
 					"amplitude": 0.98
 				},
 				"root": 98.5,
+				"debounce": 0.6,
 				"duration": 1000,
 				"velocity": 110,
 				"notes": [ 48, 60, 64, 67, 69 ]
@@ -61,6 +63,7 @@
 		{
 				"sample": "loopb",
 				"root": 96,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 90,
 				"notes": [ 36, 72 ],
@@ -80,6 +83,7 @@
 					{ "time": "end", "volume": 0 }
 				],
 				"root": 72,
+				"debounce": 0.01,
 				"duration": 3500,
 				"velocity": 64,
 				"notes": [ 0 ]
@@ -92,6 +96,7 @@
 					{ "time": "end", "volume": 0 }
 				],
 				"root": 96.5,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 110,
 				"notes": [ 36, 72 ],
@@ -105,6 +110,7 @@
 					{ "time": "end", "volume": 0 }
 				],
 				"root": 96.5,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 110,
 				"notes": [ 36, 72 ],
@@ -114,6 +120,7 @@
 		{
 				"sample": "mouse_down",
 				"root": 48,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 127,
 				"notes": [ 12 ]
@@ -126,6 +133,7 @@
 					{ "time": "end", "volume": 0 }
 				],
 				"root": 96.5,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 64,
 				"notes": [ 36, 72 ],
@@ -141,6 +149,7 @@
 					{ "time": "end", "volume": 0 }
 				],
 				"root": 97,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 25,
 				"notes": [ 36, 72 ],
@@ -160,6 +169,7 @@
 					{ "time": "end", "volume": 0.0 }
 				],
 				"root": 72,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 64,
 				"notes": [ 0 ]
@@ -168,6 +178,7 @@
 		{
 				"sample": "loop5",
 				"root": 96.5,
+				"debounce": 0.01,
 				"duration": 3000,
 				"velocity": 127,
 				"notes": [ 48 ]
@@ -176,6 +187,7 @@
 		{
 				"sample": "squirt",
 				"root": 96.5,
+				"debounce": 0.01,
 				"duration": 2000,
 				"velocity": 70,
 				"notes": [ 72 ]
@@ -188,6 +200,7 @@
 					{ "time": "end", "volume": 0 }
 				],
 				"root": 96.5,
+				"debounce": 0.01,
 				"duration": 1000,
 				"velocity": 100,
 				"notes": [ 60, 62, 64, 65, 67, 69, 71, 72, 48, 50, 52, 53, 55, 57, 59 ],
@@ -197,6 +210,7 @@
 		{
 				"sample": "win",
 				"root": 50.5,
+				"debounce": 0.01,
 				"envelope": [
 					{ "time":  0, "volume": 1.62 },
 					{ "time": 12, "volume": 1.24 },

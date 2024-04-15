@@ -18,6 +18,7 @@ class Instrument {
 	#sample;
 	#root;
 	#velocity;
+	#debounce;
 	#duration;
 
 	#loop;
@@ -29,6 +30,8 @@ class Instrument {
 	#index;
 	#audioNode;
 
+	#playing;
+
 	constructor(id, data) {
 		this.id = id;
 		if (data != null) {
@@ -37,12 +40,14 @@ class Instrument {
 	}
 
 	#init(data) {
-		const { type, sample, root, duration, velocity } = data;
+		const { type, sample, root, duration, velocity, debounce } = data;
 		this.#type = type;
 		this.#sample = sample;
 		this.#root = root ?? 60;
 		this.#duration = duration;
 		this.#velocity = velocity;
+		this.#playing = false;
+		this.#debounce = debounce;
 
 		if (this.#type === "range") {
 			const [min, max] = data.notes;
@@ -81,6 +86,9 @@ class Instrument {
 		if (buffer == null) {
 			return;
 		}
+
+		const wasPlaying = this.#playing;
+		this.#playing = true;
 
 		const source = audioContext.createBufferSource();
 		source.buffer = buffer;
@@ -178,7 +186,7 @@ class Instrument {
 		panner.pan.value = pan;
 		chain.push(panner);
 		const amp = audioContext.createGain();
-		amp.gain.value = Math.min(1, volume);
+		amp.gain.value = Math.min(1, volume * (wasPlaying ? 0.4 : 1));
 		chain.push(amp);
 
 		const echoOutput = audioContext.createGain();
@@ -203,6 +211,12 @@ class Instrument {
 
 		runningNodes.push(source);
 		source.start();
+
+		if (!wasPlaying) {
+			setTimeout(() => {
+				this.#playing = false;
+			}, this.#duration * this.#debounce);
+		}
 
 		setTimeout(() => {
 			for (const node of runningNodes) {
