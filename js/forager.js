@@ -28,8 +28,6 @@ export default class Forager {
 			click: () => {
 				this.#agitate();
 			},
-		});
-		this.art = new SceneNode2D({
 			art: `
 				<g fill="transparent">
 					<rect y="-9" height="18" width="27"></rect>
@@ -56,7 +54,6 @@ export default class Forager {
 				/>
 				`,
 		});
-		this.node.addChild(this.art);
 	}
 
 	reset() {
@@ -78,7 +75,7 @@ export default class Forager {
 		this.#breatheTween?.stop();
 		this.#breatheTween = tween(
 			(at) => {
-				this.art.transform.scale = lerp(0.9, 1, at);
+				this.node.transform.scale = lerp(0.9, 1, at);
 				if (at >= 1) {
 					this.#inhale();
 				}
@@ -92,7 +89,7 @@ export default class Forager {
 		this.#breatheTween?.stop();
 		this.#breatheTween = tween(
 			(at) => {
-				this.art.transform.scale = lerp(1, 1.1, at);
+				this.node.transform.scale = lerp(1, 1.1, at);
 				if (at >= 1) {
 					this.#exhale();
 				}
@@ -106,7 +103,7 @@ export default class Forager {
 		this.#breatheTween?.stop();
 		this.#breatheTween = tween(
 			(at) => {
-				this.art.transform.scale = lerp(1.1, 0.9, at);
+				this.node.transform.scale = lerp(1.1, 0.9, at);
 				if (at >= 1) {
 					this.#gasp();
 				}

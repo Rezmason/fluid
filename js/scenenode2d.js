@@ -160,6 +160,6 @@ export default class SceneNode2D extends SceneNode {
 	}
 
 	handleReparent() {
-		this.#markStale(staleMatrix);
+		this.#markStale(staleMatrix | staleZ | staleVisible);
 	}
 }
