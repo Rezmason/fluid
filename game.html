@@ -34,7 +34,7 @@
 					contain: content;
 					position: relative;
 					--aspect-ratio: calc(4 / 3);
-					height: calc(min(100vh, 100vw / var(--aspect-ratio)) - 4em);
+					height: calc(min(100vh, 100vw / var(--aspect-ratio)) - 2em);
 					aspect-ratio: var(--aspect-ratio);
 					border-radius: 1vmin;
 					background: white;
@@ -79,7 +79,6 @@
 					animation: fade-away 2s cubic-bezier(0.11, 0, 0.5, 0) forwards 3s;
 					user-select: none;
 					pointer-events: none;
-					transition: transform 0.25s ease-in-out;
 				}
 
 				@media (orientation: portrait) {

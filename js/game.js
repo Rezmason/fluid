@@ -50,6 +50,7 @@ if (isNaN(idleTime)) {
 }
 
 let lastMouseMove = null;
+let lastTouch = null;
 let lastInteractionTime = 0;
 let beginMouseDragTime = 0;
 let lastDragSoundPosition = vec2.new().retain();
@@ -60,21 +61,53 @@ rootNode.addChild(feedersNode);
 const game = Globals.game;
 const scene = game.querySelector("#scene");
 
-game.addEventListener("mousedown", ({ button }) => {
-	if (button === 0) {
-		beginDrag();
-	}
-});
-game.addEventListener("mouseup", ({ button }) => {
-	if (button === 0) {
-		endDrag();
-	}
-});
-game.addEventListener("mouseleave", () => {
-	if (Globals.isMousePressed) {
-		endDrag();
-	}
-});
+{
+	game.addEventListener("mousedown", ({ button }) => {
+		if (button === 0) {
+			beginDrag();
+		}
+	});
+	game.addEventListener("mouseup", ({ button }) => {
+		if (button === 0) {
+			endDrag();
+		}
+	});
+	game.addEventListener("mouseleave", () => {
+		if (Globals.isMousePressed) {
+			endDrag();
+		}
+	});
+	game.addEventListener("mousemove", (event) => {
+		lastMouseMove = event;
+	});
+}
+
+{
+	let touchID = null;
+	game.addEventListener("touchstart", ({ changedTouches }) => {
+		if (touchID == null) {
+			touchID = changedTouches[0].identifier;
+			beginDrag();
+		}
+	});
+	game.addEventListener("touchend", ({ changedTouches }) => {
+		const touch = Array.from(changedTouches).find(
+			(touch) => touch.identifier === touchID,
+		);
+		if (touch != null) {
+			touchID = null;
+			endDrag();
+		}
+	});
+	game.addEventListener("touchmove", ({ changedTouches }) => {
+		const touch = Array.from(changedTouches).find(
+			(touch) => touch.identifier === touchID,
+		);
+		if (touch != null) {
+			lastTouch = touch;
+		}
+	});
+}
 
 const beginDrag = () => {
 	Globals.isMousePressed = true;
@@ -97,16 +130,18 @@ const endDrag = () => {
 	);
 };
 
-game.addEventListener("mousemove", (event) => {
-	lastMouseMove = event;
-});
-
 const updateMouse = () => {
-	if (lastMouseMove == null) {
+	let x, y;
+	if (lastMouseMove != null) {
+		[x, y] = [lastMouseMove.x, lastMouseMove.y];
+		lastMouseMove = null;
+	} else if (lastTouch != null) {
+		[x, y] = [lastTouch.clientX, lastTouch.clientY];
+		// console.log(Math.max(lastTouch.radiusX, lastTouch.radiusY));
+		lastTouch = null;
+	} else {
 		return;
 	}
-	const { x, y } = lastMouseMove;
-	lastMouseMove = null;
 	Globals.mousePosition = transformMousePosition(x, y);
 
 	if (

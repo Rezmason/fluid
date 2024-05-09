@@ -3,6 +3,8 @@ import { tween, quadEaseIn } from "./tween.js";
 
 const game = Globals.game;
 
+const maxWidth = 1440;
+
 export default class Metaballs {
 	#canvas;
 	#gl;
@@ -182,10 +184,14 @@ export default class Metaballs {
 
 		const resizeObserver = new ResizeObserver(([entry]) => {
 			const boxSize = entry.borderBoxSize[0];
-			const resolution = window.devicePixelRatio * 1;
-			this.#sceneSize[0] = boxSize.inlineSize / resolution;
-			this.#sceneSize[1] = boxSize.blockSize / resolution;
-			[this.#canvas.width, this.#canvas.height] = this.#sceneSize;
+			let [width, height] = [boxSize.inlineSize, boxSize.blockSize];
+			if (width > maxWidth) {
+				height *= maxWidth / width;
+				width = maxWidth;
+			}
+			this.#sceneSize[0] = width;
+			this.#sceneSize[1] = height;
+			[this.#canvas.width, this.#canvas.height] = [width, height];
 			this.redraw();
 		});
 
