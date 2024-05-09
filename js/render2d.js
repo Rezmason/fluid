@@ -50,7 +50,7 @@ const updateDomElement = (node, scene) => {
 	const style = domElement.style;
 
 	const z = node.globalZ;
-	if (domElement.z !== z) {
+	if (domElement.z !== z || domElement.parentNode == null) {
 		domElement.z = "inserting";
 		insert(scene, domElement, z);
 		domElement.z = z;
@@ -73,16 +73,25 @@ const updateDomElement = (node, scene) => {
 	}
 };
 
-const render2D = (node, scene) => {
+const renderNode = (node, scene, currentElements) => {
 	if (node.art != null) {
 		if (node.domElement == null) {
 			createDomElement(node);
 		}
 		updateDomElement(node, scene);
+		currentElements.delete(node.domElement);
 	}
 
 	for (const child of node.children) {
-		render2D(child, scene);
+		renderNode(child, scene, currentElements);
+	}
+};
+
+const render2D = (node, scene) => {
+	const currentElements = new Set(Array.from(scene.children));
+	renderNode(node, scene, currentElements);
+	for (const domElement of currentElements) {
+		scene.removeChild(domElement);
 	}
 };
 

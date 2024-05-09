@@ -30,6 +30,7 @@ export default class SceneNode {
 
 	removeChild(child) {
 		if (this.children.delete(child)) {
+			child.parent = null;
 			child.handleReparent();
 		}
 		return this;

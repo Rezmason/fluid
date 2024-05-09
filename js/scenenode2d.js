@@ -129,7 +129,7 @@ export default class SceneNode2D extends SceneNode {
 			this.#globalRotation =
 				this.transform.rotation + (this.parent?.globalRotation ?? 0);
 			this.#globalMatrix.set(this.transform.matrix);
-			premultiplyMatrix(this.parent.globalMatrix, this.#globalMatrix);
+			premultiplyMatrix(this.parent?.globalMatrix, this.#globalMatrix);
 			this.#invGlobalMatrix.set(this.#globalMatrix);
 			invertMatrix(this.#invGlobalMatrix);
 			this.transformCSS = matrixToCSSTransform(this.#globalMatrix);

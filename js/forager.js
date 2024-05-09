@@ -189,7 +189,6 @@ export default class Forager {
 		}
 
 		const globalPosition = this.node.globalPosition;
-		oldAlga.node.removeChild(this.node);
 		this.alga.node.addChild(this.node);
 		this.node.globalPosition = globalPosition;
 		const oldPosition = this.node.transform.position;

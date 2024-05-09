@@ -42,6 +42,7 @@ export default class Alga {
 		this.node.transform.position = position;
 
 		this.muck = new SceneNode2D({
+			name: `${this.name}_muck`,
 			tags: ["muck"],
 			art: `<circle r="75" fill="currentColor"></circle>`,
 			z: -3,
@@ -49,6 +50,7 @@ export default class Alga {
 		this.node.addChild(this.muck);
 
 		this.fruit = new SceneNode2D({
+			name: `${this.name}_fruit`,
 			tags: ["fruit"],
 			art: `<circle r="22.5" fill="currentColor"></circle>`,
 		});

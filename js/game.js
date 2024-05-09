@@ -198,9 +198,11 @@ const reset = () => {
 	gameCanEnd = false;
 	feederMetaballs.fadeOut(duration);
 	delay(() => {
+		Globals.isMousePressed = false;
+		updateAlgaeGoalPositions();
+		resetAlgae();
 		resetForagers(algae);
 		resetFeeders();
-		resetAlgae();
 		Globals.numMuckyAlgae = 0;
 		resetting = false;
 		feederMetaballs.fadeIn(duration);
