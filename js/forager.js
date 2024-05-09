@@ -118,6 +118,9 @@ export default class Forager {
 	}
 
 	place(alga) {
+		if (this.alga != null) {
+			this.alga.occupant = null;
+		}
 		alga.occupant = this;
 		this.alga = alga;
 		this.alga.node.addChild(this.node);
